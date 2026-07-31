@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "group": "Sa10:00",
+    "type": "homework",
+    "title": "A1.1 Homework - Lesson 1",
+    "description": "Complete exercises 1 to 5 in the workbook.",
+    "deadline": "2024-08-05",
+    "link": "https://example.com/homework1"
+  },
+  {
+    "id": 2,
+    "group": "Sa12:00",
+    "type": "material",
+    "title": "Grammar Summary - Verbs",
+    "description": "A PDF summary of common German verbs and their conjugations.",
+    "deadline": "-",
+    "link": "https://example.com/material1"
+  },
+  {
+    "id": 3,
+    "group": "Sa01:30",
+    "type": "video",
+    "title": "Pronunciation Video",
+    "description": "Watch this video to improve your German vowels pronunciation.",
+    "deadline": "-",
+    "link": "https://www.youtube.com/watch?v=example"
+  },
+  {
+    "id": 4,
+    "group": "De6:00",
+    "type": "homework",
+    "title": "Writing Task",
+    "description": "Write a short paragraph introducing yourself in German.",
+    "deadline": "2024-08-07",
+    "link": ""
+  }
+]

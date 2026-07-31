@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1,
+    "title": "Meine Familie",
+    "text": "Hallo, ich bin Ahmed. Ich bin 20 Jahre alt und komme aus Ägypten. Ich wohne in Kairo. Meine Familie ist nicht sehr groß. Mein Vater ist Lehrer und meine Mutter ist Ärztin. Ich habe einen Bruder und eine Schwester. Wir sind sehr glücklich.",
+    "translation": "مرحباً، أنا أحمد. عمري 20 عاماً وأنا من مصر. أعيش في القاهرة. عائلتي ليست كبيرة جداً. والدي معلم ووالدتي طبيبة. لدي أخ وأخت. نحن سعداء جداً.",
+    "audio": "audio/stories/story_1.mp3"
+  },
+  {
+    "id": 2,
+    "title": "Mein Tag",
+    "text": "Ich wache jeden Tag um 7 Uhr auf. Zuerst wasche ich mein Gesicht. Dann esse ich mein Frühstück. Ich trinke gern Tee mit Milch. Um 8 Uhr gehe ich zur Schule. Am Nachmittag spiele ich Fußball mit meinen Freunden. Am Abend lese ich ein Buch und gehe früh schlafen.",
+    "translation": "أستيقظ كل يوم في الساعة السابعة. أولاً أغسل وجهي. ثم أتناول إفطاري. أحب شرب الشاي مع الحليب. في الساعة الثامنة أذهب إلى المدرسة. في فترة بعد الظهر ألعب كرة القدم مع أصدقائي. في المساء أقرأ كتاباً وأذهب للنوم مبكراً.",
+    "audio": "audio/stories/story_2.mp3"
+  },
+  {
+    "id": 3,
+    "title": "Das Essen",
+    "text": "Heute ist Sonntag. Meine Mutter kocht das Mittagessen. Es gibt Reis, Hähnchen und Salat. Das Essen schmeckt sehr gut. Mein Bruder isst gern Pizza, aber ich mag Pizza nicht so sehr. Nach dem Essen trinken wir Orangensaft. Zum Nachtisch essen wir einen Apfel oder eine Banane.",
+    "translation": "اليوم هو الأحد. أمي تطبخ الغداء. يوجد أرز، دجاج، وسلطة. الطعام طعمه لذيذ جداً. أخي يحب أكل البيتزا، لكنني لا أحب البيتزا كثيراً. بعد الأكل نشرب عصير البرتقال. للتحلية نأكل تفاحة أو موزة.",
+    "audio": "audio/stories/story_3.mp3"
+  },
+  {
+    "id": 4,
+    "title": "Meine Hobbys",
+    "text": "Ich habe viele Hobbys. Am Wochenende spiele ich oft Gitarre. Ich höre auch gern Musik. Meine Schwester malt sehr schön. Sie malt Blumen und Tiere. Manchmal gehen wir zusammen in den Park. Dort fahren wir Fahrrad. Das macht viel Spaß.",
+    "translation": "لدي الكثير من الهوايات. في عطلة نهاية الأسبوع ألعب الجيتار غالباً. كما أحب الاستماع إلى الموسيقى. أختي ترسم بشكل جميل جداً. هي ترسم الزهور والحيوانات. أحياناً نذهب معاً إلى الحديقة. هناك نركب الدراجة. هذا ممتع جداً.",
+    "audio": "audio/stories/story_4.mp3"
+  },
+  {
+    "id": 5,
+    "title": "Im Supermarkt",
+    "text": "Ich gehe heute einkaufen. Der Supermarkt ist in der Nähe. Ich brauche Brot, Käse und Eier für das Frühstück. Ich kaufe auch Tomaten und Zwiebeln. Das kostet zusammen 15 Euro. Ich bezahle an der Kasse. Die Verkäuferin ist sehr freundlich. Sie sagt: 'Einen schönen Tag noch!'",
+    "translation": "أنا ذاهب للتسوق اليوم. السوبر ماركت قريب. أحتاج إلى خبز، جبن، وبيض من أجل الإفطار. أشتري أيضاً طماطم وبصل. التكلفة الإجمالية 15 يورو. أدفع عند الخزينة. البائعة ودودة جداً. تقول: 'أتمنى لك يوماً سعيداً!'",
+    "audio": "audio/stories/story_5.mp3"
+  },
+  {
+    "id": 6,
+    "title": "Das Wetter",
+    "text": "Es ist Sommer. Das Wetter ist heute sehr heiß und sonnig. Der Himmel ist blau und es gibt keine Wolken. Wir gehen an den Strand und schwimmen im Meer. Im Winter ist es kalt. Manchmal regnet es. Dann bleibe ich zu Hause und trinke heißen Kaffee.",
+    "translation": "إنه فصل الصيف. الطقس اليوم حار جداً ومشمس. السماء زرقاء ولا توجد غيوم. نحن نذهب إلى الشاطئ ونسبح في البحر. في الشتاء يكون الجو بارداً. أحياناً تمطر. حينها أبقى في المنزل وأشرب قهوة ساخنة.",
+    "audio": "audio/stories/story_6.mp3"
+  },
+  {
+    "id": 7,
+    "title": "Mein Haus",
+    "text": "Mein Haus ist neu und schön. Es hat vier Zimmer, eine Küche und ein Badezimmer. Das Wohnzimmer ist groß. Dort steht ein Sofa und ein Fernseher. Mein Schlafzimmer ist klein, aber gemütlich. Ich habe ein Bett und einen Schrank. Hinter dem Haus ist ein kleiner Garten.",
+    "translation": "منزلي جديد وجميل. يحتوي على أربع غرف، مطبخ، وحمام. غرفة المعيشة كبيرة. يوجد هناك أريكة وتلفاز. غرفة نومي صغيرة لكنها مريحة. لدي سرير وخزانة. خلف المنزل توجد حديقة صغيرة.",
+    "audio": "audio/stories/story_7.mp3"
+  },
+  {
+    "id": 8,
+    "title": "Mein Haustier",
+    "text": "Ich liebe Tiere. Ich habe einen Hund. Er heißt Rex. Rex ist braun und sehr schnell. Jeden Morgen gehe ich mit Rex spazieren. Er spielt gern mit einem Ball. Meine Freundin Sara hat eine Katze. Die Katze ist weiß und schläft viel. Tiere sind tolle Freunde.",
+    "translation": "أنا أحب الحيوانات. لدي كلب. اسمه ريكس. ريكس لونه بني وسريع جداً. كل صباح أذهب للتمشية مع ريكس. هو يحب اللعب بالكرة. صديقتي سارة لديها قطة. القطة بيضاء وتنام كثيراً. الحيوانات أصدقاء رائعون.",
+    "audio": "audio/stories/story_8.mp3"
+  },
+  {
+    "id": 9,
+    "title": "Deutsch lernen",
+    "text": "Ich lerne Deutsch in der Sprachschule. Mein Lehrer heißt Herr Müller. Er erklärt die Grammatik sehr gut. Die deutsche Sprache ist ein bisschen schwer, aber interessant. Ich lerne jeden Tag neue Wörter. Ich spreche auch mit meinen Freunden auf Deutsch. Wir machen zusammen unsere Hausaufgaben.",
+    "translation": "أنا أتعلم الألمانية في مدرسة اللغات. معلمي اسمه السيد مولر. هو يشرح القواعد بشكل جيد جداً. اللغة الألمانية صعبة قليلاً، لكنها ممتعة. أتعلم كل يوم كلمات جديدة. أتحدث أيضاً مع أصدقائي بالألمانية. نحن نقوم بعمل واجباتنا المدرسية معاً.",
+    "audio": "audio/stories/story_9.mp3"
+  },
+  {
+    "id": 10,
+    "title": "Meine Stadt",
+    "text": "Ich wohne in einer großen Stadt. Hier gibt es viele Autos und Busse. Die Straßen sind immer voll. In der Stadtmitte gibt es einen großen Platz. Dort gibt es viele Geschäfte und Restaurants. Am Wochenende gehe ich oft ins Kino. Meine Stadt schläft nie.",
+    "translation": "أنا أعيش في مدينة كبيرة. يوجد هنا الكثير من السيارات والحافلات. الشوارع دائماً مزدحمة. في وسط المدينة يوجد ميدان كبير. هناك يوجد الكثير من المتاجر والمطاعم. في عطلة نهاية الأسبوع أذهب غالباً إلى السينما. مدينتي لا تنام أبداً.",
+    "audio": "audio/stories/story_10.mp3"
+  },
+  {
+    "id": 11,
+    "title": "Die Kleidung",
+    "text": "Heute ist eine Party. Ich brauche neue Kleidung. Ich kaufe ein blaues Hemd und eine schwarze Hose. Die Hose ist sehr bequem. Meine Schwester kauft ein rotes Kleid und neue Schuhe. Wir sehen beide sehr gut aus. Die Party beginnt um 20 Uhr. Wir freuen uns sehr.",
+    "translation": "اليوم توجد حفلة. أحتاج إلى ملابس جديدة. أشتري قميصاً أزرق وبنطالاً أسود. البنطال مريح جداً. أختي تشتري فستاناً أحمر وحذاءً جديداً. كلانا نبدو بمظهر جيد جداً. الحفلة تبدأ الساعة الثامنة مساءً. نحن سعداء جداً.",
+    "audio": "audio/stories/story_11.mp3"
+  },
+  {
+    "id": 12,
+    "title": "Die Reise",
+    "text": "Nächste Woche reise ich nach Deutschland. Ich fliege mit dem Flugzeug nach Berlin. Der Flug dauert vier Stunden. Ich habe meinen Koffer schon gepackt. In Berlin besuche ich meinen Onkel. Er zeigt mir die Stadt. Ich möchte auch viele Fotos machen. Das wird eine tolle Reise!",
+    "translation": "الأسبوع القادم سأسافر إلى ألمانيا. سأسافر بالطائرة إلى برلين. الرحلة تستغرق أربع ساعات. لقد قمت بتجهيز حقيبتي بالفعل. في برلين سأزور عمي. هو سيريني المدينة. أريد أيضاً التقاط الكثير من الصور. ستكون رحلة رائعة!",
+    "audio": "audio/stories/story_12.mp3"
+  },
+  {
+    "id": 13,
+    "title": "Beim Arzt",
+    "text": "Ich bin heute krank. Ich habe Kopfschmerzen und Fieber. Ich gehe zum Arzt. Der Arzt ist sehr nett. Er untersucht mich und sagt: 'Du musst im Bett bleiben und viel Wasser trinken.' Er gibt mir auch Medikamente. Ich gehe nach Hause und schlafe. Morgen geht es mir hoffentlich besser.",
+    "translation": "أنا مريض اليوم. لدي صداع وحمى. أذهب إلى الطبيب. الطبيب لطيف جداً. يفحصني ويقول: 'يجب أن تبقى في السرير وتشرب الكثير من الماء.' يعطيني أيضاً أدوية. أذهب إلى المنزل وأنام. غداً سأكون أفضل إن شاء الله.",
+    "audio": "audio/stories/story_13.mp3"
+  },
+  {
+    "id": 14,
+    "title": "Der Geburtstag",
+    "text": "Heute hat mein Freund Ali Geburtstag. Er wird 22 Jahre alt. Wir machen eine Überraschungsparty für ihn. Ich kaufe ein Geschenk. Es ist ein Buch. Wir backen auch einen großen Kuchen mit Schokolade. Am Abend singen wir 'Happy Birthday' und essen den Kuchen. Ali ist sehr glücklich.",
+    "translation": "اليوم عيد ميلاد صديقي علي. سيصبح عمره 22 عاماً. نحن نقوم بعمل حفلة مفاجئة له. أنا أشتري هدية. إنها كتاب. نخبز أيضاً كعكة كبيرة بالشوكولاتة. في المساء نغني 'عيد ميلاد سعيد' ونأكل الكعكة. علي سعيد جداً.",
+    "audio": "audio/stories/story_14.mp3"
+  },
+  {
+    "id": 15,
+    "title": "Das Wochenende",
+    "text": "Endlich ist Wochenende! Am Samstag schlafe ich lange. Dann frühstücke ich mit meiner Familie. Am Nachmittag treffe ich meine Freunde im Café. Wir trinken Kaffee und sprechen viel. Am Sonntag besuche ich meine Großeltern. Meine Oma kocht immer sehr lecker. Das Wochenende ist meine Lieblingszeit.",
+    "translation": "أخيراً عطلة نهاية الأسبوع! يوم السبت أنام لفترة طويلة. ثم أتناول الإفطار مع عائلتي. في فترة بعد الظهر أقابل أصدقائي في المقهى. نشرب القهوة ونتحدث كثيراً. يوم الأحد أزور أجدادي. جدتي تطبخ دائماً طعاماً لذيذاً جداً. عطلة نهاية الأسبوع هي وقتي المفضل.",
+    "audio": "audio/stories/story_15.mp3"
+  }
+]

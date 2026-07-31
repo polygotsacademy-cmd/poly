@@ -1,0 +1,3494 @@
+[
+  {
+    "id": 1,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "null",
+    "pl": "-",
+    "ar": "صفر",
+    "emoji": "0️⃣"
+  },
+  {
+    "id": 2,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "eins",
+    "pl": "-",
+    "ar": "واحد",
+    "emoji": "1️⃣"
+  },
+  {
+    "id": 3,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "zwei",
+    "pl": "-",
+    "ar": "اثنان",
+    "emoji": "2️⃣"
+  },
+  {
+    "id": 4,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "drei",
+    "pl": "-",
+    "ar": "ثلاثة",
+    "emoji": "3️⃣"
+  },
+  {
+    "id": 5,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "vier",
+    "pl": "-",
+    "ar": "أربعة",
+    "emoji": "4️⃣"
+  },
+  {
+    "id": 6,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "fünf",
+    "pl": "-",
+    "ar": "خمسة",
+    "emoji": "5️⃣"
+  },
+  {
+    "id": 7,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "sechs",
+    "pl": "-",
+    "ar": "ستة",
+    "emoji": "6️⃣"
+  },
+  {
+    "id": 8,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "sieben",
+    "pl": "-",
+    "ar": "سبعة",
+    "emoji": "7️⃣"
+  },
+  {
+    "id": 9,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "acht",
+    "pl": "-",
+    "ar": "ثمانية",
+    "emoji": "8️⃣"
+  },
+  {
+    "id": 10,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "neun",
+    "pl": "-",
+    "ar": "تسعة",
+    "emoji": "9️⃣"
+  },
+  {
+    "id": 11,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "zehn",
+    "pl": "-",
+    "ar": "عشرة",
+    "emoji": "🔟"
+  },
+  {
+    "id": 12,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "elf",
+    "pl": "-",
+    "ar": "أحد عشر",
+    "emoji": "1️⃣1️⃣"
+  },
+  {
+    "id": 13,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "zwölf",
+    "pl": "-",
+    "ar": "اثنا عشر",
+    "emoji": "1️⃣2️⃣"
+  },
+  {
+    "id": 14,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "dreizehn",
+    "pl": "-",
+    "ar": "ثلاثة عشر",
+    "emoji": "1️⃣3️⃣"
+  },
+  {
+    "id": 15,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "vierzehn",
+    "pl": "-",
+    "ar": "أربعة عشر",
+    "emoji": "1️⃣4️⃣"
+  },
+  {
+    "id": 16,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "fünfzehn",
+    "pl": "-",
+    "ar": "خمسة عشر",
+    "emoji": "1️⃣5️⃣"
+  },
+  {
+    "id": 17,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "sechzehn",
+    "pl": "-",
+    "ar": "ستة عشر",
+    "emoji": "1️⃣6️⃣"
+  },
+  {
+    "id": 18,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "siebzehn",
+    "pl": "-",
+    "ar": "سبعة عشر",
+    "emoji": "1️⃣7️⃣"
+  },
+  {
+    "id": 19,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "achtzehn",
+    "pl": "-",
+    "ar": "ثمانية عشر",
+    "emoji": "1️⃣8️⃣"
+  },
+  {
+    "id": 20,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "neunzehn",
+    "pl": "-",
+    "ar": "تسعة عشر",
+    "emoji": "1️⃣9️⃣"
+  },
+  {
+    "id": 21,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "zwanzig",
+    "pl": "-",
+    "ar": "عشرون",
+    "emoji": "2️⃣0️⃣"
+  },
+  {
+    "id": 22,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "dreißig",
+    "pl": "-",
+    "ar": "ثلاثون",
+    "emoji": "3️⃣0️⃣"
+  },
+  {
+    "id": 23,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "vierzig",
+    "pl": "-",
+    "ar": "أربعون",
+    "emoji": "4️⃣0️⃣"
+  },
+  {
+    "id": 24,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "fünfzig",
+    "pl": "-",
+    "ar": "خمسون",
+    "emoji": "5️⃣0️⃣"
+  },
+  {
+    "id": 25,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "hundert",
+    "pl": "-",
+    "ar": "مائة",
+    "emoji": "💯"
+  },
+  {
+    "id": 26,
+    "cat": "Zahlen",
+    "art": "",
+    "word": "tausend",
+    "pl": "-",
+    "ar": "ألف",
+    "emoji": "🔢"
+  },
+  {
+    "id": 27,
+    "cat": "Farben",
+    "art": "",
+    "word": "rot",
+    "pl": "-",
+    "ar": "أحمر",
+    "emoji": "🔴"
+  },
+  {
+    "id": 28,
+    "cat": "Farben",
+    "art": "",
+    "word": "blau",
+    "pl": "-",
+    "ar": "أزرق",
+    "emoji": "🔵"
+  },
+  {
+    "id": 29,
+    "cat": "Farben",
+    "art": "",
+    "word": "gelb",
+    "pl": "-",
+    "ar": "أصفر",
+    "emoji": "🟡"
+  },
+  {
+    "id": 30,
+    "cat": "Farben",
+    "art": "",
+    "word": "grün",
+    "pl": "-",
+    "ar": "أخضر",
+    "emoji": "🟢"
+  },
+  {
+    "id": 31,
+    "cat": "Farben",
+    "art": "",
+    "word": "schwarz",
+    "pl": "-",
+    "ar": "أسود",
+    "emoji": "⚫"
+  },
+  {
+    "id": 32,
+    "cat": "Farben",
+    "art": "",
+    "word": "weiß",
+    "pl": "-",
+    "ar": "أبيض",
+    "emoji": "⚪"
+  },
+  {
+    "id": 33,
+    "cat": "Farben",
+    "art": "",
+    "word": "grau",
+    "pl": "-",
+    "ar": "رمادي",
+    "emoji": "🔘"
+  },
+  {
+    "id": 34,
+    "cat": "Farben",
+    "art": "",
+    "word": "braun",
+    "pl": "-",
+    "ar": "بني",
+    "emoji": "🟤"
+  },
+  {
+    "id": 35,
+    "cat": "Farben",
+    "art": "",
+    "word": "orange",
+    "pl": "-",
+    "ar": "برتقالي",
+    "emoji": "🟠"
+  },
+  {
+    "id": 36,
+    "cat": "Farben",
+    "art": "",
+    "word": "rosa",
+    "pl": "-",
+    "ar": "وردي",
+    "emoji": "🌸"
+  },
+  {
+    "id": 37,
+    "cat": "Farben",
+    "art": "",
+    "word": "lila",
+    "pl": "-",
+    "ar": "بنفسجي",
+    "emoji": "🟣"
+  },
+  {
+    "id": 38,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Familie",
+    "pl": "die Familien",
+    "ar": "العائلة",
+    "emoji": "👨‍👩‍👧‍👦"
+  },
+  {
+    "id": 39,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Vater",
+    "pl": "die Väter",
+    "ar": "الأب",
+    "emoji": "👨"
+  },
+  {
+    "id": 40,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Mutter",
+    "pl": "die Mütter",
+    "ar": "الأم",
+    "emoji": "👩"
+  },
+  {
+    "id": 41,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Eltern",
+    "pl": "(فقط جمع)",
+    "ar": "الوالدان",
+    "emoji": "👫"
+  },
+  {
+    "id": 42,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Sohn",
+    "pl": "die Söhne",
+    "ar": "الابن",
+    "emoji": "👦"
+  },
+  {
+    "id": 43,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Tochter",
+    "pl": "die Töchter",
+    "ar": "الابنة",
+    "emoji": "👧"
+  },
+  {
+    "id": 44,
+    "cat": "Familie",
+    "art": "das",
+    "word": "Kind",
+    "pl": "die Kinder",
+    "ar": "الطفل",
+    "emoji": "🧒"
+  },
+  {
+    "id": 45,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Bruder",
+    "pl": "die Brüder",
+    "ar": "الأخ",
+    "emoji": "👦"
+  },
+  {
+    "id": 46,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Schwester",
+    "pl": "die Schwestern",
+    "ar": "الأخت",
+    "emoji": "👧"
+  },
+  {
+    "id": 47,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Geschwister",
+    "pl": "(فقط جمع)",
+    "ar": "الإخوة والأخوات",
+    "emoji": "👦👧"
+  },
+  {
+    "id": 48,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Opa",
+    "pl": "die Opas",
+    "ar": "الجد",
+    "emoji": "👴"
+  },
+  {
+    "id": 49,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Oma",
+    "pl": "die Omas",
+    "ar": "الجدة",
+    "emoji": "👵"
+  },
+  {
+    "id": 50,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Großeltern",
+    "pl": "(فقط جمع)",
+    "ar": "الأجداد",
+    "emoji": "👴👵"
+  },
+  {
+    "id": 51,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Onkel",
+    "pl": "die Onkel",
+    "ar": "العم / الخال",
+    "emoji": "👨"
+  },
+  {
+    "id": 52,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Tante",
+    "pl": "die Tanten",
+    "ar": "العمة / الخالة",
+    "emoji": "👩"
+  },
+  {
+    "id": 53,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Cousin",
+    "pl": "die Cousins",
+    "ar": "ابن العم/الخال",
+    "emoji": "👦"
+  },
+  {
+    "id": 54,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Cousine",
+    "pl": "die Cousinen",
+    "ar": "ابنة العم/الخالة",
+    "emoji": "👧"
+  },
+  {
+    "id": 55,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Mann",
+    "pl": "die Männer",
+    "ar": "الرجل / الزوج",
+    "emoji": "👨"
+  },
+  {
+    "id": 56,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Frau",
+    "pl": "die Frauen",
+    "ar": "المرأة / الزوجة",
+    "emoji": "👩"
+  },
+  {
+    "id": 57,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Junge",
+    "pl": "die Jungen",
+    "ar": "الولد",
+    "emoji": "👦"
+  },
+  {
+    "id": 58,
+    "cat": "Familie",
+    "art": "das",
+    "word": "Mädchen",
+    "pl": "die Mädchen",
+    "ar": "الفتاة",
+    "emoji": "👧"
+  },
+  {
+    "id": 59,
+    "cat": "Familie",
+    "art": "das",
+    "word": "Baby",
+    "pl": "die Babys",
+    "ar": "الرضيع",
+    "emoji": "👶"
+  },
+  {
+    "id": 60,
+    "cat": "Familie",
+    "art": "der",
+    "word": "Freund",
+    "pl": "die Freunde",
+    "ar": "الصديق",
+    "emoji": "👨"
+  },
+  {
+    "id": 61,
+    "cat": "Familie",
+    "art": "die",
+    "word": "Freundin",
+    "pl": "die Freundinnen",
+    "ar": "الصديقة",
+    "emoji": "👩"
+  },
+  {
+    "id": 62,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Zeit",
+    "pl": "die Zeiten",
+    "ar": "الوقت",
+    "emoji": "⏳"
+  },
+  {
+    "id": 63,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Uhr",
+    "pl": "die Uhren",
+    "ar": "الساعة (الآلة)",
+    "emoji": "⌚"
+  },
+  {
+    "id": 64,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Stunde",
+    "pl": "die Stunden",
+    "ar": "الساعة (60 دقيقة)",
+    "emoji": "⌛"
+  },
+  {
+    "id": 65,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Minute",
+    "pl": "die Minuten",
+    "ar": "الدقيقة",
+    "emoji": "⏱️"
+  },
+  {
+    "id": 66,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Sekunde",
+    "pl": "die Sekunden",
+    "ar": "الثانية",
+    "emoji": "⏲️"
+  },
+  {
+    "id": 67,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Tag",
+    "pl": "die Tage",
+    "ar": "اليوم",
+    "emoji": "☀️"
+  },
+  {
+    "id": 68,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Woche",
+    "pl": "die Wochen",
+    "ar": "الأسبوع",
+    "emoji": "📅"
+  },
+  {
+    "id": 69,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Monat",
+    "pl": "die Monate",
+    "ar": "الشهر",
+    "emoji": "📆"
+  },
+  {
+    "id": 70,
+    "cat": "Zeit",
+    "art": "das",
+    "word": "Jahr",
+    "pl": "die Jahre",
+    "ar": "السنة",
+    "emoji": "🗓️"
+  },
+  {
+    "id": 71,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Montag",
+    "pl": "die Montage",
+    "ar": "الإثنين",
+    "emoji": "1️⃣"
+  },
+  {
+    "id": 72,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Dienstag",
+    "pl": "die Dienstage",
+    "ar": "الثلاثاء",
+    "emoji": "2️⃣"
+  },
+  {
+    "id": 73,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Mittwoch",
+    "pl": "die Mittwoche",
+    "ar": "الأربعاء",
+    "emoji": "3️⃣"
+  },
+  {
+    "id": 74,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Donnerstag",
+    "pl": "die Donnerstage",
+    "ar": "الخميس",
+    "emoji": "4️⃣"
+  },
+  {
+    "id": 75,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Freitag",
+    "pl": "die Freitage",
+    "ar": "الجمعة",
+    "emoji": "5️⃣"
+  },
+  {
+    "id": 76,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Samstag",
+    "pl": "die Samstage",
+    "ar": "السبت",
+    "emoji": "6️⃣"
+  },
+  {
+    "id": 77,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Sonntag",
+    "pl": "die Sonntage",
+    "ar": "الأحد",
+    "emoji": "7️⃣"
+  },
+  {
+    "id": 78,
+    "cat": "Zeit",
+    "art": "das",
+    "word": "Wochenende",
+    "pl": "die Wochenenden",
+    "ar": "عطلة نهاية الأسبوع",
+    "emoji": "🎉"
+  },
+  {
+    "id": 79,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Morgen",
+    "pl": "die Morgen",
+    "ar": "الصباح",
+    "emoji": "🌅"
+  },
+  {
+    "id": 80,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Vormittag",
+    "pl": "die Vormittage",
+    "ar": "قبل الظهر",
+    "emoji": "🌤️"
+  },
+  {
+    "id": 81,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Mittag",
+    "pl": "die Mittage",
+    "ar": "الظهر",
+    "emoji": "🌞"
+  },
+  {
+    "id": 82,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Nachmittag",
+    "pl": "die Nachmittage",
+    "ar": "بعد الظهر",
+    "emoji": "⛅"
+  },
+  {
+    "id": 83,
+    "cat": "Zeit",
+    "art": "der",
+    "word": "Abend",
+    "pl": "die Abende",
+    "ar": "المساء",
+    "emoji": "🌆"
+  },
+  {
+    "id": 84,
+    "cat": "Zeit",
+    "art": "die",
+    "word": "Nacht",
+    "pl": "die Nächte",
+    "ar": "الليل",
+    "emoji": "🌃"
+  },
+  {
+    "id": 85,
+    "cat": "Zeit",
+    "art": "",
+    "word": "heute",
+    "pl": "-",
+    "ar": "اليوم",
+    "emoji": "📍"
+  },
+  {
+    "id": 86,
+    "cat": "Zeit",
+    "art": "",
+    "word": "morgen",
+    "pl": "-",
+    "ar": "غداً",
+    "emoji": "🔜"
+  },
+  {
+    "id": 87,
+    "cat": "Zeit",
+    "art": "",
+    "word": "gestern",
+    "pl": "-",
+    "ar": "أمس",
+    "emoji": "🔙"
+  },
+  {
+    "id": 88,
+    "cat": "Basis",
+    "art": "",
+    "word": "Hallo",
+    "pl": "-",
+    "ar": "مرحباً",
+    "emoji": "👋"
+  },
+  {
+    "id": 89,
+    "cat": "Basis",
+    "art": "",
+    "word": "Tschüss",
+    "pl": "-",
+    "ar": "وداعاً",
+    "emoji": "👋"
+  },
+  {
+    "id": 90,
+    "cat": "Basis",
+    "art": "",
+    "word": "Auf Wiedersehen",
+    "pl": "-",
+    "ar": "إلى اللقاء",
+    "emoji": "🤝"
+  },
+  {
+    "id": 91,
+    "cat": "Basis",
+    "art": "",
+    "word": "Danke",
+    "pl": "-",
+    "ar": "شكراً",
+    "emoji": "🙏"
+  },
+  {
+    "id": 92,
+    "cat": "Basis",
+    "art": "",
+    "word": "Bitte",
+    "pl": "-",
+    "ar": "عفواً / من فضلك",
+    "emoji": "🤲"
+  },
+  {
+    "id": 93,
+    "cat": "Basis",
+    "art": "",
+    "word": "Ja",
+    "pl": "-",
+    "ar": "نعم",
+    "emoji": "✅"
+  },
+  {
+    "id": 94,
+    "cat": "Basis",
+    "art": "",
+    "word": "Nein",
+    "pl": "-",
+    "ar": "لا",
+    "emoji": "❌"
+  },
+  {
+    "id": 95,
+    "cat": "Basis",
+    "art": "die",
+    "word": "Entschuldigung",
+    "pl": "die Entschuldigungen",
+    "ar": "معذرة",
+    "emoji": "🙇"
+  },
+  {
+    "id": 96,
+    "cat": "Basis",
+    "art": "der",
+    "word": "Herr",
+    "pl": "die Herren",
+    "ar": "السيد",
+    "emoji": "👨‍💼"
+  },
+  {
+    "id": 97,
+    "cat": "Basis",
+    "art": "der",
+    "word": "Name",
+    "pl": "die Namen",
+    "ar": "الاسم",
+    "emoji": "🏷️"
+  },
+  {
+    "id": 98,
+    "cat": "Basis",
+    "art": "das",
+    "word": "Land",
+    "pl": "die Länder",
+    "ar": "البلد",
+    "emoji": "🌍"
+  },
+  {
+    "id": 99,
+    "cat": "Basis",
+    "art": "die",
+    "word": "Sprache",
+    "pl": "die Sprachen",
+    "ar": "اللغة",
+    "emoji": "🗣️"
+  },
+  {
+    "id": 100,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Tier",
+    "pl": "die Tiere",
+    "ar": "الحيوان",
+    "emoji": "🐾"
+  },
+  {
+    "id": 101,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Hund",
+    "pl": "die Hunde",
+    "ar": "الكلب",
+    "emoji": "🐶"
+  },
+  {
+    "id": 102,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Katze",
+    "pl": "die Katzen",
+    "ar": "القطة",
+    "emoji": "🐱"
+  },
+  {
+    "id": 103,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Maus",
+    "pl": "die Mäuse",
+    "ar": "الفأر",
+    "emoji": "🐭"
+  },
+  {
+    "id": 104,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Vogel",
+    "pl": "die Vögel",
+    "ar": "الطائر",
+    "emoji": "🐦"
+  },
+  {
+    "id": 105,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Fisch",
+    "pl": "die Fische",
+    "ar": "السمكة",
+    "emoji": "🐟"
+  },
+  {
+    "id": 106,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Pferd",
+    "pl": "die Pferde",
+    "ar": "الحصان",
+    "emoji": "🐴"
+  },
+  {
+    "id": 107,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Kuh",
+    "pl": "die Kühe",
+    "ar": "البقرة",
+    "emoji": "🐮"
+  },
+  {
+    "id": 108,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Schaf",
+    "pl": "die Schafe",
+    "ar": "الخروف",
+    "emoji": "🐑"
+  },
+  {
+    "id": 109,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Huhn",
+    "pl": "die Hühner",
+    "ar": "الدجاجة",
+    "emoji": "🐔"
+  },
+  {
+    "id": 110,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Ente",
+    "pl": "die Enten",
+    "ar": "البطة",
+    "emoji": "🦆"
+  },
+  {
+    "id": 111,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Löwe",
+    "pl": "die Löwen",
+    "ar": "الأسد",
+    "emoji": "🦁"
+  },
+  {
+    "id": 112,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Tiger",
+    "pl": "die Tiger",
+    "ar": "النمر",
+    "emoji": "🐯"
+  },
+  {
+    "id": 113,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Elefant",
+    "pl": "die Elefanten",
+    "ar": "الفيل",
+    "emoji": "🐘"
+  },
+  {
+    "id": 114,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Affe",
+    "pl": "die Affen",
+    "ar": "القرد",
+    "emoji": "🐒"
+  },
+  {
+    "id": 115,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Bär",
+    "pl": "die Bären",
+    "ar": "الدب",
+    "emoji": "🐻"
+  },
+  {
+    "id": 116,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Giraffe",
+    "pl": "die Giraffen",
+    "ar": "الزرافة",
+    "emoji": "🦒"
+  },
+  {
+    "id": 117,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Krokodil",
+    "pl": "die Krokodile",
+    "ar": "التمساح",
+    "emoji": "🐊"
+  },
+  {
+    "id": 118,
+    "cat": "Tiere",
+    "art": "das",
+    "word": "Kamel",
+    "pl": "die Kamele",
+    "ar": "الجمل",
+    "emoji": "🐪"
+  },
+  {
+    "id": 119,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Pinguin",
+    "pl": "die Pinguine",
+    "ar": "البطريق",
+    "emoji": "🐧"
+  },
+  {
+    "id": 120,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Delfin",
+    "pl": "die Delfine",
+    "ar": "الدلفين",
+    "emoji": "🐬"
+  },
+  {
+    "id": 121,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Hase",
+    "pl": "die Hasen",
+    "ar": "الأرنب",
+    "emoji": "🐰"
+  },
+  {
+    "id": 122,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Frosch",
+    "pl": "die Frösche",
+    "ar": "الضفدع",
+    "emoji": "🐸"
+  },
+  {
+    "id": 123,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Schlange",
+    "pl": "die Schlangen",
+    "ar": "الثعبان",
+    "emoji": "🐍"
+  },
+  {
+    "id": 124,
+    "cat": "Tiere",
+    "art": "die",
+    "word": "Spinne",
+    "pl": "die Spinnen",
+    "ar": "العنكبوت",
+    "emoji": "🕷️"
+  },
+  {
+    "id": 125,
+    "cat": "Tiere",
+    "art": "der",
+    "word": "Schmetterling",
+    "pl": "die Schmetterlinge",
+    "ar": "الفراشة",
+    "emoji": "🦋"
+  },
+  {
+    "id": 126,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Essen",
+    "pl": "-",
+    "ar": "الطعام",
+    "emoji": "🍽️"
+  },
+  {
+    "id": 127,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Trinken",
+    "pl": "-",
+    "ar": "الشراب",
+    "emoji": "🥤"
+  },
+  {
+    "id": 128,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Wasser",
+    "pl": "-",
+    "ar": "الماء",
+    "emoji": "💧"
+  },
+  {
+    "id": 129,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Brot",
+    "pl": "die Brote",
+    "ar": "الخبز",
+    "emoji": "🍞"
+  },
+  {
+    "id": 130,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Brötchen",
+    "pl": "die Brötchen",
+    "ar": "لفافة الخبز",
+    "emoji": "🥖"
+  },
+  {
+    "id": 131,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Butter",
+    "pl": "-",
+    "ar": "الزبدة",
+    "emoji": "🧈"
+  },
+  {
+    "id": 132,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Käse",
+    "pl": "-",
+    "ar": "الجبن",
+    "emoji": "🧀"
+  },
+  {
+    "id": 133,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Ei",
+    "pl": "die Eier",
+    "ar": "البيضة",
+    "emoji": "🥚"
+  },
+  {
+    "id": 134,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Wurst",
+    "pl": "die Würste",
+    "ar": "النقانق",
+    "emoji": "🌭"
+  },
+  {
+    "id": 135,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Fleisch",
+    "pl": "-",
+    "ar": "اللحم",
+    "emoji": "🥩"
+  },
+  {
+    "id": 136,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Hähnchen",
+    "pl": "die Hähnchen",
+    "ar": "الدجاج",
+    "emoji": "🍗"
+  },
+  {
+    "id": 137,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Apfel",
+    "pl": "die Äpfel",
+    "ar": "التفاحة",
+    "emoji": "🍎"
+  },
+  {
+    "id": 138,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Banane",
+    "pl": "die Bananen",
+    "ar": "الموزة",
+    "emoji": "🍌"
+  },
+  {
+    "id": 139,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Orange",
+    "pl": "die Orangen",
+    "ar": "البرتقالة",
+    "emoji": "🍊"
+  },
+  {
+    "id": 140,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Erdbeere",
+    "pl": "die Erdbeeren",
+    "ar": "الفراولة",
+    "emoji": "🍓"
+  },
+  {
+    "id": 141,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Tomate",
+    "pl": "die Tomaten",
+    "ar": "الطماطم",
+    "emoji": "🍅"
+  },
+  {
+    "id": 142,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Kartoffel",
+    "pl": "die Kartoffeln",
+    "ar": "البطاطس",
+    "emoji": "🥔"
+  },
+  {
+    "id": 143,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Zwiebel",
+    "pl": "die Zwiebeln",
+    "ar": "البصل",
+    "emoji": "🧅"
+  },
+  {
+    "id": 144,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Salat",
+    "pl": "die Salate",
+    "ar": "السلطة",
+    "emoji": "🥗"
+  },
+  {
+    "id": 145,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Gemüse",
+    "pl": "-",
+    "ar": "الخضروات",
+    "emoji": "🥦"
+  },
+  {
+    "id": 146,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Obst",
+    "pl": "-",
+    "ar": "الفاكهة",
+    "emoji": "🍇"
+  },
+  {
+    "id": 147,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Milch",
+    "pl": "-",
+    "ar": "الحليب",
+    "emoji": "🥛"
+  },
+  {
+    "id": 148,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Saft",
+    "pl": "die Säfte",
+    "ar": "العصير",
+    "emoji": "🧃"
+  },
+  {
+    "id": 149,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Tee",
+    "pl": "die Tees",
+    "ar": "الشاي",
+    "emoji": "🍵"
+  },
+  {
+    "id": 150,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Kaffee",
+    "pl": "die Kaffees",
+    "ar": "القهوة",
+    "emoji": "☕"
+  },
+  {
+    "id": 151,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Zucker",
+    "pl": "-",
+    "ar": "السكر",
+    "emoji": "🧂"
+  },
+  {
+    "id": 152,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Salz",
+    "pl": "-",
+    "ar": "الملح",
+    "emoji": "🧂"
+  },
+  {
+    "id": 153,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Reis",
+    "pl": "-",
+    "ar": "الأرز",
+    "emoji": "🍚"
+  },
+  {
+    "id": 154,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Nudel",
+    "pl": "die Nudeln",
+    "ar": "المكرونة",
+    "emoji": "🍝"
+  },
+  {
+    "id": 155,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Suppe",
+    "pl": "die Suppen",
+    "ar": "الحساء",
+    "emoji": "🥣"
+  },
+  {
+    "id": 156,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Pizza",
+    "pl": "die Pizzas",
+    "ar": "البيتزا",
+    "emoji": "🍕"
+  },
+  {
+    "id": 157,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Pommes frites",
+    "pl": "(فقط جمع)",
+    "ar": "البطاطس المقلية",
+    "emoji": "🍟"
+  },
+  {
+    "id": 158,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Kuchen",
+    "pl": "die Kuchen",
+    "ar": "الكعكة",
+    "emoji": "🍰"
+  },
+  {
+    "id": 159,
+    "cat": "Essen",
+    "art": "der",
+    "word": "Keks",
+    "pl": "die Kekse",
+    "ar": "البسكويت",
+    "emoji": "🍪"
+  },
+  {
+    "id": 160,
+    "cat": "Essen",
+    "art": "die",
+    "word": "Schokolade",
+    "pl": "die Schokoladen",
+    "ar": "الشوكولاتة",
+    "emoji": "🍫"
+  },
+  {
+    "id": 161,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Eis",
+    "pl": "-",
+    "ar": "الآيس كريم",
+    "emoji": "🍦"
+  },
+  {
+    "id": 162,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Frühstück",
+    "pl": "die Frühstücke",
+    "ar": "الإفطار",
+    "emoji": "🥞"
+  },
+  {
+    "id": 163,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Mittagessen",
+    "pl": "-",
+    "ar": "الغداء",
+    "emoji": "🍲"
+  },
+  {
+    "id": 164,
+    "cat": "Essen",
+    "art": "das",
+    "word": "Abendessen",
+    "pl": "-",
+    "ar": "العشاء",
+    "emoji": "🍽️"
+  },
+  {
+    "id": 165,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Körper",
+    "pl": "die Körper",
+    "ar": "الجسم",
+    "emoji": "🧍"
+  },
+  {
+    "id": 166,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Kopf",
+    "pl": "die Köpfe",
+    "ar": "الرأس",
+    "emoji": "🗣️"
+  },
+  {
+    "id": 167,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Haar",
+    "pl": "die Haare",
+    "ar": "الشعر",
+    "emoji": "💇"
+  },
+  {
+    "id": 168,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Gesicht",
+    "pl": "die Gesichter",
+    "ar": "الوجه",
+    "emoji": "🙂"
+  },
+  {
+    "id": 169,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Auge",
+    "pl": "die Augen",
+    "ar": "العين",
+    "emoji": "👁️"
+  },
+  {
+    "id": 170,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Ohr",
+    "pl": "die Ohren",
+    "ar": "الأذن",
+    "emoji": "👂"
+  },
+  {
+    "id": 171,
+    "cat": "Körper",
+    "art": "die",
+    "word": "Nase",
+    "pl": "die Nasen",
+    "ar": "الأنف",
+    "emoji": "👃"
+  },
+  {
+    "id": 172,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Mund",
+    "pl": "die Münder",
+    "ar": "الفم",
+    "emoji": "👄"
+  },
+  {
+    "id": 173,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Zahn",
+    "pl": "die Zähne",
+    "ar": "السن",
+    "emoji": "🦷"
+  },
+  {
+    "id": 174,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Hals",
+    "pl": "die Hälse",
+    "ar": "الرقبة",
+    "emoji": "🧣"
+  },
+  {
+    "id": 175,
+    "cat": "Körper",
+    "art": "die",
+    "word": "Schulter",
+    "pl": "die Schultern",
+    "ar": "الكتف",
+    "emoji": "🤷"
+  },
+  {
+    "id": 176,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Arm",
+    "pl": "die Arme",
+    "ar": "الذراع",
+    "emoji": "💪"
+  },
+  {
+    "id": 177,
+    "cat": "Körper",
+    "art": "die",
+    "word": "Hand",
+    "pl": "die Hände",
+    "ar": "اليد",
+    "emoji": "🖐️"
+  },
+  {
+    "id": 178,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Finger",
+    "pl": "die Finger",
+    "ar": "الإصبع",
+    "emoji": "👆"
+  },
+  {
+    "id": 179,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Bauch",
+    "pl": "die Bäuche",
+    "ar": "البطن",
+    "emoji": "🤰"
+  },
+  {
+    "id": 180,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Rücken",
+    "pl": "die Rücken",
+    "ar": "الظهر",
+    "emoji": "🚶"
+  },
+  {
+    "id": 181,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Bein",
+    "pl": "die Beine",
+    "ar": "الساق",
+    "emoji": "🦵"
+  },
+  {
+    "id": 182,
+    "cat": "Körper",
+    "art": "das",
+    "word": "Knie",
+    "pl": "die Knie",
+    "ar": "الركبة",
+    "emoji": "🧎"
+  },
+  {
+    "id": 183,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Fuß",
+    "pl": "die Füße",
+    "ar": "القدم",
+    "emoji": "🦶"
+  },
+  {
+    "id": 184,
+    "cat": "Körper",
+    "art": "der",
+    "word": "Zeh",
+    "pl": "die Zehen",
+    "ar": "إصبع القدم",
+    "emoji": "👣"
+  },
+  {
+    "id": 185,
+    "cat": "Natur",
+    "art": "die",
+    "word": "Natur",
+    "pl": "-",
+    "ar": "الطبيعة",
+    "emoji": "🏞️"
+  },
+  {
+    "id": 186,
+    "cat": "Natur",
+    "art": "die",
+    "word": "Sonne",
+    "pl": "die Sonnen",
+    "ar": "الشمس",
+    "emoji": "☀️"
+  },
+  {
+    "id": 187,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Mond",
+    "pl": "die Monde",
+    "ar": "القمر",
+    "emoji": "🌙"
+  },
+  {
+    "id": 188,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Stern",
+    "pl": "die Sterne",
+    "ar": "النجم",
+    "emoji": "⭐"
+  },
+  {
+    "id": 189,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Himmel",
+    "pl": "die Himmel",
+    "ar": "السماء",
+    "emoji": "🌌"
+  },
+  {
+    "id": 190,
+    "cat": "Natur",
+    "art": "die",
+    "word": "Wolke",
+    "pl": "die Wolken",
+    "ar": "السحابة",
+    "emoji": "☁️"
+  },
+  {
+    "id": 191,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Regen",
+    "pl": "-",
+    "ar": "المطر",
+    "emoji": "🌧️"
+  },
+  {
+    "id": 192,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Schnee",
+    "pl": "-",
+    "ar": "الثلج",
+    "emoji": "❄️"
+  },
+  {
+    "id": 193,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Wind",
+    "pl": "-",
+    "ar": "الرياح",
+    "emoji": "🌬️"
+  },
+  {
+    "id": 194,
+    "cat": "Natur",
+    "art": "das",
+    "word": "Wetter",
+    "pl": "-",
+    "ar": "الطقس",
+    "emoji": "🌤️"
+  },
+  {
+    "id": 195,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Baum",
+    "pl": "die Bäume",
+    "ar": "الشجرة",
+    "emoji": "🌳"
+  },
+  {
+    "id": 196,
+    "cat": "Natur",
+    "art": "die",
+    "word": "Blume",
+    "pl": "die Blumen",
+    "ar": "الزهرة",
+    "emoji": "🌺"
+  },
+  {
+    "id": 197,
+    "cat": "Natur",
+    "art": "das",
+    "word": "Gras",
+    "pl": "-",
+    "ar": "العشب",
+    "emoji": "🌿"
+  },
+  {
+    "id": 198,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Berg",
+    "pl": "die Berge",
+    "ar": "الجبل",
+    "emoji": "⛰️"
+  },
+  {
+    "id": 199,
+    "cat": "Natur",
+    "art": "das",
+    "word": "Meer",
+    "pl": "die Meere",
+    "ar": "البحر",
+    "emoji": "🌊"
+  },
+  {
+    "id": 200,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Fluss",
+    "pl": "die Flüsse",
+    "ar": "النهر",
+    "emoji": "🏞️"
+  },
+  {
+    "id": 201,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Strand",
+    "pl": "die Strände",
+    "ar": "الشاطئ",
+    "emoji": "🏖️"
+  },
+  {
+    "id": 202,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Wald",
+    "pl": "die Wälder",
+    "ar": "الغابة",
+    "emoji": "🌲"
+  },
+  {
+    "id": 203,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Frühling",
+    "pl": "die Frühlinge",
+    "ar": "الربيع",
+    "emoji": "🌷"
+  },
+  {
+    "id": 204,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Sommer",
+    "pl": "die Sommer",
+    "ar": "الصيف",
+    "emoji": "🌞"
+  },
+  {
+    "id": 205,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Herbst",
+    "pl": "die Herbste",
+    "ar": "الخريف",
+    "emoji": "🍂"
+  },
+  {
+    "id": 206,
+    "cat": "Natur",
+    "art": "der",
+    "word": "Winter",
+    "pl": "die Winter",
+    "ar": "الشتاء",
+    "emoji": "⛄"
+  },
+  {
+    "id": 207,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Schule",
+    "pl": "die Schulen",
+    "ar": "المدرسة",
+    "emoji": "🏫"
+  },
+  {
+    "id": 208,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Klasse",
+    "pl": "die Klassen",
+    "ar": "الفصل",
+    "emoji": "👨‍🏫"
+  },
+  {
+    "id": 209,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Lehrer",
+    "pl": "die Lehrer",
+    "ar": "المعلم",
+    "emoji": "👨‍🏫"
+  },
+  {
+    "id": 210,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Lehrerin",
+    "pl": "die Lehrerinnen",
+    "ar": "المعلمة",
+    "emoji": "👩‍🏫"
+  },
+  {
+    "id": 211,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Schüler",
+    "pl": "die Schüler",
+    "ar": "التلميذ",
+    "emoji": "👦"
+  },
+  {
+    "id": 212,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Schülerin",
+    "pl": "die Schülerinnen",
+    "ar": "التلميذة",
+    "emoji": "👧"
+  },
+  {
+    "id": 213,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Buch",
+    "pl": "die Bücher",
+    "ar": "الكتاب",
+    "emoji": "📖"
+  },
+  {
+    "id": 214,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Heft",
+    "pl": "die Hefte",
+    "ar": "الدفتر",
+    "emoji": "📓"
+  },
+  {
+    "id": 215,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Stift",
+    "pl": "die Stifte",
+    "ar": "القلم",
+    "emoji": "🖊️"
+  },
+  {
+    "id": 216,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Bleistift",
+    "pl": "die Bleistifte",
+    "ar": "قلم الرصاص",
+    "emoji": "✏️"
+  },
+  {
+    "id": 217,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Kuli",
+    "pl": "die Kulis",
+    "ar": "قلم الحبر",
+    "emoji": "🖋️"
+  },
+  {
+    "id": 218,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Radiergummi",
+    "pl": "die Radiergummis",
+    "ar": "الممحاة",
+    "emoji": "🧽"
+  },
+  {
+    "id": 219,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Lineal",
+    "pl": "die Lineale",
+    "ar": "المسطرة",
+    "emoji": "📏"
+  },
+  {
+    "id": 220,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Schere",
+    "pl": "die Scheren",
+    "ar": "المقص",
+    "emoji": "✂️"
+  },
+  {
+    "id": 221,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Kleber",
+    "pl": "die Kleber",
+    "ar": "الصمغ",
+    "emoji": "🧴"
+  },
+  {
+    "id": 222,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Mäppchen",
+    "pl": "die Mäppchen",
+    "ar": "المقلمة",
+    "emoji": "👝"
+  },
+  {
+    "id": 223,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Tasche",
+    "pl": "die Taschen",
+    "ar": "الحقيبة",
+    "emoji": "👜"
+  },
+  {
+    "id": 224,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Rucksack",
+    "pl": "die Rucksäcke",
+    "ar": "حقيبة الظهر",
+    "emoji": "🎒"
+  },
+  {
+    "id": 225,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Tafel",
+    "pl": "die Tafeln",
+    "ar": "السبورة",
+    "emoji": "🔲"
+  },
+  {
+    "id": 226,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Tisch",
+    "pl": "die Tische",
+    "ar": "الطاولة",
+    "emoji": "🪑"
+  },
+  {
+    "id": 227,
+    "cat": "Schule",
+    "art": "der",
+    "word": "Stuhl",
+    "pl": "die Stühle",
+    "ar": "الكرسي",
+    "emoji": "🪑"
+  },
+  {
+    "id": 228,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Papier",
+    "pl": "die Papiere",
+    "ar": "الورق",
+    "emoji": "📄"
+  },
+  {
+    "id": 229,
+    "cat": "Schule",
+    "art": "das",
+    "word": "Bild",
+    "pl": "die Bilder",
+    "ar": "الصورة",
+    "emoji": "🖼️"
+  },
+  {
+    "id": 230,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Hausaufgabe",
+    "pl": "die Hausaufgaben",
+    "ar": "الواجب",
+    "emoji": "📝"
+  },
+  {
+    "id": 231,
+    "cat": "Schule",
+    "art": "die",
+    "word": "Pause",
+    "pl": "die Pausen",
+    "ar": "الاستراحة",
+    "emoji": "🔔"
+  },
+  {
+    "id": 232,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Haus",
+    "pl": "die Häuser",
+    "ar": "المنزل",
+    "emoji": "🏠"
+  },
+  {
+    "id": 233,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Wohnung",
+    "pl": "die Wohnungen",
+    "ar": "الشقة",
+    "emoji": "🏢"
+  },
+  {
+    "id": 234,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Zimmer",
+    "pl": "die Zimmer",
+    "ar": "الغرفة",
+    "emoji": "🚪"
+  },
+  {
+    "id": 235,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Wohnzimmer",
+    "pl": "die Wohnzimmer",
+    "ar": "غرفة المعيشة",
+    "emoji": "🛋️"
+  },
+  {
+    "id": 236,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Schlafzimmer",
+    "pl": "die Schlafzimmer",
+    "ar": "غرفة النوم",
+    "emoji": "🛏️"
+  },
+  {
+    "id": 237,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Badezimmer",
+    "pl": "die Badezimmer",
+    "ar": "الحمام",
+    "emoji": "🛁"
+  },
+  {
+    "id": 238,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Küche",
+    "pl": "die Küchen",
+    "ar": "المطبخ",
+    "emoji": "🍳"
+  },
+  {
+    "id": 239,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Garten",
+    "pl": "die Gärten",
+    "ar": "الحديقة",
+    "emoji": "🏡"
+  },
+  {
+    "id": 240,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Balkon",
+    "pl": "die Balkone",
+    "ar": "الشرفة",
+    "emoji": "🌇"
+  },
+  {
+    "id": 241,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Tür",
+    "pl": "die Türen",
+    "ar": "الباب",
+    "emoji": "🚪"
+  },
+  {
+    "id": 242,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Fenster",
+    "pl": "die Fenster",
+    "ar": "النافذة",
+    "emoji": "🪟"
+  },
+  {
+    "id": 243,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Wand",
+    "pl": "die Wände",
+    "ar": "الحائط",
+    "emoji": "🧱"
+  },
+  {
+    "id": 244,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Boden",
+    "pl": "die Böden",
+    "ar": "الأرضية",
+    "emoji": "🟫"
+  },
+  {
+    "id": 245,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Dach",
+    "pl": "die Dächer",
+    "ar": "السقف",
+    "emoji": "🛖"
+  },
+  {
+    "id": 246,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Treppe",
+    "pl": "die Treppen",
+    "ar": "السلم",
+    "emoji": "🪜"
+  },
+  {
+    "id": 247,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Schlüssel",
+    "pl": "die Schlüssel",
+    "ar": "المفتاح",
+    "emoji": "🔑"
+  },
+  {
+    "id": 248,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Bett",
+    "pl": "die Betten",
+    "ar": "السرير",
+    "emoji": "🛌"
+  },
+  {
+    "id": 249,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Schrank",
+    "pl": "die Schränke",
+    "ar": "الخزانة",
+    "emoji": "🗄️"
+  },
+  {
+    "id": 250,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Sofa",
+    "pl": "die Sofas",
+    "ar": "الأريكة",
+    "emoji": "🛋️"
+  },
+  {
+    "id": 251,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Sessel",
+    "pl": "die Sessel",
+    "ar": "الكرسي المريح",
+    "emoji": "🪑"
+  },
+  {
+    "id": 252,
+    "cat": "Haus",
+    "art": "die",
+    "word": "Lampe",
+    "pl": "die Lampen",
+    "ar": "المصباح",
+    "emoji": "💡"
+  },
+  {
+    "id": 253,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Fernseher",
+    "pl": "die Fernseher",
+    "ar": "التلفاز",
+    "emoji": "📺"
+  },
+  {
+    "id": 254,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Computer",
+    "pl": "die Computer",
+    "ar": "الحاسوب",
+    "emoji": "💻"
+  },
+  {
+    "id": 255,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Telefon",
+    "pl": "die Telefone",
+    "ar": "الهاتف",
+    "emoji": "☎️"
+  },
+  {
+    "id": 256,
+    "cat": "Haus",
+    "art": "das",
+    "word": "Handy",
+    "pl": "die Handys",
+    "ar": "المحمول",
+    "emoji": "📱"
+  },
+  {
+    "id": 257,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Spiegel",
+    "pl": "die Spiegel",
+    "ar": "المرآة",
+    "emoji": "🪞"
+  },
+  {
+    "id": 258,
+    "cat": "Haus",
+    "art": "der",
+    "word": "Teppich",
+    "pl": "die Teppiche",
+    "ar": "السجادة",
+    "emoji": "🧎"
+  },
+  {
+    "id": 259,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Stadt",
+    "pl": "die Städte",
+    "ar": "المدينة",
+    "emoji": "🏙️"
+  },
+  {
+    "id": 260,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Dorf",
+    "pl": "die Dörfer",
+    "ar": "القرية",
+    "emoji": "🏘️"
+  },
+  {
+    "id": 261,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Straße",
+    "pl": "die Straßen",
+    "ar": "الشارع",
+    "emoji": "🛣️"
+  },
+  {
+    "id": 262,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Platz",
+    "pl": "die Plätze",
+    "ar": "الميدان",
+    "emoji": "⛲"
+  },
+  {
+    "id": 263,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Auto",
+    "pl": "die Autos",
+    "ar": "السيارة",
+    "emoji": "🚗"
+  },
+  {
+    "id": 264,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Bus",
+    "pl": "die Busse",
+    "ar": "الحافلة",
+    "emoji": "🚌"
+  },
+  {
+    "id": 265,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Zug",
+    "pl": "die Züge",
+    "ar": "القطار",
+    "emoji": "🚂"
+  },
+  {
+    "id": 266,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Fahrrad",
+    "pl": "die Fahrräder",
+    "ar": "الدراجة",
+    "emoji": "🚲"
+  },
+  {
+    "id": 267,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Flugzeug",
+    "pl": "die Flugzeuge",
+    "ar": "الطائرة",
+    "emoji": "✈️"
+  },
+  {
+    "id": 268,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Schiff",
+    "pl": "die Schiffe",
+    "ar": "السفينة",
+    "emoji": "🚢"
+  },
+  {
+    "id": 269,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Bahnhof",
+    "pl": "die Bahnhöfe",
+    "ar": "محطة القطار",
+    "emoji": "🚉"
+  },
+  {
+    "id": 270,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Flughafen",
+    "pl": "die Flughäfen",
+    "ar": "المطار",
+    "emoji": "🛫"
+  },
+  {
+    "id": 271,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Park",
+    "pl": "die Parks",
+    "ar": "الحديقة العامة",
+    "emoji": "🏞️"
+  },
+  {
+    "id": 272,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Spielplatz",
+    "pl": "die Spielplätze",
+    "ar": "ملعب الأطفال",
+    "emoji": "🛝"
+  },
+  {
+    "id": 273,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Zoo",
+    "pl": "die Zoos",
+    "ar": "حديقة الحيوان",
+    "emoji": "🦁"
+  },
+  {
+    "id": 274,
+    "cat": "Orte",
+    "art": "der",
+    "word": "Supermarkt",
+    "pl": "die Supermärkte",
+    "ar": "السوبر ماركت",
+    "emoji": "🛒"
+  },
+  {
+    "id": 275,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Bäckerei",
+    "pl": "die Bäckereien",
+    "ar": "المخبز",
+    "emoji": "🥨"
+  },
+  {
+    "id": 276,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Apotheke",
+    "pl": "die Apotheken",
+    "ar": "الصيدلية",
+    "emoji": "💊"
+  },
+  {
+    "id": 277,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Krankenhaus",
+    "pl": "die Krankenhäuser",
+    "ar": "المستشفى",
+    "emoji": "🏥"
+  },
+  {
+    "id": 278,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Polizei",
+    "pl": "-",
+    "ar": "الشرطة",
+    "emoji": "🚓"
+  },
+  {
+    "id": 279,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Post",
+    "pl": "-",
+    "ar": "البريد",
+    "emoji": "📮"
+  },
+  {
+    "id": 280,
+    "cat": "Orte",
+    "art": "die",
+    "word": "Bank",
+    "pl": "die Banken",
+    "ar": "البنك",
+    "emoji": "🏦"
+  },
+  {
+    "id": 281,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Restaurant",
+    "pl": "die Restaurants",
+    "ar": "المطعم",
+    "emoji": "🍽️"
+  },
+  {
+    "id": 282,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Kino",
+    "pl": "die Kinos",
+    "ar": "السينما",
+    "emoji": "🍿"
+  },
+  {
+    "id": 283,
+    "cat": "Orte",
+    "art": "das",
+    "word": "Schwimmbad",
+    "pl": "die Schwimmbäder",
+    "ar": "المسبح",
+    "emoji": "🏊"
+  },
+  {
+    "id": 284,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Kleidung",
+    "pl": "-",
+    "ar": "الملابس",
+    "emoji": "👗"
+  },
+  {
+    "id": 285,
+    "cat": "Kleidung",
+    "art": "das",
+    "word": "T-Shirt",
+    "pl": "die T-Shirts",
+    "ar": "التيشيرت",
+    "emoji": "👕"
+  },
+  {
+    "id": 286,
+    "cat": "Kleidung",
+    "art": "das",
+    "word": "Hemd",
+    "pl": "die Hemden",
+    "ar": "القميص",
+    "emoji": "👔"
+  },
+  {
+    "id": 287,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Hose",
+    "pl": "die Hosen",
+    "ar": "البنطال",
+    "emoji": "👖"
+  },
+  {
+    "id": 288,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Jeans",
+    "pl": "die Jeans",
+    "ar": "الجينز",
+    "emoji": "👖"
+  },
+  {
+    "id": 289,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Pullover",
+    "pl": "die Pullover",
+    "ar": "البلوفر",
+    "emoji": "🧥"
+  },
+  {
+    "id": 290,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Jacke",
+    "pl": "die Jacken",
+    "ar": "الجاكيت",
+    "emoji": "🧥"
+  },
+  {
+    "id": 291,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Mantel",
+    "pl": "die Mäntel",
+    "ar": "المعطف",
+    "emoji": "🧥"
+  },
+  {
+    "id": 292,
+    "cat": "Kleidung",
+    "art": "das",
+    "word": "Kleid",
+    "pl": "die Kleider",
+    "ar": "الفستان",
+    "emoji": "👗"
+  },
+  {
+    "id": 293,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Rock",
+    "pl": "die Röcke",
+    "ar": "التنورة",
+    "emoji": "👗"
+  },
+  {
+    "id": 294,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Schuh",
+    "pl": "die Schuhe",
+    "ar": "الحذاء",
+    "emoji": "👞"
+  },
+  {
+    "id": 295,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Sportschuh",
+    "pl": "die Sportschuhe",
+    "ar": "الحذاء الرياضي",
+    "emoji": "👟"
+  },
+  {
+    "id": 296,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Socke",
+    "pl": "die Socken",
+    "ar": "الجورب",
+    "emoji": "🧦"
+  },
+  {
+    "id": 297,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Hut",
+    "pl": "die Hüte",
+    "ar": "القبعة الكلاسيكية",
+    "emoji": "🎩"
+  },
+  {
+    "id": 298,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Mütze",
+    "pl": "die Mützen",
+    "ar": "القبعة الشتوية",
+    "emoji": "🧢"
+  },
+  {
+    "id": 299,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Schal",
+    "pl": "die Schals",
+    "ar": "الوشاح",
+    "emoji": "🧣"
+  },
+  {
+    "id": 300,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Handschuh",
+    "pl": "die Handschuhe",
+    "ar": "القفاز",
+    "emoji": "🧤"
+  },
+  {
+    "id": 301,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Gürtel",
+    "pl": "die Gürtel",
+    "ar": "الحزام",
+    "emoji": "🎗️"
+  },
+  {
+    "id": 302,
+    "cat": "Kleidung",
+    "art": "der",
+    "word": "Schlafanzug",
+    "pl": "die Schlafanzüge",
+    "ar": "البيجامة",
+    "emoji": "🛌"
+  },
+  {
+    "id": 303,
+    "cat": "Kleidung",
+    "art": "die",
+    "word": "Brille",
+    "pl": "die Brillen",
+    "ar": "النظارة",
+    "emoji": "👓"
+  },
+  {
+    "id": 304,
+    "cat": "Verben",
+    "art": "",
+    "word": "sein",
+    "pl": "-",
+    "ar": "يكون",
+    "emoji": "✨"
+  },
+  {
+    "id": 305,
+    "cat": "Verben",
+    "art": "",
+    "word": "haben",
+    "pl": "-",
+    "ar": "يملك / لديه",
+    "emoji": "🤲"
+  },
+  {
+    "id": 306,
+    "cat": "Verben",
+    "art": "",
+    "word": "machen",
+    "pl": "-",
+    "ar": "يفعل / يصنع",
+    "emoji": "🛠️"
+  },
+  {
+    "id": 307,
+    "cat": "Verben",
+    "art": "",
+    "word": "gehen",
+    "pl": "-",
+    "ar": "يذهب",
+    "emoji": "🚶"
+  },
+  {
+    "id": 308,
+    "cat": "Verben",
+    "art": "",
+    "word": "kommen",
+    "pl": "-",
+    "ar": "يأتي",
+    "emoji": "🏃"
+  },
+  {
+    "id": 309,
+    "cat": "Verben",
+    "art": "",
+    "word": "heißen",
+    "pl": "-",
+    "ar": "يُدعى / يُسمى",
+    "emoji": "🏷️"
+  },
+  {
+    "id": 310,
+    "cat": "Verben",
+    "art": "",
+    "word": "sprechen",
+    "pl": "-",
+    "ar": "يتحدث",
+    "emoji": "🗣️"
+  },
+  {
+    "id": 311,
+    "cat": "Verben",
+    "art": "",
+    "word": "lernen",
+    "pl": "-",
+    "ar": "يتعلم",
+    "emoji": "📚"
+  },
+  {
+    "id": 312,
+    "cat": "Verben",
+    "art": "",
+    "word": "spielen",
+    "pl": "-",
+    "ar": "يلعب",
+    "emoji": "🎮"
+  },
+  {
+    "id": 313,
+    "cat": "Verben",
+    "art": "",
+    "word": "essen",
+    "pl": "-",
+    "ar": "يأكل",
+    "emoji": "🍽️"
+  },
+  {
+    "id": 314,
+    "cat": "Verben",
+    "art": "",
+    "word": "trinken",
+    "pl": "-",
+    "ar": "يشرب",
+    "emoji": "🥤"
+  },
+  {
+    "id": 315,
+    "cat": "Verben",
+    "art": "",
+    "word": "schlafen",
+    "pl": "-",
+    "ar": "ينام",
+    "emoji": "😴"
+  },
+  {
+    "id": 316,
+    "cat": "Verben",
+    "art": "",
+    "word": "aufwachen",
+    "pl": "-",
+    "ar": "يستيقظ",
+    "emoji": "🥱"
+  },
+  {
+    "id": 317,
+    "cat": "Verben",
+    "art": "",
+    "word": "lesen",
+    "pl": "-",
+    "ar": "يقرأ",
+    "emoji": "📖"
+  },
+  {
+    "id": 318,
+    "cat": "Verben",
+    "art": "",
+    "word": "schreiben",
+    "pl": "-",
+    "ar": "يكتب",
+    "emoji": "✍️"
+  },
+  {
+    "id": 319,
+    "cat": "Verben",
+    "art": "",
+    "word": "hören",
+    "pl": "-",
+    "ar": "يسمع",
+    "emoji": "👂"
+  },
+  {
+    "id": 320,
+    "cat": "Verben",
+    "art": "",
+    "word": "sehen",
+    "pl": "-",
+    "ar": "يرى / يشاهد",
+    "emoji": "👀"
+  },
+  {
+    "id": 321,
+    "cat": "Verben",
+    "art": "",
+    "word": "kaufen",
+    "pl": "-",
+    "ar": "يشتري",
+    "emoji": "🛒"
+  },
+  {
+    "id": 322,
+    "cat": "Verben",
+    "art": "",
+    "word": "brauchen",
+    "pl": "-",
+    "ar": "يحتاج",
+    "emoji": "🆘"
+  },
+  {
+    "id": 323,
+    "cat": "Verben",
+    "art": "",
+    "word": "mögen",
+    "pl": "-",
+    "ar": "يحب",
+    "emoji": "❤️"
+  },
+  {
+    "id": 324,
+    "cat": "Verben",
+    "art": "",
+    "word": "möchten",
+    "pl": "-",
+    "ar": "يرغب / يود",
+    "emoji": "💭"
+  },
+  {
+    "id": 325,
+    "cat": "Verben",
+    "art": "",
+    "word": "können",
+    "pl": "-",
+    "ar": "يستطيع",
+    "emoji": "💪"
+  },
+  {
+    "id": 326,
+    "cat": "Verben",
+    "art": "",
+    "word": "müssen",
+    "pl": "-",
+    "ar": "يجب",
+    "emoji": "❗"
+  },
+  {
+    "id": 327,
+    "cat": "Verben",
+    "art": "",
+    "word": "helfen",
+    "pl": "-",
+    "ar": "يساعد",
+    "emoji": "🤝"
+  },
+  {
+    "id": 328,
+    "cat": "Verben",
+    "art": "",
+    "word": "arbeiten",
+    "pl": "-",
+    "ar": "يعمل",
+    "emoji": "💼"
+  },
+  {
+    "id": 329,
+    "cat": "Verben",
+    "art": "",
+    "word": "wohnen",
+    "pl": "-",
+    "ar": "يسكن / يعيش",
+    "emoji": "🏠"
+  },
+  {
+    "id": 330,
+    "cat": "Verben",
+    "art": "",
+    "word": "fliegen",
+    "pl": "-",
+    "ar": "يطير / يسافر",
+    "emoji": "✈️"
+  },
+  {
+    "id": 331,
+    "cat": "Verben",
+    "art": "",
+    "word": "schwimmen",
+    "pl": "-",
+    "ar": "يسبح",
+    "emoji": "🏊"
+  },
+  {
+    "id": 332,
+    "cat": "Verben",
+    "art": "",
+    "word": "singen",
+    "pl": "-",
+    "ar": "يغني",
+    "emoji": "🎤"
+  },
+  {
+    "id": 333,
+    "cat": "Verben",
+    "art": "",
+    "word": "tanzen",
+    "pl": "-",
+    "ar": "يرقص",
+    "emoji": "💃"
+  },
+  {
+    "id": 334,
+    "cat": "Verben",
+    "art": "",
+    "word": "malen",
+    "pl": "-",
+    "ar": "يرسم (بالألوان)",
+    "emoji": "🎨"
+  },
+  {
+    "id": 335,
+    "cat": "Verben",
+    "art": "",
+    "word": "zeichnen",
+    "pl": "-",
+    "ar": "يرسم (بالقلم)",
+    "emoji": "✏️"
+  },
+  {
+    "id": 336,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "groß",
+    "pl": "-",
+    "ar": "كبير",
+    "emoji": "🐘"
+  },
+  {
+    "id": 337,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "klein",
+    "pl": "-",
+    "ar": "صغير",
+    "emoji": "🐁"
+  },
+  {
+    "id": 338,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "gut",
+    "pl": "-",
+    "ar": "جيد",
+    "emoji": "👍"
+  },
+  {
+    "id": 339,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "schlecht",
+    "pl": "-",
+    "ar": "سيئ",
+    "emoji": "👎"
+  },
+  {
+    "id": 340,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "heiß",
+    "pl": "-",
+    "ar": "حار",
+    "emoji": "🔥"
+  },
+  {
+    "id": 341,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "kalt",
+    "pl": "-",
+    "ar": "بارد",
+    "emoji": "🧊"
+  },
+  {
+    "id": 342,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "schnell",
+    "pl": "-",
+    "ar": "سريع",
+    "emoji": "🐇"
+  },
+  {
+    "id": 343,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "langsam",
+    "pl": "-",
+    "ar": "بطيء",
+    "emoji": "🐢"
+  },
+  {
+    "id": 344,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "laut",
+    "pl": "-",
+    "ar": "عالي الصوت",
+    "emoji": "🔊"
+  },
+  {
+    "id": 345,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "leise",
+    "pl": "-",
+    "ar": "هادئ",
+    "emoji": "🔈"
+  },
+  {
+    "id": 346,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "schön",
+    "pl": "-",
+    "ar": "جميل",
+    "emoji": "✨"
+  },
+  {
+    "id": 347,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "hässlich",
+    "pl": "-",
+    "ar": "قبيح",
+    "emoji": "🧟"
+  },
+  {
+    "id": 348,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "neu",
+    "pl": "-",
+    "ar": "جديد",
+    "emoji": "🆕"
+  },
+  {
+    "id": 349,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "alt",
+    "pl": "-",
+    "ar": "قديم / عجوز",
+    "emoji": "👴"
+  },
+  {
+    "id": 350,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "jung",
+    "pl": "-",
+    "ar": "شاب",
+    "emoji": "👦"
+  },
+  {
+    "id": 351,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "schwer",
+    "pl": "-",
+    "ar": "ثقيل / صعب",
+    "emoji": "🏋️"
+  },
+  {
+    "id": 352,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "leicht",
+    "pl": "-",
+    "ar": "خفيف / سهل",
+    "emoji": "🎈"
+  },
+  {
+    "id": 353,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "richtig",
+    "pl": "-",
+    "ar": "صحيح",
+    "emoji": "✅"
+  },
+  {
+    "id": 354,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "falsch",
+    "pl": "-",
+    "ar": "خطأ",
+    "emoji": "❌"
+  },
+  {
+    "id": 355,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "glücklich",
+    "pl": "-",
+    "ar": "سعيد",
+    "emoji": "😊"
+  },
+  {
+    "id": 356,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "traurig",
+    "pl": "-",
+    "ar": "حزين",
+    "emoji": "😢"
+  },
+  {
+    "id": 357,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "müde",
+    "pl": "-",
+    "ar": "متعب",
+    "emoji": "🥱"
+  },
+  {
+    "id": 358,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "krank",
+    "pl": "-",
+    "ar": "مريض",
+    "emoji": "🤒"
+  },
+  {
+    "id": 359,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "gesund",
+    "pl": "-",
+    "ar": "بصحة جيدة",
+    "emoji": "💪"
+  },
+  {
+    "id": 360,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "sauber",
+    "pl": "-",
+    "ar": "نظيف",
+    "emoji": "🧼"
+  },
+  {
+    "id": 361,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "schmutzig",
+    "pl": "-",
+    "ar": "متسخ",
+    "emoji": "💩"
+  },
+  {
+    "id": 362,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "voll",
+    "pl": "-",
+    "ar": "ممتلئ",
+    "emoji": "🌕"
+  },
+  {
+    "id": 363,
+    "cat": "Adjektive",
+    "art": "",
+    "word": "leer",
+    "pl": "-",
+    "ar": "فارغ",
+    "emoji": "🌑"
+  },
+  {
+    "id": 364,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "ich",
+    "pl": "-",
+    "ar": "أنا",
+    "emoji": "🙋‍♂️"
+  },
+  {
+    "id": 365,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "du",
+    "pl": "-",
+    "ar": "أنتَ / أنتِ",
+    "emoji": "👉"
+  },
+  {
+    "id": 366,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "er",
+    "pl": "-",
+    "ar": "هو",
+    "emoji": "👨"
+  },
+  {
+    "id": 367,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "sie",
+    "pl": "-",
+    "ar": "هي",
+    "emoji": "👩"
+  },
+  {
+    "id": 368,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "es",
+    "pl": "-",
+    "ar": "هو / هي (للمحايد)",
+    "emoji": "👶"
+  },
+  {
+    "id": 369,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "wir",
+    "pl": "-",
+    "ar": "نحن",
+    "emoji": "🫂"
+  },
+  {
+    "id": 370,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "ihr",
+    "pl": "-",
+    "ar": "أنتم",
+    "emoji": "👨‍👩‍👧‍👦"
+  },
+  {
+    "id": 371,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "sie",
+    "pl": "-",
+    "ar": "هم / هن",
+    "emoji": "👥"
+  },
+  {
+    "id": 372,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "Sie",
+    "pl": "-",
+    "ar": "حضرتك",
+    "emoji": "🤝"
+  },
+  {
+    "id": 373,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "mein",
+    "pl": "-",
+    "ar": "ملكي",
+    "emoji": "🎒"
+  },
+  {
+    "id": 374,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "dein",
+    "pl": "-",
+    "ar": "ملكك",
+    "emoji": "🎁"
+  },
+  {
+    "id": 375,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "in",
+    "pl": "-",
+    "ar": "في / بداخل",
+    "emoji": "📦"
+  },
+  {
+    "id": 376,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "auf",
+    "pl": "-",
+    "ar": "على / فوق",
+    "emoji": "🔛"
+  },
+  {
+    "id": 377,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "unter",
+    "pl": "-",
+    "ar": "تحت",
+    "emoji": "🔽"
+  },
+  {
+    "id": 378,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "über",
+    "pl": "-",
+    "ar": "فوق (غير ملامس)",
+    "emoji": "⬆️"
+  },
+  {
+    "id": 379,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "neben",
+    "pl": "-",
+    "ar": "بجوار",
+    "emoji": "↔️"
+  },
+  {
+    "id": 380,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "vor",
+    "pl": "-",
+    "ar": "أمام",
+    "emoji": "🚶‍♂️"
+  },
+  {
+    "id": 381,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "hinter",
+    "pl": "-",
+    "ar": "خلف",
+    "emoji": "🔙"
+  },
+  {
+    "id": 382,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "zwischen",
+    "pl": "-",
+    "ar": "بين",
+    "emoji": "🥪"
+  },
+  {
+    "id": 383,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "mit",
+    "pl": "-",
+    "ar": "مع / بـ",
+    "emoji": "➕"
+  },
+  {
+    "id": 384,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "ohne",
+    "pl": "-",
+    "ar": "بدون",
+    "emoji": "➖"
+  },
+  {
+    "id": 385,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "für",
+    "pl": "-",
+    "ar": "لـ / من أجل",
+    "emoji": "🎁"
+  },
+  {
+    "id": 386,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "und",
+    "pl": "-",
+    "ar": "و",
+    "emoji": "🔗"
+  },
+  {
+    "id": 387,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "oder",
+    "pl": "-",
+    "ar": "أو",
+    "emoji": "🔀"
+  },
+  {
+    "id": 388,
+    "cat": "Grammatik",
+    "art": "",
+    "word": "aber",
+    "pl": "-",
+    "ar": "لكن",
+    "emoji": "🛑"
+  }
+]

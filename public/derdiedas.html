@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polyglots Academy - Der Die Das</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+/* ==================== POWER-UPS ==================== */
+.powerup-item {
+    background: linear-gradient(135deg, #fff, #FFF3B0) !important;
+    border: 3px solid var(--yellow) !important;
+    /* تم إزالة السطر الذي كان يمنع النزول */
+}
+.powerup-item.mystery {
+    background: linear-gradient(135deg, #E0C3FC, #8EC5FC) !important;
+    border: 3px solid #A78BFA !important;
+}
+.powerup-item strong { font-size: 35px !important; }
+
+
+/* ============================================================
+   Candy Pop Playground — Enhanced Kid-Friendly Design v3
+   Added: Avatars, Pause, Streaks, Error Review, TTS
+   ============================================================ */
+
+:root {
+    --coral: #FF6B6B; --coral-dark: #E55A5A;
+    --pink: #EE5A6F; --pink-dark: #D44A5F;
+    --mint: #51CF66; --mint-dark: #3CBF55;
+    --blue: #4DABF7; --blue-dark: #339AF0;
+    --yellow: #FFD93D; --yellow-dark: #E6C235;
+    --navy: #2C3E50;
+    --bg-top: #E8F4FD; --bg-mid: #DAEFFF; --bg-bottom: #C4E4FF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Nunito', sans-serif;
+    user-select: none; overflow: hidden; height: 100vh;
+    background: linear-gradient(180deg, var(--bg-top ) 0%, var(--bg-mid) 40%, var(--bg-bottom) 100%);
+}
+
+/* ==================== FLOATING DECORATIONS ==================== */
+@keyframes float-gentle { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(5deg); } }
+.article-bubble { position: absolute; font-family: 'Fredoka One', cursive; font-size: 22px; color: white; padding: 8px 18px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); pointer-events: none; z-index: 0; }
+.article-bubble.der { background: linear-gradient(135deg, #FF8080, var(--coral)); animation: float-gentle 5s ease-in-out infinite; }
+.article-bubble.die { background: linear-gradient(135deg, #FF7088, var(--pink)); animation: float-gentle 6s ease-in-out infinite reverse; }
+.article-bubble.das { background: linear-gradient(135deg, #69F0AE, var(--mint)); animation: float-gentle 5.5s ease-in-out infinite; }
+
+/* ==================== SCREENS ==================== */
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(6px); background: rgba(232,244,253,0.92); }
+#game-over-screen, #win-screen, #pause-screen { display: none; }
+#pause-screen { background: rgba(44,62,80,0.8); color: white; z-index: 200; }
+
+/* ==================== TITLE & AVATARS ==================== */
+.poly-title { font-family: 'Fredoka One', cursive; font-size: 60px; text-align: center; line-height: 1.15; margin-bottom: 10px; z-index: 10; }
+.poly-title span:first-of-type { color: var(--coral); }
+.poly-title span:last-of-type { color: var(--blue); }
+.subtitle { font-size: 20px; color: var(--navy); font-weight: 700; margin-bottom: 20px; text-align: center; z-index: 10; }
+
+.avatar-selector { display: flex; gap: 15px; margin-bottom: 25px; z-index: 10; background: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+.avatar-option { font-size: 40px; cursor: pointer; transition: 0.2s; filter: grayscale(100%); opacity: 0.5; }
+.avatar-option:hover { transform: scale(1.1); }
+.avatar-option.active { filter: grayscale(0%); opacity: 1; transform: scale(1.2); animation: float-gentle 2s infinite; }
+
+.btn-start { font-family: 'Fredoka One', cursive; background: linear-gradient(135deg, var(--coral), var(--pink)); color: white; border: none; padding: 15px 45px; font-size: 26px; border-radius: 60px; cursor: pointer; transition: 0.2s; box-shadow: 0 8px 0 var(--coral-dark); z-index: 10; }
+.btn-start:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--coral-dark); }
+
+/* ==================== GAME UI ==================== */
+#game-ui { display: none; width: 100%; height: 100vh; position: relative; }
+#top-bar { position: absolute; top: 12px; left: 0; width: 100%; display: flex; justify-content: center; flex-wrap: wrap; z-index: 10; gap: 10px; padding: 0 15px; }
+.badge { background: white; color: var(--navy); padding: 8px 15px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.badge span { font-family: 'Fredoka One', cursive; font-size: 20px; }
+#score-badge span { color: var(--yellow); }
+#streak-badge { display: none; background: linear-gradient(135deg, #FF9A9E, #FECFEF); border: 2px solid var(--coral); animation: pulse 1s infinite; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+.btn-pause { background: var(--blue); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 var(--blue-dark); position: absolute; right: 15px; top: 12px; z-index: 15; }
+.btn-pause:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--blue-dark); }
+
+/* ==================== GAME AREA ==================== */
+#game-area { position: absolute; top: 0; left: 0; width: 100%; height: calc(100vh - 95px); overflow: hidden; z-index: 2; }
+.falling-word { position: absolute; top: -110px; background: white; padding: 10px 22px; border-radius: 22px; text-align: center; animation: fall linear forwards; box-shadow: 0 8px 25px rgba(44,62,80,0.12); border: 3px solid rgba(44,62,80,0.08); transition: transform 0.2s; }
+.falling-word strong { font-family: 'Fredoka One', cursive; font-size: 24px; color: var(--navy); display: block; }
+.falling-word span { font-size: 30px; display: block; margin-top: 2px; }
+.falling-word.plural-tag::after { content: '(Plural)'; font-size: 12px; color: var(--pink); font-weight: bold; display: block; }
+@keyframes fall { to { top: 105%; } }
+
+/* ==================== MASCOT ==================== */
+#mascot-container { position: absolute; bottom: 110px; right: 22px; z-index: 5; display: flex; flex-direction: column; align-items: center; }
+#speech-bubble { display: none; background: white; color: var(--coral); padding: 8px 18px; border-radius: 20px; font-weight: 800; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2.5px solid var(--coral); }
+#mascot { font-size: 70px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15)); transition: 0.3s; }
+
+/* ==================== CONTROLS ==================== */
+#controls { position: absolute; bottom: 8px; left: 0; width: 100%; display: flex; justify-content: center; gap: 14px; z-index: 10; padding: 0 18px; }
+.control-btn { font-family: 'Fredoka One', cursive; flex: 1; max-width: 190px; height: 76px; font-size: 32px; color: white; border: none; border-radius: 26px; cursor: pointer; box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+#btn-der { background: var(--coral); } #btn-die { background: var(--pink); } #btn-das { background: var(--mint); }
+.control-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+/* ==================== MISTAKES REVIEW ==================== */
+.mistakes-container { background: white; border-radius: 20px; padding: 15px; margin: 15px 0; max-height: 180px; overflow-y: auto; width: 90%; max-width: 400px; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+.mistake-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 2px dashed #eee; font-weight: 700; font-size: 18px; }
+.mistake-item:last-child { border-bottom: none; }
+.mistake-wrong { color: var(--coral); text-decoration: line-through; font-size: 14px; margin-right: 10px;}
+.mistake-correct { color: var(--mint-dark); font-family: 'Fredoka One', cursive; }
+
+@media (max-width: 500px) {
+    .poly-title { font-size: 42px; }
+    .control-btn { height: 66px; font-size: 26px; }
+    #mascot { font-size: 55px; }
+    .avatar-option { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="start-screen" class="screen">
+    <div class="article-bubble der" style="top:15%;left:10%;">DER</div>
+    <div class="article-bubble die" style="top:25%;right:15%;">DIE</div>
+    <div class="article-bubble das" style="bottom:20%;left:15%;">DAS</div>
+    
+    <div class="poly-title"><span>Polyglots</span>  
+<span>Academy</span></div>
+    <p class="subtitle">Wähle deinen Avatar!</p>
+    
+    <div class="avatar-selector">
+        <span class="avatar-option active" onclick="selectAvatar('🤖', this)">🤖</span>
+        <span class="avatar-option" onclick="selectAvatar('🐱', this)">🐱</span>
+        <span class="avatar-option" onclick="selectAvatar('🥷', this)">🥷</span>
+        <span class="avatar-option" onclick="selectAvatar('🧑‍🚀', this)">🧑‍🚀</span>
+        <span class="avatar-option" onclick="selectAvatar('👾', this)">👾</span>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Los geht's! 🚀</button>
+</div>
+
+<!-- PAUSE SCREEN -->
+<div id="pause-screen" class="screen">
+    <h1 style="font-family: 'Fredoka One'; font-size: 50px; margin-bottom: 20px;">Pause ⏸️</h1>
+    <button class="btn-start" onclick="togglePause()">Weiter spielen ▶️</button>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div id="game-over-screen" class="screen">
+    <h1 style="font-family: 'Fredoka One'; font-size: 50px; color: var(--coral);">Spiel vorbei! 😢</h1>
+    <p style="font-size: 22px; font-weight: bold; margin-top: 10px;">Punkte: <span id="final-score" style="color: var(--yellow); font-size: 30px;">0</span> 🪙</p>
+    
+    <div class="mistakes-container" id="go-mistakes"></div>
+
+    <button class="btn-start" onclick="restartGame()" style="margin-top: 10px;">Nochmal 🔄</button>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="win-screen" class="screen">
+    <h1 style="font-family: 'Fredoka One'; font-size: 50px; color: var(--mint);">Gewonnen! 🎉</h1>
+    <p style="font-size: 22px; font-weight: bold; margin-top: 10px;">Punkte: <span id="win-score" style="color: var(--yellow); font-size: 30px;">0</span> 🪙</p>
+    
+    <div class="mistakes-container" id="win-mistakes"></div>
+
+    <button class="btn-start" onclick="restartGame()" style="margin-top: 10px;">Nochmal 🔄</button>
+</div>
+
+<!-- GAME UI -->
+<div id="game-ui">
+    <div id="top-bar">
+        <div class="badge" id="score-badge">Münzen <span id="score">0</span></div>
+        <div class="badge" id="lives-badge">Leben <span id="lives">❤️❤️❤️</span></div>
+        <div class="badge" id="streak-badge">🔥 Combo <span id="streak-count">0</span></div>
+        <button class="btn-pause" onclick="togglePause()">⏸️</button>
+    </div>
+    <div id="game-area"></div>
+    <div id="mascot-container">
+        <div id="speech-bubble">Super!</div>
+        <div id="mascot">🤖</div>
+    </div>
+    <div id="controls">
+        <button class="control-btn" id="btn-der" onclick="catchWord('der')">DER</button>
+        <button class="control-btn" id="btn-die" onclick="catchWord('die')">DIE</button>
+        <button class="control-btn" id="btn-das" onclick="catchWord('das')">DAS</button>
+    </div>
+</div>
+<script>
+// Vocabulary including Plurals
+const vocab = [
+    { w: "Vater", a: "der", emoji: "👨" }, { w: "Mutter", a: "die", emoji: "👩" },
+    { w: "Bruder", a: "der", emoji: "👦" }, { w: "Schwester", a: "die", emoji: "👧" },
+    { w: "Schule", a: "die", emoji: "🏫" }, { w: "Lehrer", a: "der", emoji: "👨‍🏫" },
+    { w: "Buch", a: "das", emoji: "📖" }, { w: "Heft", a: "das", emoji: "📓" },
+    { w: "Hund", a: "der", emoji: "🐕" }, { w: "Katze", a: "die", emoji: "🐱" },
+    { w: "Pferd", a: "das", emoji: "🐴" }, { w: "Vogel", a: "der", emoji: "🐦" },
+    { w: "Hunde", a: "die", emoji: "🐕🐕", plural: true },
+    { w: "Bücher", a: "die", emoji: "📚", plural: true },
+    { w: "Katzen", a: "die", emoji: "🐈🐈", plural: true },
+    { w: "Äpfel", a: "die", emoji: "🍎🍎", plural: true },
+    { w: "Kinder", a: "die", emoji: "👧👦", plural: true }
+];
+
+let availableVocab = [];
+let score = 0, lives = 3, streak = 0, activeWords = [], spawnInterval;
+let fallSpeed = 6500, spawnRate = 2800;
+let isPaused = false;
+let currentAvatar = '🤖';
+let mistakesList = []; 
+let audioCtx;
+
+const mascot = document.getElementById('mascot');
+const speechBubble = document.getElementById('speech-bubble');
+
+// ================= AUDIO SYSTEM =================
+function initAudio() { 
+    try { 
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        if (audioCtx.state === 'suspended') audioCtx.resume(); 
+    } catch(e) {} 
+}
+
+function playSound(type) {
+    try {
+        initAudio(); if(!audioCtx) return;
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        
+        if (type === 'success') { 
+            osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3); 
+        }
+        else if (type === 'error') { 
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3); 
+        }
+        else if (type === 'gameover') { 
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 1); gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1); osc.start(); osc.stop(audioCtx.currentTime + 1); 
+        }
+        else if (type === 'win') { 
+            osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1); osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); osc.start(); osc.stop(audioCtx.currentTime + 1); 
+        }
+        else if (type === 'combo' || type === 'powerup') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1); osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.2); gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+    } catch(e) {}
+}
+
+// ================= GAME LOGIC =================
+function selectAvatar(avatar, element) {
+    currentAvatar = avatar;
+    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+}
+
+function speakWord(article, word) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); 
+        const utterance = new SpeechSynthesisUtterance(`${article} ${word}`);
+        utterance.lang = 'de-DE'; 
+        utterance.rate = 0.9; 
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function showSpeech(text, duration = 1500) {
+    speechBubble.innerText = text; speechBubble.style.display = 'block';
+    setTimeout(() => { speechBubble.style.display = 'none'; }, duration);
+}
+
+function startGame() {
+    initAudio(); 
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+    document.getElementById('game-ui').style.display = 'block';
+    
+    mascot.innerText = currentAvatar;
+    availableVocab = [...vocab].sort(() => Math.random() - 0.5); 
+    score = 0; lives = 3; streak = 0; mistakesList = [];
+    fallSpeed = 6500; spawnRate = 2800; 
+    isPaused = false;
+    
+    updateUI();
+    activeWords.forEach(w => w.remove()); activeWords = [];
+    spawnInterval = setInterval(spawnWord, spawnRate);
+}
+
+function restartGame() { startGame(); }
+
+function togglePause() {
+    isPaused = !isPaused;
+    if (isPaused) {
+        clearInterval(spawnInterval);
+        activeWords.forEach(w => w.style.animationPlayState = 'paused');
+        document.getElementById('pause-screen').style.display = 'flex';
+    } else {
+        spawnInterval = setInterval(spawnWord, spawnRate);
+        activeWords.forEach(w => w.style.animationPlayState = 'running');
+        document.getElementById('pause-screen').style.display = 'none';
+    }
+}
+
+function spawnWord() {
+    if (availableVocab.length === 0 || isPaused) return;
+    
+    const el = document.createElement('div');
+    
+    // 15% Chance to spawn a Power-up instead of a word
+    if (Math.random() < 0.15) {
+        const pType = Math.random();
+        el.className = 'falling-word powerup-item';
+        el.dataset.isPowerup = "true";
+        
+        if (pType < 0.33) {
+            el.innerHTML = `<strong>❤️</strong><span>Leben</span>`;
+            el.dataset.powerType = "heart";
+        } else if (pType < 0.66) {
+            el.innerHTML = `<strong>🌟</strong><span>Bonus</span>`;
+            el.dataset.powerType = "star";
+        } else {
+            el.className += ' mystery';
+            el.innerHTML = `<strong>🎁</strong><span>? ? ?</span>`;
+            el.dataset.powerType = "mystery";
+        }
+    } else {
+        // Normal Word
+        const wordObj = availableVocab.pop();
+        el.className = 'falling-word' + (wordObj.plural ? ' plural-tag' : '');
+        el.innerHTML = `<strong>${wordObj.w}</strong><span>${wordObj.emoji}</span>`;
+        el.dataset.article = wordObj.a;
+        el.dataset.word = wordObj.w;
+        el.dataset.isPowerup = "false";
+    }
+    
+    el.style.left = Math.floor(Math.random() * 60 + 10) + '%';
+    el.style.animationDuration = fallSpeed + 'ms';
+
+    document.getElementById('game-area').appendChild(el);
+    activeWords.push(el);
+
+    el.addEventListener('animationend', () => {
+        if (activeWords.includes(el)) {
+            el.remove(); 
+            activeWords = activeWords.filter(w => w !== el);
+            
+            // Only lose life if it was a word, not a power-up
+            if (el.dataset.isPowerup === "false") {
+                recordMistake(el.dataset.word, el.dataset.article, "Verpasst");
+                resetStreak();
+                loseLife(); 
+                checkWinCondition();
+            }
+        }
+    });
+
+    if(fallSpeed > 3500) fallSpeed -= 50;
+}
+
+function catchWord(selectedArticle) {
+    if (activeWords.length === 0 || isPaused) return;
+    
+    activeWords.sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
+    const target = activeWords[0];
+
+    // Handle Power-ups (Any button catches them)
+    if (target.dataset.isPowerup === "true") {
+        const pType = target.dataset.powerType;
+        playSound('powerup');
+        
+        if (pType === "heart") {
+            lives = Math.min(lives + 1, 5); // Max 5 lives
+            showSpeech("Extra Leben! ❤️");
+        } else if (pType === "star") {
+            score += 50;
+            showSpeech("Bonus! +50 🌟");
+        } else if (pType === "mystery") {
+            if (Math.random() > 0.5) {
+                score += 30;
+                showSpeech("Glück! +30 🎁");
+            } else {
+                score = Math.max(0, score - 20); // Don't go below 0
+                playSound('error');
+                showSpeech("Pech! -20 👻");
+            }
+        }
+        
+        updateUI();
+        target.style.transform = 'scale(1.5)';
+        target.style.opacity = '0';
+        activeWords.shift(); 
+        setTimeout(() => target.remove(), 300);
+        return;
+    }
+
+    // Handle Normal Words
+    const correctArticle = target.dataset.article;
+    const wordText = target.dataset.word;
+
+    if (correctArticle === selectedArticle) {
+        speakWord(correctArticle, wordText); 
+        
+        streak++;
+        let pointsEarned = 10 + (Math.floor(streak / 3) * 5); 
+        score += pointsEarned; 
+        updateUI();
+
+        if (streak > 0 && streak % 3 === 0) playSound('combo');
+        else playSound('success');
+
+        target.innerHTML = `<strong style="color:white; font-size:32px;">${correctArticle.toUpperCase()}!</strong>`;
+        target.style.animationPlayState = 'paused';
+        target.style.background = '#51CF66'; target.style.borderColor = '#3CBF55';
+        target.style.transform = 'scale(1.2)';
+
+        mascot.innerText = '🤩'; showSpeech("Super! 🌟");
+        setTimeout(() => { if(lives > 0) mascot.innerText = currentAvatar; }, 1000);
+
+        try { confetti({ particleCount: 30, spread: 50, origin: { x: (target.getBoundingClientRect().left + target.getBoundingClientRect().width/2)/window.innerWidth, y: (target.getBoundingClientRect().top + target.getBoundingClientRect().height/2)/window.innerHeight }, zIndex: 1000 }); } catch(e) {}
+
+        activeWords.shift(); setTimeout(() => target.remove(), 300);
+    } else {
+        playSound('error');
+        recordMistake(wordText, correctArticle, selectedArticle);
+        resetStreak();
+        
+        target.style.background = '#FF6B6B'; target.style.borderColor = '#FF6B6B'; target.style.color = '#fff';
+        target.querySelector('strong').style.color = '#fff';
+        
+        target.innerHTML = `<strong style="color:white; font-size:24px;">${correctArticle.toUpperCase()}</strong><span style="font-size:16px;">nicht ${selectedArticle.toUpperCase()}</span>`;
+        target.style.animationPlayState = 'paused';
+        
+        mascot.innerText = '😵'; showSpeech("Oh nein! 🙈");
+        setTimeout(() => { if(lives > 0) mascot.innerText = currentAvatar; }, 1000);
+
+        activeWords.shift(); 
+        setTimeout(() => { target.remove(); loseLife(false); checkWinCondition(); }, 1000);
+        return; 
+    }
+    checkWinCondition();
+}
+
+function resetStreak() {
+    streak = 0;
+    updateUI();
+}
+
+function recordMistake(word, correct, wrong) {
+    if (!mistakesList.find(m => m.word === word)) {
+        mistakesList.push({ word, correct, wrong });
+    }
+}
+
+function loseLife(playErrorSound = true) {
+    lives--; updateUI();
+    if (playErrorSound && lives > 0) playSound('error');
+    
+    document.body.style.boxShadow = 'inset 0 0 150px rgba(255,107,107,0.3)';
+    setTimeout(() => document.body.style.boxShadow = 'none', 200);
+
+    if (lives <= 0) {
+        playSound('gameover');
+        clearInterval(spawnInterval); activeWords.forEach(w => w.style.animationPlayState = 'paused');
+        mascot.innerText = '😭'; showSpeech("Schade! 💔", 3000);
+        setTimeout(() => {
+            document.getElementById('final-score').innerText = score;
+            renderMistakes('go-mistakes');
+            document.getElementById('game-ui').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'flex';
+        }, 1500);
+    }
+}
+
+function checkWinCondition() {
+    if (availableVocab.length === 0 && activeWords.length === 0 && lives > 0) {
+        playSound('win');
+        clearInterval(spawnInterval);
+        mascot.innerText = '🥳'; showSpeech("Gewonnen! 🏆", 4000);
+
+        let duration = 3 * 1000; let animationEnd = Date.now() + duration;
+        let interval = setInterval(function() {
+            if (Date.now() > animationEnd) return clearInterval(interval);
+            confetti({ particleCount: 50, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+        }, 250);
+
+        setTimeout(() => {
+            document.getElementById('win-score').innerText = score;
+            renderMistakes('win-mistakes');
+            document.getElementById('game-ui').style.display = 'none';
+            document.getElementById('win-screen').style.display = 'flex';
+        }, 2500);
+    }
+}
+
+function renderMistakes(containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    if (mistakesList.length === 0) {
+        container.innerHTML = '<div style="text-align:center; font-weight:bold; color:#3CBF55; font-size: 20px;">Perfekt! Keine Fehler! 🌟</div>';
+        return;
+    }
+
+    let html = '<div style="text-align:center; font-size:16px; color:#666; margin-bottom:10px;">Lass uns üben:</div>';
+    mistakesList.forEach(m => {
+        html += `
+        <div class="mistake-item">
+            <span>${m.word}</span>
+            <div>
+                <span class="mistake-wrong">${m.wrong.toUpperCase()}</span>
+                <span class="mistake-correct">${m.correct.toUpperCase()}</span>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function updateUI() {
+    document.getElementById('score').innerText = score;
+    document.getElementById('lives').innerText = '❤️'.repeat(Math.max(0, lives));
+    
+    const streakBadge = document.getElementById('streak-badge');
+    if (streak >= 3) {
+        streakBadge.style.display = 'flex';
+        document.getElementById('streak-count').innerText = streak;
+    } else {
+        streakBadge.style.display = 'none';
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if(document.getElementById('game-ui').style.display === 'block' && !isPaused) {
+        if(e.key === 'ArrowLeft' || e.key === '1') catchWord('der');
+        if(e.key === 'ArrowDown' || e.key === '2') catchWord('die');
+        if(e.key === 'ArrowRight' || e.key === '3') catchWord('das');
+    }
+});
+</script>
+</body>
+</html>

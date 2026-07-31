@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deutschlern-Spiel - Level 2</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Poppins:wght@400;600;800&display=swap');
+        :root {
+            --bg-gradient: linear-gradient(135deg, #eef2f3 0%, #d5dbe0 100%);
+            --primary-color: #2b3245;
+            --secondary-color: #7c2f3f;
+            --accent-color: #f1c40f;
+            --correct-color: #2ecc71;
+            --wrong-color: #e74c3c;
+            --freeze-color: #3498db;
+            --boss-bg: linear-gradient(135deg, #2c0000 0%, #000000 100%);
+            --boss-text: #ff4d4d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', 'Poppins', sans-serif; }
+        body { background: var(--bg-gradient); color: var(--primary-color); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .screen { display: none; height: 100vh; padding: 15px; width: 100%; animation: fadeIn 0.5s ease; }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        #setup-screen { flex-direction: column; align-items: center; justify-content: center; }
+        .setup-container { background: white; padding: 25px; border-radius: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 15px; border: 6px solid white; }
+        .teams-setup { display: flex; gap: 20px; width: 100%; }
+        .team-input { flex: 1; display: flex; flex-direction: column; gap: 10px; background: #f4f7f8; padding: 15px; border-radius: 25px; border: 4px solid #e0e0e0; align-items: center; }
+        .team-input:nth-child(1) { border-color: var(--primary-color); }
+        .team-input:nth-child(2) { border-color: var(--secondary-color); }
+        input[type="text"] { padding: 10px; border: 3px solid #ccc; border-radius: 20px; font-size: 18px; font-weight: 700; text-align: center; width: 100%; outline: none; }
+        input[type="text"]:focus { border-color: var(--accent-color); }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; background: white; padding: 10px; border-radius: 20px; width: 100%; }
+        .emoji-picker label { cursor: pointer; }
+        .emoji-picker input[type="radio"] { display: none; }
+        .emoji-picker span { font-size: 24px; padding: 6px; border-radius: 15px; background: #f0f0f0; border: 3px solid transparent; transition: 0.2s; display: inline-block; }
+        .emoji-picker input[type="radio"]:checked + span { border-color: var(--accent-color); background: #fff9e6; transform: scale(1.25); }
+        .btn-start { background: var(--secondary-color); color: white; border: none; padding: 12px 40px; font-size: 22px; font-weight: 900; border-radius: 50px; cursor: pointer; align-self: center; animation: pulseBtn 2s infinite; }
+        @keyframes pulseBtn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        #game-screen { flex-direction: row; gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .team-board { flex: 1; background: white; padding: 15px; border-radius: 30px; display: flex; flex-direction: column; align-items: center; border: 5px solid transparent; overflow-y: auto; scrollbar-width: none; transition: 0.3s; }
+        .team-board.active { transform: scale(1.01); border-color: var(--accent-color); z-index: 10; }
+        .team-board.inactive { transform: scale(0.96); opacity: 0.5; filter: grayscale(40%); pointer-events: none; }
+        .streak-fire { animation: fireGlow 1s infinite alternate; border-color: #ff4757 !important; }
+        @keyframes fireGlow { 0% { box-shadow: 0 0 10px #ff4757; } 100% { box-shadow: 0 0 30px #ffa502; } }
+        .boss-mode .team-board.active { background: var(--boss-bg) !important; color: white !important; }
+        .boss-mode .question-text { color: var(--boss-text); text-shadow: 0 0 10px red; }
+        .boss-mode .option-btn { background: #333; color: white; border-color: #555; }
+
+        .team-header { text-align: center; width: 100%; }
+        .team-emoji { font-size: 40px; }
+        .team-name { font-size: 20px; font-weight: 900; }
+        .team-score { font-size: 18px; font-weight: 900; color: white; background: var(--secondary-color); padding: 5px 20px; border-radius: 30px; display: inline-block; }
+        #board-0 .team-score { background: var(--primary-color); }
+        .streak-text { font-size: 14px; font-weight: 900; color: #ff4757; height: 20px; margin-top: 5px; }
+
+        .jokers-container { display: flex; gap: 10px; margin-top: 10px; background: #f0f0f0; padding: 8px; border-radius: 20px; }
+        .joker-btn { background: white; border: 2px solid #ccc; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; }
+        .joker-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); }
+
+        .timer-container { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #f8f9fa; padding: 8px 15px; border-radius: 20px; border: 3px solid #e0e0e0; }
+        .timer-text { font-size: 22px; font-weight: 900; color: var(--wrong-color); width: 60px; text-align: center; }
+        .timer-text.frozen { color: var(--freeze-color); }
+        .timer-text.ticking { color: red; animation: pulseBtn 0.5s infinite; }
+        .btn-pause { background: var(--primary-color); color: white; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+
+        .progress-container { width: 90%; background: #e0e0e0; height: 8px; border-radius: 10px; margin: 10px 0; }
+        .progress-fill { height: 100%; background: var(--accent-color); width: 0%; transition: 0.4s; }
+
+        .question-container { width: 100%; display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .question-counter { font-size: 14px; color: #777; font-weight: bold; }
+        .question-text { font-size: 20px; font-weight: 800; margin: 10px 0; text-align: center; }
+        .audio-btn { background: var(--accent-color); border: none; padding: 10px 20px; font-weight: 900; border-radius: 50px; cursor: pointer; display: none; margin-bottom: 10px; }
+        .options { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .option-btn { background: #f4f7f8; border: 3px solid #e0e0e0; padding: 10px; font-size: 16px; font-weight: 700; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .option-btn:hover { background: #e8eef1; transform: scale(1.02); }
+        .option-btn.hidden { visibility: hidden; opacity: 0; pointer-events: none; }
+        .option-btn.correct { background: var(--correct-color) !important; color: white; border-color: #27ae60; }
+        .option-btn.wrong { background: var(--wrong-color) !important; color: white; border-color: #c0392b; }
+
+        #result-screen { flex-direction: column; align-items: center; justify-content: center; text-align: center; background: var(--primary-color); color: white; border-radius: 30px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 35px; text-align: center; max-width: 400px; width: 90%; border: 5px solid var(--accent-color); }
+        .modal-title { font-size: 30px; font-weight: 900; margin-bottom: 10px; }
+        .modal-desc { font-size: 18px; margin-bottom: 20px; }
+        .modal-btn { background: var(--primary-color); color: white; border: none; padding: 10px 30px; font-size: 18px; font-weight: 900; border-radius: 50px; cursor: pointer; margin: 5px; }
+        .mystery-boxes { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; font-size: 60px; cursor: pointer; }
+        .shake { animation: shake 0.5s; }
+        .bounce { animation: bounceIn 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }
+        @keyframes bounceIn { 0% { transform: scale(0.5); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        @media (max-width: 768px) {
+            #game-screen { flex-direction: column; }
+            .team-board.inactive { transform: scale(0.9); }
+            .teams-setup { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="screen active">
+        <div class="setup-container">
+            <h2 style="text-align: center; color: var(--primary-color);">Wähle dein Team! 🎮</h2>
+            <div class="teams-setup">
+                <div class="team-input">
+                    <h3>Team 1</h3>
+                    <input type="text" id="t1-name" placeholder="Name Team 1" required>
+                    <div class="emoji-picker">
+                        <label><input type="radio" name="t1-emoji" value="🦁" checked><span>🦁</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🦅"><span>🦅</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🦈"><span>🦈</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🐺"><span>🐺</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🦊"><span>🦊</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🐲"><span>🐲</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🦄"><span>🦄</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🐳"><span>🐳</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🦉"><span>🦉</span></label>
+                        <label><input type="radio" name="t1-emoji" value="🐸"><span>🐸</span></label>
+                    </div>
+                </div>
+                <div class="team-input">
+                    <h3>Team 2</h3>
+                    <input type="text" id="t2-name" placeholder="Name Team 2" required>
+                    <div class="emoji-picker">
+                        <label><input type="radio" name="t2-emoji" value="🐯" checked><span>🐯</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐉"><span>🐉</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐻"><span>🐻</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐼"><span>🐼</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐨"><span>🐨</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🦋"><span>🦋</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐙"><span>🐙</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🦖"><span>🦖</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🐢"><span>🐢</span></label>
+                        <label><input type="radio" name="t2-emoji" value="🦩"><span>🦩</span></label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-start" onclick="startGame()">Los geht's! 🚀</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <div id="board-0" class="team-board active">
+            <div class="team-header">
+                <div class="team-emoji" id="ui-t0-emoji">🦁</div>
+                <div class="team-name" id="ui-t0-name">Team 1</div>
+                <div class="team-score">Punkte: <span id="ui-t0-score">0</span></div>
+                <div class="streak-text" id="streak-0"></div>
+            </div>
+            <div class="jokers-container">
+                <button class="joker-btn" id="joker-5050-0" onclick="useJoker(0, '5050')">🌗</button>
+                <button class="joker-btn" id="joker-freeze-0" onclick="useJoker(0, 'freeze')">❄️</button>
+                <button class="joker-btn" id="joker-skip-0" onclick="useJoker(0, 'skip')">⏭️</button>
+            </div>
+            <div class="timer-container">
+                <div class="timer-text" id="timer-0">20s</div>
+                <button class="btn-pause" onclick="togglePause()">⏸ Pause</button>
+            </div>
+            <div class="progress-container"><div class="progress-fill" id="prog-0"></div></div>
+            <div class="question-container">
+                <div class="question-counter" id="qc-count-0">Frage 1 / 15</div>
+                <button id="q-audio-0" class="audio-btn" onclick="playCurrentAudio(0)">🔊 Audio</button>
+                <div class="question-text" id="q-text-0">Lädt...</div>
+                <div class="options" id="options-0"></div>
+            </div>
+        </div>
+        <div id="board-1" class="team-board inactive">
+            <div class="team-header">
+                <div class="team-emoji" id="ui-t1-emoji">🐯</div>
+                <div class="team-name" id="ui-t1-name">Team 2</div>
+                <div class="team-score">Punkte: <span id="ui-t1-score">0</span></div>
+                <div class="streak-text" id="streak-1"></div>
+            </div>
+            <div class="jokers-container">
+                <button class="joker-btn" id="joker-5050-1" onclick="useJoker(1, '5050')">🌗</button>
+                <button class="joker-btn" id="joker-freeze-1" onclick="useJoker(1, 'freeze')">❄️</button>
+                <button class="joker-btn" id="joker-skip-1" onclick="useJoker(1, 'skip')">⏭️</button>
+            </div>
+            <div class="timer-container">
+                <div class="timer-text" id="timer-1">20s</div>
+                <button class="btn-pause" onclick="togglePause()">⏸ Pause</button>
+            </div>
+            <div class="progress-container"><div class="progress-fill" id="prog-1"></div></div>
+            <div class="question-container">
+                <div class="question-counter" id="qc-count-1">Frage 1 / 15</div>
+                <button id="q-audio-1" class="audio-btn" onclick="playCurrentAudio(1)">🔊 Audio</button>
+                <div class="question-text" id="q-text-1">Lädt...</div>
+                <div class="options" id="options-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <div style="font-size: 100px;" id="winner-emoji">🏆</div>
+        <h1 style="color: var(--accent-color);">Herzlichen Glückwunsch!</h1>
+        <h2 id="winner-name" style="font-size: 40px;">Team X gewinnt!</h2>
+        <div class="team-score" id="final-scores-text" style="margin: 20px; font-size: 24px;">0 : 0</div>
+        <button class="btn-start" onclick="location.reload()">Neues Spiel 🔄</button>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="alert-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title"></h2>
+            <p class="modal-desc" id="modal-desc"></p>
+            <button class="modal-btn" onclick="closeModalAndNextTurn()">Weiter ➔</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="mystery-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" style="color: #9b59b6;">Mystery Box! 🎁</h2>
+            <p class="modal-desc" id="mystery-desc">Wähle eine Box!</p>
+            <div class="mystery-boxes" id="mystery-boxes-container">
+                <div onclick="openMysteryBox()">📦</div>
+                <div onclick="openMysteryBox()">📦</div>
+            </div>
+            <button class="modal-btn" id="mystery-btn-next" style="display: none;" onclick="closeMysteryBox()">Weiter ➔</button>
+        </div>
+    </div>
+
+    <script>
+        // ===================== AUDIO ENGINE =====================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        function playTone(freq, type, duration, vol, delay) {
+            delay = delay || 0;
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + delay);
+            osc.stop(audioCtx.currentTime + delay + duration);
+        }
+        function sfxCorrect() { playTone(523.25,'sine',0.1,0.5); playTone(659.25,'sine',0.2,0.5,0.1); }
+        function sfxWrong() { playTone(300,'sawtooth',0.3,0.3); playTone(250,'sawtooth',0.4,0.3,0.2); }
+        function sfxTimeout() { playTone(200,'square',0.5,0.4); }
+        function sfxTick() { playTone(800,'square',0.05,0.1); }
+        function sfxBoss() { playTone(150,'sawtooth',1.0,0.5); playTone(100,'sawtooth',1.5,0.5,0.5); }
+        function sfxMystery() { playTone(400,'sine',0.1,0.3); playTone(600,'sine',0.1,0.3,0.1); playTone(800,'sine',0.2,0.3,0.2); }
+
+        // ===================== STATE =====================
+        let teams = [
+            { name:"", emoji:"", score:0, questions:[], currentQ:0, streak:0, jokers:{'5050':true,'freeze':true,'skip':true} },
+            { name:"", emoji:"", score:0, questions:[], currentQ:0, streak:0, jokers:{'5050':true,'freeze':true,'skip':true} }
+        ];
+        let currentTurn = 0, timerInterval, timeLeft = 20;
+        let isPaused = false, isTimeFrozen = false, mysteryBoxUsed = false, isBossModeActive = false;
+
+        // ===================== SMART STORAGE =====================
+        const STORAGE_KEY = "polyglots_used_questions_v4";
+        function getUsedQuestions() { let u = localStorage.getItem(STORAGE_KEY); return u ? JSON.parse(u) : []; }
+        function saveUsedQuestions(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+        function clearUsedQuestions() { localStorage.removeItem(STORAGE_KEY); }
+        function getUniqueQuestions(sourceArray, count, usedArray) {
+            if (!sourceArray || sourceArray.length === 0) return [];
+            let available = sourceArray.filter(q => usedArray.indexOf(q.q) === -1);
+            if (available.length < count) { clearUsedQuestions(); usedArray.length = 0; available = sourceArray.slice(); }
+            for (let i = available.length - 1; i > 0; i--) { let j = Math.floor(Math.random()*(i+1)); let t = available[i]; available[i] = available[j]; available[j] = t; }
+            let selected = available.slice(0, count);
+            selected.forEach(q => usedArray.push(q.q));
+            return selected;
+        }
+
+        // ===================== AUDIO QUESTIONS (50) =====================
+        let audioQuestions = [
+            {type:"audio",media:"Ich gehe heute mit meinem Freund ins Kino.",q:"Wohin geht die Person?",options:["in die Schule","ins Kino","in den Park"],ans:1},
+            {type:"audio",media:"Mein Lieblingstier ist der Hund.",q:"Welches Tier mag die Person?",options:["den Hund","die Katze","den Vogel"],ans:0},
+            {type:"audio",media:"Am Wochenende spiele ich Fußball.",q:"Was macht die Person am Wochenende?",options:["Musik hören","Hausaufgaben","Fußball spielen"],ans:2},
+            {type:"audio",media:"Ich trinke gerne Milch zum Frühstück.",q:"Was trinkt die Person?",options:["Wasser","Milch","Saft"],ans:1},
+            {type:"audio",media:"Der Lehrer schreibt an die Tafel.",q:"Wer schreibt an die Tafel?",options:["der Schüler","der Lehrer","der Direktor"],ans:1},
+            {type:"audio",media:"Ich brauche einen Bleistift für die Schule.",q:"Was braucht die Person?",options:["Schulsachen","Kleidung","Essen"],ans:0},
+            {type:"audio",media:"Im Winter trage ich einen warmen Mantel.",q:"Was trägt die Person im Winter?",options:["ein T-Shirt","einen Mantel","eine Hose"],ans:1},
+            {type:"audio",media:"Der Arzt arbeitet im Krankenhaus.",q:"Wo arbeitet der Arzt?",options:["Schule","Supermarkt","Krankenhaus"],ans:2},
+            {type:"audio",media:"Meine Schwester liest gerne Bücher.",q:"Was macht die Schwester?",options:["Bücher lesen","Musik hören","schlafen"],ans:0},
+            {type:"audio",media:"Wir fahren im Sommer nach Spanien.",q:"Wann fahren sie in den Urlaub?",options:["im Winter","im Sommer","im Herbst"],ans:1},
+            {type:"audio",media:"Mein Vater kocht das Abendessen.",q:"Wer kocht das Abendessen?",options:["die Mutter","der Vater","der Bruder"],ans:1},
+            {type:"audio",media:"Ich gehe jeden Tag zur Schule.",q:"Wohin geht die Person?",options:["ins Kino","zur Schule","in den Supermarkt"],ans:1},
+            {type:"audio",media:"Das Wetter ist heute sehr schön.",q:"Wie ist das Wetter?",options:["schlecht","schön","regnerisch"],ans:1},
+            {type:"audio",media:"Meine Mutter ist Lehrerin.",q:"Was ist der Beruf der Mutter?",options:["Ärztin","Lehrerin","Köchin"],ans:1},
+            {type:"audio",media:"Ich esse gerne Pizza am Freitag.",q:"Was isst die Person am Freitag?",options:["Brot","Pizza","Salat"],ans:1},
+            {type:"audio",media:"Der Polizist hilft den Menschen.",q:"Wer hilft den Menschen?",options:["der Arzt","der Polizist","der Pilot"],ans:1},
+            {type:"audio",media:"Ich lerne Deutsch mit meinen Freunden.",q:"Was lernt die Person?",options:["Englisch","Deutsch","Spanisch"],ans:1},
+            {type:"audio",media:"Mein Bruder spielt Basketball.",q:"Was spielt der Bruder?",options:["Fußball","Basketball","Tennis"],ans:1},
+            {type:"audio",media:"Die Blumen blühen im Frühling.",q:"In welcher Jahreszeit blühen Blumen?",options:["Winter","Frühling","Herbst"],ans:1},
+            {type:"audio",media:"Ich kaufe Obst im Supermarkt.",q:"Wo kauft die Person Obst?",options:["im Kino","im Supermarkt","in der Schule"],ans:1},
+            {type:"audio",media:"Mein Opa erzählt mir Geschichten.",q:"Wer erzählt Geschichten?",options:["der Vater","der Opa","der Lehrer"],ans:1},
+            {type:"audio",media:"Wir schwimmen im Sommer im See.",q:"Was machen sie im Sommer?",options:["schwimmen","schlittschuhlaufen","Skifahren"],ans:0},
+            {type:"audio",media:"Ich trage eine Brille, weil ich schlecht sehe.",q:"Warum trägt die Person eine Brille?",options:["sie sieht schlecht","sie ist müde","sie ist krank"],ans:0},
+            {type:"audio",media:"Die Katze schläft auf dem Sofa.",q:"Wo schläft die Katze?",options:["auf dem Bett","auf dem Sofa","auf dem Tisch"],ans:1},
+            {type:"audio",media:"Ich habe drei Geschwister.",q:"Wie viele Geschwister hat die Person?",options:["zwei","drei","vier"],ans:1},
+            {type:"audio",media:"Mein Lieblingssport ist Schwimmen.",q:"Was ist der Lieblingssport?",options:["Laufen","Schwimmen","Radfahren"],ans:1},
+            {type:"audio",media:"Ich frühstücke um sieben Uhr.",q:"Wann frühstückt die Person?",options:["um sechs Uhr","um sieben Uhr","um acht Uhr"],ans:1},
+            {type:"audio",media:"Der Bäcker macht frisches Brot.",q:"Was macht der Bäcker?",options:["Kuchen","Brot","Pizza"],ans:1},
+            {type:"audio",media:"Ich höre gerne Musik vor dem Einschlafen.",q:"Was macht die Person vor dem Einschlafen?",options:["fernsehen","Musik hören","lesen"],ans:1},
+            {type:"audio",media:"Meine Familie wohnt in Berlin.",q:"Wo wohnt die Familie?",options:["München","Berlin","Hamburg"],ans:1},
+            {type:"audio",media:"Ich putze meine Zähne jeden Morgen.",q:"Was macht die Person jeden Morgen?",options:["Zähne putzen","Kochen","Aufräumen"],ans:0},
+            {type:"audio",media:"Der Bus kommt um halb acht.",q:"Wann kommt der Bus?",options:["acht Uhr","halb acht","sieben Uhr"],ans:1},
+            {type:"audio",media:"Ich habe einen Hund und eine Katze.",q:"Wie viele Haustiere hat die Person?",options:["eins","zwei","drei"],ans:1},
+            {type:"audio",media:"Meine Oma backt Kekse am Sonntag.",q:"Was backt die Oma am Sonntag?",options:["Brot","Kekse","Kuchen"],ans:1},
+            {type:"audio",media:"Ich lese die Zeitung jeden Morgen.",q:"Was liest die Person?",options:["ein Buch","die Zeitung","eine Zeitschrift"],ans:1},
+            {type:"audio",media:"Der Gärtner pflegt die Blumen.",q:"Wer pflegt die Blumen?",options:["der Arzt","der Gärtner","der Lehrer"],ans:1},
+            {type:"audio",media:"Ich fliege nächste Woche nach Paris.",q:"Wohin fliegt die Person?",options:["London","Paris","Madrid"],ans:1},
+            {type:"audio",media:"Meine Schwester spielt Klavier.",q:"Was spielt die Schwester?",options:["Gitarre","Klavier","Geige"],ans:1},
+            {type:"audio",media:"Ich trage im Winter Handschuhe.",q:"Was trägt die Person im Winter?",options:["Sandalen","Handschuhe","eine Mütze"],ans:1},
+            {type:"audio",media:"Der Pilot fliegt das Flugzeug.",q:"Was macht der Pilot?",options:["er fährt Zug","er fliegt Flugzeug","er fährt Bus"],ans:1},
+            {type:"audio",media:"Ich spiele Schach mit meinem Opa.",q:"Was spielt die Person mit dem Opa?",options:["Schach","Fußball","Karten"],ans:0},
+            {type:"audio",media:"Meine Lehrerin heißt Frau Müller.",q:"Wie heißt die Lehrerin?",options:["Frau Schmidt","Frau Müller","Frau Weber"],ans:1},
+            {type:"audio",media:"Ich gehe nachmittags zum Sport.",q:"Wann geht die Person zum Sport?",options:["morgens","nachmittags","abends"],ans:1},
+            {type:"audio",media:"Der Koch arbeitet in einem Restaurant.",q:"Wo arbeitet der Koch?",options:["Krankenhaus","Restaurant","Schule"],ans:1},
+            {type:"audio",media:"Ich mag die Farbe Blau am liebsten.",q:"Was ist the Lieblingsfarbe?",options:["Rot","Blau","Grün"],ans:1},
+            {type:"audio",media:"Mein Bruder hat einen Computer.",q:"Was hat der Bruder?",options:["einen Computer","ein Handy","ein Tablet"],ans:0},
+            {type:"audio",media:"Wir essen mittags in der Schule.",q:"Wann essen sie in der Schule?",options:["morgens","mittags","abends"],ans:1},
+            {type:"audio",media:"Ich lerne Englisch in der Schule.",q:"Was lernt die Person in der Schule?",options:["Mathematik","Englisch","Geschichte"],ans:1},
+            {type:"audio",media:"Der Maler streicht die Wand.",q:"Was macht der Maler?",options:["er malt ein Bild","er streicht die Wand","er singt"],ans:1},
+            {type:"audio",media:"Ich gehe abends ins Bett um neun Uhr.",q:"Wann geht die Person ins Bett?",options:["um acht Uhr","um neun Uhr","um zehn Uhr"],ans:1}
+        ];
+
+        // ===================== TEXT QUESTIONS - ARTICLES (50) =====================
+        let articleQuestions = [
+            {type:"text",q:"Welcher Artikel passt? _____ Tisch.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Tür.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Fenster.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Buch.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Schule.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Auto.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Haus.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Katze.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Hund.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Lampe.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Stuhl.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Bett.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Blume.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Baum.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Apfel.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Milch.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Wasser.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Straße.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Kind.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Mann.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Frau.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Brot.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Hand.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Fuß.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Auge.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Ohr.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Nase.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Kopf.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Herz.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Sonne.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Mond.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Stern.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Wolke.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Regen.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Schnee.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Wind.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Feuer.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Erde.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Luft.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Stadt.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Dorf.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Land.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Fluss.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Berg.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Wald.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ See.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Meer.",options:["der","die","das"],ans:2},
+            {type:"text",q:"Welcher Artikel passt? _____ Insel.",options:["der","die","das"],ans:1},
+            {type:"text",q:"Welcher Artikel passt? _____ Strand.",options:["der","die","das"],ans:0},
+            {type:"text",q:"Welcher Artikel passt? _____ Garten.",options:["der","die","das"],ans:0}
+        ];
+
+        // Additional question arrays for completeness
+        let vocabQuestions = [
+            {type:"text",q:"Was ist das Gegenteil von 'groß'?",options:["klein","dick","lang"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'hell'?",options:["dunkel","schwarz","kalt"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'heiß'?",options:["kalt","warm","eisig"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'schnell'?",options:["langsam","leise","kurz"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'gut'?",options:["schlecht","böse","hässlich"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'reich'?",options:["arm","alt","neu"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'schön'?",options:["hässlich","langweilig","traurig"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'jung'?",options:["alt","klein","neu"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'laut'?",options:["leise","still","ruhig"],ans:0},
+            {type:"text",q:"Was ist das Gegenteil von 'schwer'?",options:["leicht","einfach","klein"],ans:0}
+        ];
+        let professionQuestions = [
+            {type:"text",q:"Wer repariert Autos?",options:["Mechaniker","Arzt","Lehrer"],ans:0},
+            {type:"text",q:"Wer löscht Feuer?",options:["Feuerwehrmann","Polizist","Bäcker"],ans:0},
+            {type:"text",q:"Wer heilt kranke Menschen?",options:["Arzt","Koch","Pilot"],ans:0},
+            {type:"text",q:"Wer bringt Briefe?",options:["Briefträger","Gärtner","Maler"],ans:0},
+            {type:"text",q:"Wer baut Häuser?",options:["Bauarbeiter","Friseur","Kellner"],ans:0}
+        ];
+        let schoolQuestions = [
+            {type:"text",q:"Was braucht man zum Schreiben?",options:["Stift","Buch","Lineal"],ans:0},
+            {type:"text",q:"Was braucht man zum Rechnen?",options:["Taschenrechner","Schere","Kleber"],ans:0},
+            {type:"text",q:"Wo sitzen die Schüler?",options:["am Tisch","auf dem Boden","im Schrank"],ans:0},
+            {type:"text",q:"Was macht man in der Pause?",options:["spielen","lernen","schlafen"],ans:0},
+            {type:"text",q:"Wer unterrichtet die Klasse?",options:["Lehrer","Direktor","Hausmeister"],ans:0}
+        ];
+        let seasonQuestions = [
+            {type:"text",q:"In welcher Jahreszeit ist es sehr heiß?",options:["Sommer","Winter","Frühling"],ans:0},
+            {type:"text",q:"In welcher Jahreszeit schneit es?",options:["Winter","Herbst","Sommer"],ans:0},
+            {type:"text",q:"In welcher Jahreszeit fallen die Blätter?",options:["Herbst","Frühling","Winter"],ans:0},
+            {type:"text",q:"In welcher Jahreszeit blühen die Blumen?",options:["Frühling","Sommer","Herbst"],ans:0},
+            {type:"text",q:"Wie viele Jahreszeiten gibt es?",options:["vier","drei","fünf"],ans:0}
+        ];
+
+        // ===================== CORE FUNCTIONS =====================
+        function startGame() {
+            initAudio();
+            let n1 = document.getElementById('t1-name').value || "Team 1";
+            let n2 = document.getElementById('t2-name').value || "Team 2";
+            let e1 = document.querySelector('input[name="t1-emoji"]:checked').value;
+            let e2 = document.querySelector('input[name="t2-emoji"]:checked').value;
+
+            teams[0].name = n1; teams[0].emoji = e1;
+            teams[1].name = n2; teams[1].emoji = e2;
+
+            document.getElementById('ui-t0-name').innerText = n1;
+            document.getElementById('ui-t0-emoji').innerText = e1;
+            document.getElementById('ui-t1-name').innerText = n2;
+            document.getElementById('ui-t1-emoji').innerText = e2;
+
+            let allText = vocabQuestions.concat(articleQuestions, professionQuestions, schoolQuestions, seasonQuestions);
+            let used = getUsedQuestions();
+            
+            teams[0].questions = getUniqueQuestions(audioQuestions, 5, used).concat(getUniqueQuestions(allText, 10, used));
+            teams[1].questions = getUniqueQuestions(audioQuestions, 5, used).concat(getUniqueQuestions(allText, 10, used));
+            saveUsedQuestions(used);
+
+            currentTurn = 0;
+            mysteryBoxUsed = false;
+            isBossModeActive = false;
+            isPaused = false;
+            isTimeFrozen = false;
+
+            document.getElementById('setup-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            document.body.classList.remove('boss-mode');
+
+            renderQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 20;
+            isPaused = false;
+            isTimeFrozen = false;
+            updateTimerUI();
+
+            var pauseBtns = document.querySelectorAll('.btn-pause');
+            for (var i = 0; i < pauseBtns.length; i++) pauseBtns[i].innerText = "\u23F8 Pause";
+            var timerEls = document.querySelectorAll('.timer-text');
+            for (var i = 0; i < timerEls.length; i++) timerEls[i].classList.remove('frozen', 'ticking');
+
+            timerInterval = setInterval(function() {
+                if (!isPaused && !isTimeFrozen) {
+                    timeLeft--;
+                    updateTimerUI();
+                    if (timeLeft <= 5 && timeLeft > 0) {
+                        sfxTick();
+                        document.getElementById('timer-' + currentTurn).classList.add('ticking');
+                    }
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        handleTimeout();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-' + currentTurn).innerText = timeLeft + "s";
+            document.getElementById('timer-' + (currentTurn === 0 ? 1 : 0)).innerText = "20s";
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            var pauseBtns = document.querySelectorAll('.btn-pause');
+            for (var i = 0; i < pauseBtns.length; i++) {
+                pauseBtns[i].innerText = isPaused ? "\u25B6 Weiter" : "\u23F8 Pause";
+            }
+            if (isPaused && 'speechSynthesis' in window) window.speechSynthesis.pause();
+            else if (!isPaused && 'speechSynthesis' in window) window.speechSynthesis.resume();
+        }
+
+        function handleTimeout() {
+            sfxTimeout();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+            var team = teams[currentTurn];
+            team.streak = 0;
+            updateStreakUI(currentTurn);
+            var qObj = team.questions[team.currentQ];
+            document.getElementById('board-' + currentTurn).classList.add('shake');
+            setTimeout(function() { document.getElementById('board-' + currentTurn).classList.remove('shake'); }, 500);
+
+            showModal("Zeit abgelaufen! \u23F0", "Richtige Antwort: <br><b>" + qObj.options[qObj.ans] + "</b>", "var(--wrong-color)");
+        }
+
+        function renderQuestion() {
+            var team = teams[currentTurn];
+            var otherTeam = currentTurn === 0 ? 1 : 0;
+
+            if (team.currentQ === 7 && !mysteryBoxUsed) {
+                mysteryBoxUsed = true;
+                sfxMystery();
+                document.getElementById('mystery-modal').style.display = 'flex';
+                document.getElementById('mystery-boxes-container').style.display = 'flex';
+                document.getElementById('mystery-btn-next').style.display = 'none';
+                document.getElementById('mystery-desc').innerText = "W\u00e4hle eine Box f\u00fcr eine \u00dcberraschung!";
+                return;
+            }
+
+            if (team.currentQ === 14) {
+                isBossModeActive = true;
+                sfxBoss();
+                document.body.classList.add('boss-mode');
+            } else {
+                isBossModeActive = false;
+                document.body.classList.remove('boss-mode');
+            }
+
+            document.getElementById('board-0').classList.remove('active', 'inactive');
+            document.getElementById('board-1').classList.remove('active', 'inactive');
+            document.getElementById('board-' + currentTurn).classList.add('active');
+            document.getElementById('board-' + otherTeam).classList.add('inactive');
+
+            document.getElementById('q-text-' + otherTeam).innerText = "Warten auf das andere Team...";
+            document.getElementById('options-' + otherTeam).innerHTML = "";
+            document.getElementById('q-audio-' + otherTeam).style.display = "none";
+
+            if (team.currentQ < 15) {
+                var qObj = team.questions[team.currentQ];
+                var pct = (team.currentQ / 15) * 100;
+                document.getElementById('prog-' + currentTurn).style.width = pct + "%";
+
+                var qTitle = isBossModeActive ? "\u{1F479} BOSS FRAGE (3 Punkte) \u{1F479}" : "Frage " + (team.currentQ + 1) + " / 15";
+                document.getElementById('qc-count-' + currentTurn).innerText = qTitle;
+                document.getElementById('q-text-' + currentTurn).innerText = qObj.q;
+
+                var audioBtn = document.getElementById('q-audio-' + currentTurn);
+                audioBtn.style.display = qObj.type === "audio" ? "inline-block" : "none";
+
+                var optionsHtml = "";
+                for (var i = 0; i < qObj.options.length; i++) {
+                    optionsHtml += '<button class="option-btn" onclick="checkAnswer(' + i + ')">' + qObj.options[i] + '</button>';
+                }
+                document.getElementById('options-' + currentTurn).innerHTML = optionsHtml;
+                document.getElementById('board-' + currentTurn).scrollTop = 0;
+                startTimer();
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+            var team = teams[currentTurn];
+            var qObj = team.questions[team.currentQ];
+            var isCorrect = (selectedIndex === qObj.ans);
+            var points = isBossModeActive ? 3 : 1;
+            var board = document.getElementById('board-' + currentTurn);
+            board.classList.remove('shake', 'bounce');
+            void board.offsetWidth;
+
+            var btns = document.getElementById('options-' + currentTurn).children;
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].style.pointerEvents = 'none';
+                if (i === qObj.ans) btns[i].classList.add('correct');
+                if (i === selectedIndex && !isCorrect) btns[i].classList.add('wrong');
+            }
+
+            if (isCorrect) {
+                sfxCorrect();
+                board.classList.add('bounce');
+                team.score += points;
+                team.streak++;
+                updateStreakUI(currentTurn);
+                document.getElementById('ui-t' + currentTurn + '-score').innerText = team.score;
+
+                if (team.streak >= 3) {
+                    team.score += 1;
+                    team.streak = 0;
+                    document.getElementById('ui-t' + currentTurn + '-score').innerText = team.score;
+                    showModal("Richtig! \u{1F525}", "Wahnsinn! 3 in einer Reihe! +" + points + " Punkt(e) & +1 Bonus!", "var(--correct-color)");
+                } else {
+                    showModal("Richtig! \u2705", "+" + points + " Punkt(e)", "var(--correct-color)");
+                }
+            } else {
+                sfxWrong();
+                board.classList.add('shake');
+                team.streak = 0;
+                updateStreakUI(currentTurn);
+                showModal("Falsch! \u274C", "Leider keine Punkte.<br><br>Richtige Antwort: <br><b>" + qObj.options[qObj.ans] + "</b>", "var(--wrong-color)");
+            }
+        }
+
+        function useJoker(teamIndex, jokerType) {
+            if (teamIndex !== currentTurn) return;
+            var team = teams[teamIndex];
+            if (!team.jokers[jokerType]) return;
+
+            team.jokers[jokerType] = false;
+            document.getElementById('joker-' + jokerType + '-' + teamIndex).disabled = true;
+
+            if (jokerType === '5050') {
+                var qObj = team.questions[team.currentQ];
+                var optionsDiv = document.getElementById('options-' + teamIndex).children;
+                var hiddenCount = 0;
+                var totalOpts = optionsDiv.length;
+                for (var i = 0; i < totalOpts; i++) {
+                    if (i !== qObj.ans && hiddenCount < totalOpts - 2) {
+                        optionsDiv[i].classList.add('hidden');
+                        hiddenCount++;
+                    }
+                }
+            } else if (jokerType === 'freeze') {
+                isTimeFrozen = true;
+                document.getElementById('timer-' + teamIndex).classList.add('frozen');
+            } else if (jokerType === 'skip') {
+                var usedQs = getUsedQuestions();
+                var allText = vocabQuestions.concat(articleQuestions, professionQuestions, schoolQuestions, seasonQuestions);
+                var newQ = getUniqueQuestions(allText, 1, usedQs)[0];
+                saveUsedQuestions(usedQs);
+                if (newQ) {
+                    team.questions[team.currentQ] = newQ;
+                    renderQuestion();
+                }
+            }
+        }
+
+        function updateStreakUI(teamIndex) {
+            var team = teams[teamIndex];
+            var streakEl = document.getElementById('streak-' + teamIndex);
+            var boardEl = document.getElementById('board-' + teamIndex);
+            if (team.streak > 0) {
+                streakEl.innerText = "\u{1F525}".repeat(Math.min(team.streak, 5)) + " Serie: " + team.streak;
+                if (team.streak >= 2) boardEl.classList.add('streak-fire');
+            } else {
+                streakEl.innerText = "";
+                boardEl.classList.remove('streak-fire');
+            }
+        }
+
+        function showModal(title, desc, color) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-title').style.color = color;
+            document.getElementById('modal-desc').innerHTML = desc;
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
+
+        function closeModalAndNextTurn() {
+            document.getElementById('alert-modal').style.display = 'none';
+            var team = teams[currentTurn];
+            team.currentQ++;
+            var pct = (team.currentQ / 15) * 100;
+            document.getElementById('prog-' + currentTurn).style.width = pct + "%";
+            currentTurn = currentTurn === 0 ? 1 : 0;
+            if (teams[0].currentQ >= 15 && teams[1].currentQ >= 15) endGame();
+            else renderQuestion();
+        }
+
+        function openMysteryBox() {
+            document.getElementById('mystery-boxes-container').style.display = 'none';
+            var descEl = document.getElementById('mystery-desc');
+            var team = teams[currentTurn];
+            var rand = Math.random();
+
+            if (rand < 0.4) {
+                team.score += 1;
+                descEl.innerHTML = "Gl\u00fcckwunsch! \u{1F381}<br>Du hast <b>+1 Punkt</b> gefunden!";
+            } else if (rand < 0.8) {
+                team.score = Math.max(0, team.score - 1);
+                descEl.innerHTML = "Oh nein! \u{1F47B}<br>Ein Geist hat dir <b>-1 Punkt</b> geklaut!";
+            } else {
+                team.jokers['skip'] = true;
+                document.getElementById('joker-skip-' + currentTurn).disabled = false;
+                descEl.innerHTML = "Super! \u{1F31F}<br>Du hast einen extra <b>Skip-Joker</b> gefunden!";
+            }
+
+            document.getElementById('ui-t' + currentTurn + '-score').innerText = team.score;
+            document.getElementById('mystery-btn-next').style.display = 'inline-block';
+        }
+
+        function closeMysteryBox() {
+            document.getElementById('mystery-modal').style.display = 'none';
+            renderQuestion();
+        }
+
+        function playCurrentAudio(teamIndex) {
+            var qObj = teams[teamIndex].questions[teams[teamIndex].currentQ];
+            if (qObj.type === "audio" && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                var utterance = new SpeechSynthesisUtterance(qObj.media);
+                utterance.lang = 'de-DE';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+            let s0 = teams[0].score, s1 = teams[1].score;
+            document.getElementById('final-scores-text').innerText = s0 + " : " + s1;
+            let winName = "", winEmoji = "";
+            if (s0 > s1) { winName = teams[0].name + " gewinnt!"; winEmoji = teams[0].emoji; }
+            else if (s1 > s0) { winName = teams[1].name + " gewinnt!"; winEmoji = teams[1].emoji; }
+            else { winName = "Unentschieden!"; winEmoji = "🤝"; }
+            document.getElementById('winner-name').innerText = winName;
+            document.getElementById('winner-emoji').innerText = winEmoji;
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
+    </script>
+</body>
+</html>
