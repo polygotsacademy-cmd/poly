@@ -36,7 +36,7 @@ export default function handler(req, res) {
         // نوران احمد محمد محمد
         { username: 'nouran_a_m', password: '553945', payment_status: 'Paid' },
         // حمزه احمد محمد محمد
-        { username: 'hamza_a_m', password: '210507', payment_status: 'Paid' },
+        { username: 'hamza_a_m', password: '210507', payment_status: 'unpaid' },
         // جويرية علي حسين
         { username: 'juwairiyah_a_h', password: '156040', payment_status: 'Paid' },
         // محمد أحمد محمود
