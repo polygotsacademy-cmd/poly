@@ -47,8 +47,8 @@ export default async function handler(req, res) {
     const systemPrompt = translationMode ? translatorPrompt : teacherPrompt;
 
     try {
-        // استخدام النماذج بالترتيب لضمان استقرار الخدمة
-        const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.5-flash-lite'];
+        // 🚀 التعديل هنا: استخدام النموذج المستقر والسريع فقط لمنع مشكلة الـ Timeout
+        const models = ['gemini-1.5-flash'];
         let reply = null;
 
         for (const model of models) {
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
                         contents: contents,
                         generationConfig: {
                             temperature: 0.7,
-                            maxOutputTokens: 350 // مساحة كافية للتنسيق الجميل
+                            maxOutputTokens: 350
                         }
                     } )
                 });
