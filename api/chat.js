@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     try {
         // 🚀 التعديل هنا: استخدام النموذج المستقر والسريع فقط لمنع مشكلة الـ Timeout
-        const models = ['gemini-1.5-flash'];
+             const models = ['gemini-3.5-flash', 'gemini-3.0-flash', 'gemini-2.0-flash'];
         let reply = null;
 
         for (const model of models) {
