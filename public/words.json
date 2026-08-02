@@ -3490,5 +3490,95 @@
     "pl": "-",
     "ar": "لكن",
     "emoji": "🛑"
+  },
+  {
+    "id": 389,
+    "cat": "Schulsachen",
+    "art": "der",
+    "word": "Bleistift",
+    "pl": "die Bleistifte",
+    "ar": "قلم رصاص",
+    "emoji": "✏️"
+  },
+  {
+    "id": 390,
+    "cat": "Schulsachen",
+    "art": "der",
+    "word": "Kugelschreiber",
+    "pl": "die Kugelschreiber",
+    "ar": "قلم جاف",
+    "emoji": "🖊️"
+  },
+  {
+    "id": 391,
+    "cat": "Schulsachen",
+    "art": "das",
+    "word": "Buch",
+    "pl": "die Bücher",
+    "ar": "كتاب",
+    "emoji": "📖"
+  },
+  {
+    "id": 392,
+    "cat": "Schulsachen",
+    "art": "das",
+    "word": "Heft",
+    "pl": "die Hefte",
+    "ar": "دفتر",
+    "emoji": "📓"
+  },
+  {
+    "id": 393,
+    "cat": "Schulsachen",
+    "art": "die",
+    "word": "Schere",
+    "pl": "die Scheren",
+    "ar": "مقص",
+    "emoji": "✂️"
+  },
+  {
+    "id": 394,
+    "cat": "Schulsachen",
+    "art": "das",
+    "word": "Lineal",
+    "pl": "die Lineale",
+    "ar": "مسطرة",
+    "emoji": "📏"
+  },
+  {
+    "id": 395,
+    "cat": "Schulsachen",
+    "art": "der",
+    "word": "Radiergummi",
+    "pl": "die Radiergummis",
+    "ar": "ممحاة",
+    "emoji": "🧼"
+  },
+  {
+    "id": 396,
+    "cat": "Schulsachen",
+    "art": "der",
+    "word": "Spitzer",
+    "pl": "die Spitzer",
+    "ar": "براية",
+    "emoji": "✏️"
+  },
+  {
+    "id": 397,
+    "cat": "Schulsachen",
+    "art": "die",
+    "word": "Schultasche",
+    "pl": "die Schultaschen",
+    "ar": "حقيبة مدرسية",
+    "emoji": "🎒"
+  },
+  {
+    "id": 398,
+    "cat": "Schulsachen",
+    "art": "das",
+    "word": "Mäppchen",
+    "pl": "die Mäppchen",
+    "ar": "مقلمة",
+    "emoji": "👝"
   }
 ]
