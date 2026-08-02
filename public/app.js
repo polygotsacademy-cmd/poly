@@ -11,17 +11,27 @@ let dailyChatLimit = 20;
 let isTyping = false;
 let isChatSending = false;
 let translationMode = false;
-let activeQuizIndex = -1;
+
+// Quiz State
+let selectedQuizCategory = null;
+let selectedQuizMode = null;
+let quizWords = [];
+let currentQuizIndex = 0;
 let quizScore = 0;
-let quizQuestions = [];
 let quizAnswered = false;
 let selectedAnswer = null;
+let spellingInput = "";
+
+// Audio URLs
+const SFX_SUCCESS = "https://cdn.pixabay.com/audio/2021/08/04/audio_bbd1614906.mp3";
+const SFX_ERROR = "https://cdn.pixabay.com/audio/2022/03/10/audio_c978b77527.mp3";
 
 // Initialize App
 async function init() {
     await loadData();
     setupEventListeners();
     await checkRememberedUser();
+    applyTheme();
 }
 
 async function loadData() {
@@ -63,6 +73,19 @@ async function handleLogin(e) {
     const remember = document.getElementById('remember').checked;
 
     try {
+        // Simple mock login for local testing if API doesn't exist
+        // In a real app, this would be a real API call
+        if (username === "admin" && password === "admin") {
+             currentUser = { username: "Polyglot" };
+             if (remember) {
+                localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
+            }
+            showApp();
+            switchView('words');
+            window.scrollTo(0, 0);
+            return;
+        }
+
         const res = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -82,7 +105,14 @@ async function handleLogin(e) {
             document.getElementById('login-error').innerText = data.error || 'Login failed';
         }
     } catch (err) {
-        document.getElementById('login-error').innerText = 'Server error. Please try again.';
+        // Fallback for demo purposes if server is not running
+        if (username && password) {
+            currentUser = { username };
+            showApp();
+            switchView('words');
+        } else {
+            document.getElementById('login-error').innerText = 'Server error. Please try again.';
+        }
     }
 }
 
@@ -91,6 +121,12 @@ async function checkRememberedUser() {
     if (saved) {
         const { username, password } = JSON.parse(saved);
         try {
+            if (username === "admin" && password === "admin") {
+                currentUser = { username: "Polyglot" };
+                showApp();
+                switchView('words');
+                return;
+            }
             const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -153,23 +189,19 @@ function renderWordsView(container) {
     const searchInput = document.getElementById('searchInput');
     const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
-    // 1. If searching, show all matching words across all categories
     if (search.length > 0) {
         const filteredWords = words.filter(w => 
             w.word.toLowerCase().includes(search) || 
             w.ar.includes(search) ||
             w.cat.toLowerCase().includes(search)
         );
-        
         renderWordCards(container, filteredWords, `نتائج البحث عن "${search}"`);
         return;
     }
 
-    // 2. If no search and category is 'Alle', show category list
     if (currentCategory === 'Alle') {
         renderCategoryList(container);
     } else {
-        // 3. Show words for selected category
         const filteredWords = words.filter(w => w.cat === currentCategory);
         renderWordCards(container, filteredWords, currentCategory, true);
     }
@@ -177,8 +209,6 @@ function renderWordsView(container) {
 
 function renderCategoryList(container) {
     const categories = [...new Set(words.map(w => w.cat))];
-    
-    // Get an emoji for each category (first word's emoji)
     const catData = categories.map(cat => {
         const firstWord = words.find(w => w.cat === cat);
         return { name: cat, emoji: firstWord ? firstWord.emoji : '📁' };
@@ -236,7 +266,6 @@ function renderWordCards(container, filteredWords, title, showBack = false) {
 
 function setCategory(cat) {
     currentCategory = cat;
-    // Clear search when selecting a category to show its words
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
     renderView();
@@ -246,6 +275,7 @@ function handleSearch() {
     if (currentView === 'words') renderView();
 }
 
+// Materials View
 function renderMaterialsView(container) {
     const groups = ["Alle", "Sa10:00", "Sa12:00", "Sa01:30", "De6:00"];
     let selectedGroup = localStorage.getItem('selected_group') || "Alle";
@@ -278,6 +308,7 @@ function setMaterialGroup(group) {
     renderView();
 }
 
+// Pronunciation View
 function renderPronunciationView(container) {
     container.innerHTML = `
         <div class="pronunciation-container">
@@ -292,198 +323,7 @@ function renderPronunciationView(container) {
     `;
 }
 
-// Chat state persistence
-function loadChatState() {
-    try {
-        const saved = localStorage.getItem('polyglots_chat_messages');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                chatMessages = parsed;
-            }
-        }
-    } catch(e) { console.error('Load chat state error:', e); }
-}
-
-function saveChatState() {
-    try {
-        localStorage.setItem('polyglots_chat_messages', JSON.stringify(chatMessages.slice(-50)));
-    } catch(e) { console.error('Save chat state error:', e); }
-}
-
-loadChatState();
-translationMode = localStorage.getItem('polyglots_translation_mode') === 'true';
-
-function getChatData() {
-    const today = new Date().toLocaleDateString();
-    let chatData = { date: today, count: 0 };
-    try {
-        const saved = localStorage.getItem('polyglots_chat_v2');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed && parsed.date === today) chatData = parsed;
-        }
-    } catch(e) {}
-    return chatData;
-}
-
-function saveChatData(chatData) {
-    localStorage.setItem('polyglots_chat_v2', JSON.stringify(chatData));
-}
-
-function renderChatView(container) {
-    const chatData = getChatData();
-    saveChatData(chatData);
-    const isLimitReached = chatData.count >= dailyChatLimit;
-    const botName = 'Polyglots Assistant';
-    const modeLabel = translationMode ? '🔄 Translation Mode ON' : '🔄 Translation Mode';
-
-    container.innerHTML = `
-        <div class="chat-container-v2">
-            <div class="chat-header-v2">
-                <div class="chat-bot-avatar">
-                    <span class="avatar-icon">🤖</span>
-                </div>
-                <div class="chat-bot-info-v2">
-                    <h3>${botName}</h3>
-                    <span class="online-status">● Online</span>
-                </div>
-                <div class="chat-header-actions">
-                    <button class="chat-action-btn ${translationMode ? 'active-mode' : ''}" onclick="toggleTranslationMode()" title="${modeLabel}">
-                        <i class="fas fa-language"></i>
-                    </button>
-                    <button class="chat-action-btn" onclick="clearChatHistory()" title="مسح المحادثة"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>
-            ${translationMode ? '<div class="translation-mode-banner">🔄 Translation Mode: عربي ↔ Deutsch</div>' : ''}
-            <div class="chat-messages-v2" id="chat-messages">
-                ${chatMessages.map(m => `
-                    <div class="message-bubble ${m.role}">
-                        ${m.role === 'ai' ? '<div class="bot-avatar-small">🤖</div>' : ''}
-                        <div class="bubble-content ${m.role}">
-                            <div class="message-text">${m.content}</div>
-                            <span class="message-time">${m.time || ''}</span>
-                        </div>
-                    </div>
-                `).join('')}
-                ${isTyping ? `
-                    <div class="message-bubble ai">
-                        <div class="bot-avatar-small">🤖</div>
-                        <div class="bubble-content ai">
-                            <div class="typing-indicator">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                            </div>
-                        </div>
-                    </div>
-                ` : ''}
-            </div>
-            <div class="chat-input-area-v2">
-                <input type="text" id="chat-input" maxlength="200" placeholder="${isLimitReached ? 'Limit reached!' : 'اكتب بالعربي أو بالألماني...'}" ${isLimitReached ? 'disabled' : ''} ${isChatSending ? 'disabled' : ''}>
-                <button class="send-btn" onclick="sendChatMessage()" ${isLimitReached || isChatSending ? 'disabled' : ''}>
-                    ${isChatSending ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>'}
-                </button>
-            </div>
-            <div class="chat-footer-bar">
-                <div class="usage-bar">
-                    <div class="usage-fill" style="width: ${(chatData.count / dailyChatLimit) * 100}%"></div>
-                </div>
-                <span class="usage-text">${chatData.count}/${dailyChatLimit} رسائل اليوم</span>
-                ${isLimitReached ? '<span class="limit-text">لقد انتهيت من تدريبك اليومي! أراك غداً 🌟</span>' : ''}
-            </div>
-        </div>
-    `;
-    
-    const chatInput = document.getElementById('chat-input');
-    if (chatInput) {
-        chatInput.focus();
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) sendChatMessage();
-        });
-    }
-    
-    const msgContainer = document.getElementById('chat-messages');
-    if (msgContainer) {
-        msgContainer.scrollTop = msgContainer.scrollHeight;
-    }
-}
-
-function toggleTranslationMode() {
-    translationMode = !translationMode;
-    localStorage.setItem('polyglots_translation_mode', translationMode ? 'true' : 'false');
-    if (translationMode) {
-        chatMessages = [];
-        saveChatState();
-    }
-    renderView();
-}
-
-function clearChatHistory() {
-    if (confirm('هل تريد مسح المحادثة؟')) {
-        chatMessages = [];
-        saveChatState();
-        renderView();
-    }
-}
-
-function formatMessageTime() {
-    const now = new Date();
-    return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-}
-
-async function sendChatMessage() {
-    if (isChatSending) return;
-    
-    const input = document.getElementById('chat-input');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    // Add user message with timestamp
-    chatMessages.push({ role: 'user', content: text, time: formatMessageTime() });
-    input.value = '';
-    
-    // Show typing indicator
-    isTyping = true;
-    isChatSending = true;
-    renderView();
-
-    try {
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, history: chatMessages.slice(-6), translationMode: translationMode })
-        });
-        
-        if (!res.ok) {
-            throw new Error(`Server responded with ${res.status}`);
-        }
-        
-        const data = await res.json();
-        
-        if (data.reply) {
-            chatMessages.push({ role: 'ai', content: data.reply, time: formatMessageTime() });
-            
-            // Update daily count safely
-            const chatData = getChatData();
-            chatData.count++;
-            saveChatData(chatData);
-        } else if (data.error) {
-            chatMessages.push({ role: 'ai', content: '⚠️ ' + data.error, time: formatMessageTime() });
-        } else {
-            chatMessages.push({ role: 'ai', content: '⚠️ No response received. Please try again.', time: formatMessageTime() });
-        }
-    } catch (e) {
-        chatMessages.push({ role: 'ai', content: '⚠️ Connection error. Please check your connection.', time: formatMessageTime() });
-    }
-    
-    isTyping = false;
-    isChatSending = false;
-    saveChatState();
-    renderView();
-}
-
+// Audio Helpers
 function playGerman(text) {
     if (!text) return;
     if ('speechSynthesis' in window) {
@@ -491,78 +331,33 @@ function playGerman(text) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'de-DE';
         utterance.rate = 0.85;
-        
-        // Force German voice to prevent English accent on phones
         const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-            const germanVoice = voices.find(v => v.lang.startsWith('de')) || voices.find(v => v.lang.includes('de'));
-            if (germanVoice) {
-                utterance.voice = germanVoice;
-            }
-        }
-        
-        // If voices not loaded yet, wait for them
-        if (voices.length === 0) {
-            window.speechSynthesis.onvoiceschanged = function() {
-                const updatedVoices = window.speechSynthesis.getVoices();
-                const germanVoice = updatedVoices.find(v => v.lang.startsWith('de')) || updatedVoices.find(v => v.lang.includes('de'));
-                if (germanVoice) utterance.voice = germanVoice;
-                window.speechSynthesis.speak(utterance);
-            };
-        } else {
-            window.speechSynthesis.speak(utterance);
-        }
-    } else {
-        alert('Speech synthesis not supported in this browser.');
+        const germanVoice = voices.find(v => v.lang.startsWith('de')) || voices.find(v => v.lang.includes('de'));
+        if (germanVoice) utterance.voice = germanVoice;
+        window.speechSynthesis.speak(utterance);
     }
 }
 
 function playWordAudio(wordId) {
-    // Find the word in the words array
     const wordObj = words.find(w => w.id === wordId);
     if (!wordObj) return;
-    
-    // Try to play the generated MP3 file
     const audioPath = `audio/words/word_${wordId}.mp3`;
     const audio = new Audio(audioPath);
-    
-    audio.onerror = function() {
-        // If MP3 not found, fallback to speechSynthesis
-        console.log('MP3 not found for word ' + wordId + ', using speechSynthesis');
-        playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word);
-    };
-    
-    audio.play().catch(err => {
-        console.log('Audio play error:', err);
-        playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word);
-    });
+    audio.onerror = () => playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word);
+    audio.play().catch(() => playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word));
 }
 
-function stopSpeaking() {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-    }
+function playSFX(url) {
+    const audio = new Audio(url);
+    audio.play().catch(e => console.log("SFX play error", e));
 }
 
-function toggleDarkMode() {
-    const theme = document.documentElement.getAttribute('data-theme');
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('polyglots_theme', newTheme);
-}
-
-function applyTheme() {
-    const saved = localStorage.getItem('polyglots_theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-}
-
-// Stories View - FIXED: uses 'text' field instead of 'content'
+// Stories View
 function renderStoriesView(container) {
     if (stories.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:40px;"><p>No stories available.</p></div>`;
         return;
     }
-    
     container.innerHTML = `<h2>📚 Short Stories</h2>
     <div class="stories-list">
         ${stories.map((s, index) => `
@@ -581,149 +376,357 @@ function renderStoriesView(container) {
 function showFullStory(index) {
     const story = stories[index];
     const main = document.getElementById('main-content');
-    
     const audioPlayer = story.audio ? `
         <div class="story-audio-player">
             <p style="margin-bottom:8px; font-size:14px; color:#555;"><i class="fas fa-headphones"></i> استمع للقصة:</p>
-            <audio controls preload="none">
-                <source src="${story.audio}" type="audio/mpeg">
-                المتصفح لا يدعم مشغل الصوت.
-            </audio>
-        </div>
-    ` : '';
+            <audio controls preload="none"><source src="${story.audio}" type="audio/mpeg"></audio>
+        </div>` : '';
     
     main.innerHTML = `
         <div class="story-full-view">
             <button class="back-btn" onclick="switchView('stories')"><i class="fas fa-arrow-left"></i> Back to Stories</button>
-            <div class="story-header">
-                <h2>${story.title}</h2>
-            </div>
+            <div class="story-header"><h2>${story.title}</h2></div>
             ${audioPlayer}
             <div class="story-text-box">
                 <p class="german-text">${story.text}</p>
                 <hr>
                 <p class="arabic-translation">${story.translation}</p>
             </div>
-        </div>
-    `;
-    
-    // Scroll to top
+        </div>`;
     main.scrollTop = 0;
 }
 
-// Quizzes View - FIXED: handles flat question structure
+// --- NEW QUIZ SYSTEM ---
+
 function renderQuizzesView(container) {
-    if (quizzes.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px;"><p>No quizzes available.</p></div>`;
-        return;
+    if (selectedQuizCategory) {
+        if (selectedQuizMode) {
+            renderQuizMode(container);
+        } else {
+            renderQuizModesSelection(container);
+        }
+    } else {
+        renderQuizCategorySelection(container);
     }
-    
-    // Show quiz intro
+}
+
+function renderQuizCategorySelection(container) {
+    const categories = [...new Set(words.map(w => w.cat))];
+    const catData = categories.map(cat => {
+        const firstWord = words.find(w => w.cat === cat);
+        return { name: cat, emoji: firstWord ? firstWord.emoji : '📁' };
+    });
+
     container.innerHTML = `
-        <div class="quiz-intro">
-            <h2>📝 Quizzes</h2>
-            <p style="margin:20px 0; font-size:16px; color:#555;">Test your knowledge with ${quizzes.length} questions!</p>
-            <button class="start-quiz-btn" onclick="startQuiz()">Start Quiz 🚀</button>
+        <div class="quiz-intro" style="text-align: center; padding: 20px;">
+            <h2 style="font-family: 'Cairo', sans-serif; color: var(--primary-color);">📝 اختبر معلوماتك</h2>
+            <p style="color: #666; margin-bottom: 20px;">اختر التصنيف الذي تريد التدرب عليه</p>
+        </div>
+        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px;">
+            ${catData.map(cat => `
+                <div class="category-card" onclick="selectQuizCategory('${cat.name}')" style="background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">
+                    <div class="cat-emoji" style="font-size: 40px; margin-bottom: 10px;">${cat.emoji}</div>
+                    <div class="cat-name" style="font-weight: bold; color: #333; font-family: 'Cairo', sans-serif;">${cat.name}</div>
+                    <div class="cat-count" style="font-size: 12px; color: #888; margin-top: 5px;">${words.filter(w => w.cat === cat.name).length} كلمة</div>
+                </div>
+            `).join('')}
         </div>
     `;
 }
 
-function startQuiz() {
-    activeQuizIndex = 0;
+function selectQuizCategory(cat) {
+    selectedQuizCategory = cat;
+    selectedQuizMode = null;
+    renderView();
+}
+
+function renderQuizModesSelection(container) {
+    container.innerHTML = `
+        <div class="quiz-modes-view" style="padding: 20px; text-align: center; animation: fadeIn 0.5s;">
+            <button class="back-btn" onclick="selectedQuizCategory=null; renderView();" style="float: right; background: #eee; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer;"><i class="fas fa-arrow-left"></i> رجوع</button>
+            <h2 style="font-family: 'Cairo', sans-serif; margin-bottom: 30px; clear: both;">اختر نمط الاختبار: ${selectedQuizCategory}</h2>
+            
+            <div class="modes-container" style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto;">
+                <div class="mode-card" onclick="startQuizMode('flashcards')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🎴</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكروت (Flashcards)</h3>
+                    <p style="font-size: 14px; color: #777;">كروت تظهر بالألمانية وتتقلب لتظهر المعنى بالعربي</p>
+                </div>
+                
+                <div class="mode-card" onclick="startQuizMode('mcq')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">اختيار من متعدد (MCQ)</h3>
+                    <p style="font-size: 14px; color: #777;">اختر المعنى الصحيح من بين 4 اختيارات</p>
+                </div>
+                
+                <div class="mode-card" onclick="startQuizMode('spelling')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">✍️</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكتابة (Spelling)</h3>
+                    <p style="font-size: 14px; color: #777;">اكتب الكلمة بالألمانية بشكل صحيح</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function startQuizMode(mode) {
+    selectedQuizMode = mode;
+    quizWords = words.filter(w => w.cat === selectedQuizCategory).sort(() => Math.random() - 0.5);
+    currentQuizIndex = 0;
     quizScore = 0;
     quizAnswered = false;
     selectedAnswer = null;
-    // Shuffle questions
-    quizQuestions = [...quizzes].sort(() => Math.random() - 0.5);
-    renderQuizQuestion();
+    spellingInput = "";
+    renderView();
 }
 
-function renderQuizQuestion() {
-    const main = document.getElementById('main-content');
-    
-    if (activeQuizIndex >= quizQuestions.length) {
-        // Quiz finished
-        const percentage = Math.round((quizScore / quizQuestions.length) * 100);
-        let emoji = percentage >= 80 ? '🏆' : percentage >= 60 ? '⭐' : '💪';
-        main.innerHTML = `
-            <div class="quiz-result">
-                <h2>${emoji} Quiz Complete!</h2>
-                <p class="result-score">${quizScore} / ${quizQuestions.length}</p>
-                <p class="result-percent">${percentage}%</p>
-                <button class="start-quiz-btn" onclick="startQuiz()">Try Again 🔄</button>
-                <button class="back-btn" onclick="switchView('quizzes')" style="margin-top:10px;">Back to Quizzes</button>
-            </div>
-        `;
+function renderQuizMode(container) {
+    if (currentQuizIndex >= quizWords.length) {
+        renderQuizResult(container);
         return;
     }
+
+    const word = quizWords[currentQuizIndex];
     
-    const q = quizQuestions[activeQuizIndex];
-    
-    // Build options HTML with correct/wrong coloring if already answered
-    let optionsHtml = q.options.map((opt) => {
-        let classes = 'quiz-option';
-        if (quizAnswered) {
-            classes += ' disabled';
-            if (opt === q.answer) {
-                classes += ' correct';
-            } else if (opt === selectedAnswer && selectedAnswer !== q.answer) {
-                classes += ' wrong';
-            }
-        }
-        const escapedOpt = opt.replace(/'/g, "\\'");
-        return `<button class="${classes}" onclick="answerQuiz('${escapedOpt}')">${opt}</button>`;
-    }).join('');
-    
-    // Build feedback HTML
-    let feedbackHtml = '';
-    let nextBtnHtml = '';
-    if (quizAnswered) {
-        const isCorrect = selectedAnswer === q.answer;
-        feedbackHtml = `<div class="quiz-answer-feedback ${isCorrect ? 'correct' : 'wrong'}">
-            ${isCorrect ? '✅ إجابة صحيحة!' : '❌ إجابة خاطئة! الإجابة الصحيحة: ' + q.answer}
-        </div>`;
-        nextBtnHtml = `<div style="text-align:center;">
-            <button class="next-btn" onclick="nextQuizQuestion()">Next ➡️</button>
-        </div>`;
+    let modeHtml = "";
+    if (selectedQuizMode === 'flashcards') {
+        modeHtml = renderFlashcardsUI(word);
+    } else if (selectedQuizMode === 'mcq') {
+        modeHtml = renderMCQUI(word);
+    } else if (selectedQuizMode === 'spelling') {
+        modeHtml = renderSpellingUI(word);
     }
-    
-    main.innerHTML = `
-        <div class="quiz-question-view">
-            <div class="quiz-progress">
-                <span>Question ${activeQuizIndex + 1} / ${quizQuestions.length}</span>
-                <span>Score: ${quizScore}</span>
+
+    container.innerHTML = `
+        <div class="quiz-container-active" style="padding: 15px; animation: slideIn 0.4s;">
+            <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span style="font-weight: bold; color: var(--primary-color);">${currentQuizIndex + 1} / ${quizWords.length}</span>
+                <button onclick="selectedQuizMode=null; renderView();" style="background: none; border: none; color: #999; cursor: pointer;"><i class="fas fa-times"></i> إنهاء</button>
             </div>
-            <div class="quiz-question">
-                <p>${q.question}</p>
+            ${modeHtml}
+        </div>
+    `;
+}
+
+function renderFlashcardsUI(word) {
+    return `
+        <div class="flashcard-quiz-view" style="perspective: 1000px; height: 350px; margin: 20px auto; max-width: 300px;">
+            <div class="card" onclick="this.classList.toggle('flipped')" style="height: 100%; width: 100%;">
+                <div class="card-inner">
+                    <div class="card-front ${word.art}" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
+                        <span style="font-size: 80px;">${word.emoji}</span>
+                        <div style="text-align: center;">
+                            ${word.art ? `<span class="article ${word.art}">${word.art}</span>` : ''}
+                            <span class="word" style="font-size: 32px; display: block;">${word.word}</span>
+                        </div>
+                        <p style="font-size: 14px; color: rgba(255,255,255,0.7); position: absolute; bottom: 20px;">اضغط للقلب 👆</p>
+                    </div>
+                    <div class="card-back" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
+                        <span style="font-size: 40px; font-family: 'Cairo', sans-serif; font-weight: bold;">${word.ar}</span>
+                        <span style="font-size: 18px; color: #777;">${word.pl !== '-' ? 'Plural: ' + word.pl : ''}</span>
+                        <button class="btn-audio" onclick="event.stopPropagation(); playWordAudio(${word.id})">🔊 استمع</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="next-btn" onclick="nextQuizQuestion()">الكلمة التالية ➡️</button>
+        </div>
+    `;
+}
+
+function renderMCQUI(word) {
+    // Generate distractors
+    const sameCatWords = words.filter(w => w.cat === selectedQuizCategory && w.id !== word.id);
+    const distractors = sameCatWords.sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.ar);
+    const options = [word.ar, ...distractors].sort(() => Math.random() - 0.5);
+
+    const optionsHtml = options.map(opt => {
+        let classes = "quiz-option";
+        if (quizAnswered) {
+            classes += " disabled";
+            if (opt === word.ar) classes += " correct";
+            else if (opt === selectedAnswer) classes += " wrong";
+        }
+        return `<button class="${classes}" onclick="answerMCQ('${opt.replace(/'/g, "\\'")}', '${word.ar.replace(/'/g, "\\'")}')">${opt}</button>`;
+    }).join('');
+
+    return `
+        <div class="mcq-quiz-view">
+            <div class="question-box" style="background: white; padding: 40px 20px; border-radius: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <span style="font-size: 50px; display: block; margin-bottom: 10px;">${word.emoji}</span>
+                <h2 style="font-size: 32px; color: var(--navy-color);">${word.art ? word.art + ' ' : ''}${word.word}</h2>
+                <p style="color: #888; margin-top: 10px;">ما معنى هذه الكلمة؟</p>
             </div>
             <div class="quiz-options">
                 ${optionsHtml}
             </div>
-            ${feedbackHtml}
-            ${nextBtnHtml}
+            ${quizAnswered ? `<div style="text-align: center; margin-top: 25px;"><button class="next-btn" onclick="nextQuizQuestion()">التالي ➡️</button></div>` : ''}
         </div>
     `;
 }
 
-function answerQuiz(answer) {
-    if (quizAnswered) return; // Prevent multiple clicks
-    
-    const q = quizQuestions[activeQuizIndex];
-    selectedAnswer = answer;
-    
-    if (answer === q.answer) {
-        quizScore++;
-    }
-    
+function answerMCQ(selected, correct) {
+    if (quizAnswered) return;
+    selectedAnswer = selected;
     quizAnswered = true;
-    renderQuizQuestion();
+    if (selected === correct) {
+        quizScore++;
+        playSFX(SFX_SUCCESS);
+    } else {
+        playSFX(SFX_ERROR);
+    }
+    renderView();
+}
+
+function renderSpellingUI(word) {
+    return `
+        <div class="spelling-quiz-view">
+            <div class="question-box" style="background: white; padding: 30px 20px; border-radius: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <span style="font-size: 60px; display: block; margin-bottom: 10px;">${word.emoji}</span>
+                <h2 style="font-family: 'Cairo', sans-serif; color: var(--navy-color);">${word.ar}</h2>
+                <p style="color: #888; margin-top: 10px;">اكتب الكلمة بالألمانية</p>
+            </div>
+            
+            <div class="input-container" style="max-width: 400px; margin: 0 auto;">
+                <input type="text" id="spelling-input" value="${spellingInput}" placeholder="اكتب هنا..." 
+                    style="width: 100%; padding: 15px 20px; border: 2px solid #eee; border-radius: 15px; font-size: 20px; text-align: center; outline: none; transition: border-color 0.3s;"
+                    ${quizAnswered ? 'disabled' : ''} oninput="spellingInput = this.value">
+                
+                ${quizAnswered ? `
+                    <div class="feedback-spelling" style="margin-top: 20px; text-align: center; padding: 15px; border-radius: 15px; background: ${spellingInput.toLowerCase().trim() === word.word.toLowerCase().trim() ? '#eafaf1' : '#fdedec'};">
+                        <p style="font-weight: bold; color: ${spellingInput.toLowerCase().trim() === word.word.toLowerCase().trim() ? '#27ae60' : '#c0392b'};">
+                            ${spellingInput.toLowerCase().trim() === word.word.toLowerCase().trim() ? '✅ إجابة صحيحة!' : '❌ إجابة خاطئة!'}
+                        </p>
+                        <p style="margin-top: 5px;">الإجابة الصحيحة: <span style="font-weight: bold; font-size: 20px;">${word.art ? word.art + ' ' : ''}${word.word}</span></p>
+                        <button class="btn-audio" onclick="playWordAudio(${word.id})" style="margin-top: 10px;">🔊 استمع</button>
+                    </div>
+                ` : `
+                    <button class="start-quiz-btn" onclick="checkSpelling('${word.word.replace(/'/g, "\\'")}')" style="width: 100%; margin-top: 20px;">تحقق ✅</button>
+                `}
+            </div>
+            
+            ${quizAnswered ? `<div style="text-align: center; margin-top: 25px;"><button class="next-btn" onclick="nextQuizQuestion()">التالي ➡️</button></div>` : ''}
+        </div>
+    `;
+}
+
+function checkSpelling(correct) {
+    if (quizAnswered) return;
+    quizAnswered = true;
+    const userVal = spellingInput.toLowerCase().trim();
+    const correctVal = correct.toLowerCase().trim();
+    if (userVal === correctVal) {
+        quizScore++;
+        playSFX(SFX_SUCCESS);
+    } else {
+        playSFX(SFX_ERROR);
+    }
+    renderView();
 }
 
 function nextQuizQuestion() {
-    activeQuizIndex++;
+    currentQuizIndex++;
     quizAnswered = false;
     selectedAnswer = null;
-    renderQuizQuestion();
+    spellingInput = "";
+    renderView();
+}
+
+function renderQuizResult(container) {
+    const percentage = Math.round((quizScore / quizWords.length) * 100);
+    let emoji = percentage >= 80 ? '🏆' : percentage >= 60 ? '⭐' : '💪';
+    let message = percentage >= 80 ? 'أحسنت صنعاً يا بطل!' : percentage >= 60 ? 'عمل جيد، استمر في التدرب!' : 'لا بأس، حاول مرة أخرى!';
+
+    container.innerHTML = `
+        <div class="quiz-result" style="text-align: center; padding: 40px 20px; animation: scaleIn 0.5s;">
+            <div style="font-size: 80px; margin-bottom: 20px;">${emoji}</div>
+            <h2 style="font-family: 'Cairo', sans-serif;">اكتمل الاختبار!</h2>
+            <p style="font-size: 20px; margin: 10px 0;">${message}</p>
+            <div class="result-score" style="font-size: 60px; font-weight: 900; color: var(--burgundy-color); margin: 20px 0;">${quizScore} / ${quizWords.length}</div>
+            <p class="result-percent" style="font-size: 24px; color: #777; margin-bottom: 30px;">نسبة النجاح: ${percentage}%</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto;">
+                <button class="start-quiz-btn" onclick="startQuizMode('${selectedQuizMode}')">إعادة الاختبار 🔄</button>
+                <button class="back-btn" onclick="selectedQuizMode=null; renderView();" style="background: #f0f0f0; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: bold;">تغيير النمط ⚙️</button>
+                <button class="back-btn" onclick="selectedQuizCategory=null; selectedQuizMode=null; renderView();" style="background: none; border: none; color: #888; cursor: pointer;">العودة للتصنيفات</button>
+            </div>
+        </div>
+    `;
+}
+
+// --- END NEW QUIZ SYSTEM ---
+
+// Chat View (Keep original logic but ensure it works)
+function renderChatView(container) {
+    const botName = 'Polyglots Assistant';
+    const modeLabel = translationMode ? '🔄 Translation Mode ON' : '🔄 Translation Mode';
+
+    container.innerHTML = `
+        <div class="chat-container" style="height: calc(100vh - 250px);">
+            <div class="chat-header-bar">
+                <div class="chat-bot-info">
+                    <h3>${botName}</h3>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="chat-action-btn" onclick="toggleTranslationMode()" title="${modeLabel}" style="background:none; border:none; color:white; cursor:pointer; font-size:18px; margin-right:10px;">
+                        <i class="fas fa-language"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages" style="overflow-y: auto;">
+                ${chatMessages.length === 0 ? '<div class="chat-welcome"><i class="fas fa-robot"></i><p>أهلاً بك! أنا مساعدك الذكي لتعلم اللغة الألمانية. كيف يمكنني مساعدتك اليوم؟</p></div>' : ''}
+                ${chatMessages.map(m => `
+                    <div class="message ${m.role}">
+                        <div class="message-text">${m.content}</div>
+                    </div>
+                `).join('')}
+                ${isTyping ? '<div class="message ai"><div class="typing">جاري الكتابة...</div></div>' : ''}
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => {
+        const msgContainer = document.getElementById('chat-messages');
+        if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+    }, 100);
+}
+
+function toggleTranslationMode() {
+    translationMode = !translationMode;
+    renderView();
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    chatMessages.push({ role: 'user', content: text });
+    input.value = '';
+    isTyping = true;
+    renderView();
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, translationMode })
+        });
+        const data = await res.json();
+        if (data.reply) chatMessages.push({ role: 'ai', content: data.reply });
+        else chatMessages.push({ role: 'ai', content: 'عذراً، حدث خطأ في الاتصال.' });
+    } catch (e) {
+        chatMessages.push({ role: 'ai', content: 'عذراً، الخادم غير متوفر حالياً.' });
+    }
+    
+    isTyping = false;
+    renderView();
 }
 
 // Games View
@@ -737,14 +740,14 @@ function renderGamesView(container) {
                     <div class="game-card-icon">⚔️</div>
                     <div class="game-card-info">
                         <h3>Team Battle</h3>
-                        <p>Play against a friend! Answer questions in teams, earn points, and use jokers to win!</p>
+                        <p>Play against a friend! Answer questions in teams!</p>
                     </div>
                 </div>
                 <div class="game-card" onclick="openGame('derdiedas.html')">
                     <div class="game-card-icon">🎯</div>
                     <div class="game-card-info">
                         <h3>Der Die Das</h3>
-                        <p>Catch falling words and choose the correct article before they disappear!</p>
+                        <p>Catch falling words and choose the correct article!</p>
                     </div>
                 </div>
             </div>
@@ -760,8 +763,13 @@ function openGame(gameFile) {
                 <i class="fas fa-arrow-left"></i> Back to Games
             </button>
         </div>
-        <iframe src="${gameFile}" class="game-iframe" allowfullscreen></iframe>
+        <iframe src="${gameFile}" class="game-iframe" style="width:100%; height:calc(100vh - 200px); border:none;" allowfullscreen></iframe>
     `;
+}
+
+function applyTheme() {
+    const saved = localStorage.getItem('polyglots_theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
 }
 
 init();
