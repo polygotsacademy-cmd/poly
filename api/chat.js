@@ -3,103 +3,110 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { message, history, mode } = req.body;
+    const { message, history, translationMode } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ 
-            error: 'لم يتم إعداد مفتاح API (GEMINI_API_KEY). يرجى إضافته في إعدادات Vercel.' 
-        });
+        return res.status(500).json({ error: 'Gemini API Key is not configured. Please add GEMINI_API_KEY in Vercel Environment Variables.' });
     }
 
     if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: 'الرسالة غير صالحة.' });
+        return res.status(400).json({ error: 'Invalid or missing message' });
     }
 
-    if (message.length > 200) {
-        return res.status(400).json({ error: 'الرسالة طويلة جداً (الحد الأقصى 200 حرف).' });
-    }
+    // 🌟 البرومبت المطور للمعلم (Polyglots AI) بالعامية المصرية والتنسيق المبهر
+    const teacherPrompt = `أنت 'Polyglots AI'، مساعد ذكي ومدرس لغة ألمانية ودود جداً في 'Polyglots Academy'. أنت تتحدث فقط مع طلاب مبتدئين تماماً (مستوى A1).
 
-    const prompts = {
-        teacher: `أنت 'Polyglots AI'، مدرس ألماني ودود جداً للأطفال (عمر 10 سنوات). 
-        مهمتك: شرح اللغة الألمانية ببساطة شديدة باستخدام العامية المصرية المحببة للأطفال.
-        قواعدك:
-        1. ممنوع تماماً الكلام في أي موضوع خارج تعلم اللغة الألمانية.
-        2. استخدم الرموز التعبيرية (Emojis) بكثرة.
-        3. اجعل إجاباتك قصيرة ومنظمة.
-        4. في نهاية كل رد، اسأل الطفل سؤالاً بسيطاً بالألمانية.`,
-        
-        translator: `أنت مترجم دقيق بين العربية والألمانية.
-        قواعدك:
-        1. ممنوع الكلام في أي شيء خارج الترجمة.
-        2. إذا كانت الكلمة اسماً، اذكر الأداة (der/die/das) والجمع.`
-    };
+قواعد التحدث والتنسيق (صارمة جداً):
+1. اللغة: استخدم "العامية المصرية" اللطيفة والمشجعة في الشرح (مثل: عاش جداً يا بطل، بص يا سيدي، ولا يهمك، ركز في دي)، واستخدم لغة ألمانية بسيطة جداً (A1) في الأمثلة والأسئلة.
+2. التنسيق البصري: إجاباتك يجب أن تكون مريحة للعين. استخدم المسافات (Line breaks)، والخط العريض (**bold**) للكلمات المهمة، والإيموجي (🌟 🇩🇪 💡 ✅).
+3. القالب السحري للكلمات: لو الطالب سألك عن معنى كلمة، لازم ترد بالشكل ده بالظبط:
+   🇩🇪 **الكلمة:** [الكلمة بالألماني مع الأداة der/die/das]
+   🔄 **الجمع:** [صيغة الجمع]
+   📝 **مثال:** [جملة ألماني بسيطة جداً A1]
+   💡 **المعنى:** [الترجمة بالعربي]
+4. تصحيح الأخطاء (طريقة الساندوتش): لو الطالب غلط، ابدأ بمدح محاولته بالعامية، بعدين صحح الغلط بوضوح، وبعدين شجعه. (مثال: "محاولة ممتازة يا بطل! 👏 بس الصح إننا نقول...").
+5. إنهاء الرد: لازم دايماً تنهي كلامك بسؤال ألماني بسيط جداً (A1) عشان تشجع الطالب يرد عليك (مثل: Und du? / Wie alt bist du?).
 
-    const systemPrompt = prompts[mode] || prompts.teacher;
+حظر صارم - ممنوع تماماً:
+1. ممنوع الخروج عن سياق تعلم اللغة الألمانية.
+2. ممنوع الكلام في السياسة، الدين، أو الرياضة. لو سألك قول: 'أنا هنا عشان أساعدك في الألماني وبس، يلا نرجع لدرسنا! 📚'
+3. ممنوع تدي أي أسعار أو مواعيد للأكاديمية. قول: 'يا ريت تتواصل مع إدارة الأكاديمية عشان تعرف التفاصيل دي.'
+4. ممنوع تحل الواجبات مباشرة. اشرح القاعدة وخليه هو يحل.
+5. ممنوع تكتب فقرات طويلة أو بلوكات كلام مقفولة. خلي كلامك متقسم لسطور قصيرة.`;
+
+    // 🌟 البرومبت المطور للمترجم
+    const translatorPrompt = `أنت 'Polyglots AI'، آلة ترجمة دقيقة وسريعة بين العامية/الفصحى العربية واللغة الألمانية.
+
+قواعد الترجمة الصارمة:
+1. لو الكلمة اسم (Noun) هتترجمه للألماني: لازم تكتب أداة التعريف (der/die/das) وصيغة الجمع. (مثال: das Buch - die Bücher).
+2. لو جملة: ترجمها مباشرة وبدقة لمستوى A1.
+3. ممنوع تضيف أي شرح، أمثلة، أو تفتح حوار. إنت في وضع الترجمة فقط.
+4. لو طلب منك حاجة غير الترجمة، رد: 'أنا دلوقتي في وضع الترجمة بس. ببدل بين العربي والألماني. 🔄'`;
+
+    const systemPrompt = translationMode ? translatorPrompt : teacherPrompt;
 
     try {
-        // استخدام الإصدار المستقر v1 واسم النموذج الصحيح
-        const model = 'gemini-1.5-flash';
-        const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
-        
-        let contents = [
-            {
-                role: 'user',
-                parts: [{ text: `System Instruction: ${systemPrompt}` }]
-            },
-            {
-                role: 'model',
-                parts: [{ text: "فهمت تماماً. سألتزم بهذه التعليمات بدقة." }]
-            }
-        ];
+        // 🚀 التعديل هنا: استخدام النموذج المستقر والسريع فقط لمنع مشكلة الـ Timeout
+             const models = ['gemini-3.5-flash', 'gemini-3.0-flash', 'gemini-2.0-flash'];
+        let reply = null;
 
-        if (history && Array.isArray(history)) {
-            // تنظيف التاريخ وإرسال آخر 6 رسائل فقط للحفاظ على التوكنز
-            const recentHistory = history.slice(-6).map(msg => ({
-                role: msg.role === 'ai' ? 'model' : 'user',
-                parts: [{ text: msg.content }]
-            }));
-            contents.push(...recentHistory);
-        }
+        for (const model of models) {
+            try {
+                let contents = [
+                    { role: 'user', parts: [{ text: systemPrompt }] }
+                ];
 
-        // إضافة الرسالة الحالية
-        contents.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: contents,
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 300,
-                    topP: 0.8,
-                    topK: 40
+                if (history && Array.isArray(history)) {
+                    const recentHistory = history.slice(-6);
+                    for (const msg of recentHistory) {
+                        contents.push({
+                            role: msg.role === 'ai' ? 'model' : 'user',
+                            parts: [{ text: msg.content }]
+                        });
+                    }
                 }
-            })
-        });
 
-        const data = await response.json();
+                contents.push({ role: 'user', parts: [{ text: message }] });
 
-        if (!response.ok) {
-            console.error('Gemini API Error:', data);
-            return res.status(response.status).json({ 
-                error: data.error?.message || 'فشل الاتصال بـ Google Gemini API.' 
-            });
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: contents,
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 350
+                        }
+                    } )
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    console.log(`Model ${model} returned error:`, data.error.message);
+                    continue;
+                }
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                    reply = data.candidates[0].content.parts[0].text;
+                    console.log(`Successfully used model: ${model}`);
+                    break;
+                }
+            } catch (modelError) {
+                console.log(`Model ${model} failed:`, modelError.message);
+                continue;
+            }
         }
 
-        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-            const reply = data.candidates[0].content.parts[0].text;
+        if (reply) {
             return res.status(200).json({ reply });
         } else {
-            return res.status(500).json({ error: 'لم يتمكن الذكاء الاصطناعي من توليد رد مناسب.' });
+            return res.status(500).json({ error: 'AI service temporarily unavailable. Please try again later.' });
         }
 
     } catch (error) {
-        console.error('Fetch Error:', error);
-        return res.status(500).json({ error: 'حدث خطأ داخلي أثناء معالجة الطلب.' });
+        console.error('Gemini API Error:', error);
+        return res.status(500).json({ error: 'Failed to connect to AI service. Please check your API key.' });
     }
 }
