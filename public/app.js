@@ -462,12 +462,16 @@ async function sendChatMessage() {
                 history: chatMessages.slice(-10)
             })
         });
+        
         const data = await res.json();
-        if (data.reply) {
+        
+        if (res.ok && data.reply) {
             chatMessages.push({ role: 'ai', content: data.reply });
             incrementDailyChatCount();
         } else {
-            chatMessages.push({ role: 'ai', content: 'عذراً، حدث خطأ في الاتصال.' });
+            // إظهار الخطأ القادم من السيرفر إذا وجد
+            const errorMsg = data.error || 'عذراً، حدث خطأ في الاتصال.';
+            chatMessages.push({ role: 'ai', content: `❌ خطأ: ${errorMsg}` });
         }
     } catch (e) {
         chatMessages.push({ role: 'ai', content: 'عذراً، الخادم غير متوفر حالياً.' });

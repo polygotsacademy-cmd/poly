@@ -4,17 +4,20 @@ export default async function handler(req, res) {
     }
 
     const { message, history, mode } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+    
+    // تأكد من استخدام المفتاح الصحيح لـ Gemini
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'API Key is not configured.' });
+        return res.status(500).json({ 
+            error: 'لم يتم إعداد مفتاح API (GEMINI_API_KEY). يرجى إضافته في إعدادات Vercel.' 
+        });
     }
 
     if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: 'Invalid or missing message' });
+        return res.status(400).json({ error: 'الرسالة غير صالحة.' });
     }
 
-    // Strict Character Limit Enforcement on Backend (200 chars)
     if (message.length > 200) {
         return res.status(400).json({ error: 'الرسالة طويلة جداً (الحد الأقصى 200 حرف).' });
     }
@@ -23,28 +26,26 @@ export default async function handler(req, res) {
         teacher: `أنت 'Polyglots AI'، مدرس ألماني ودود جداً للأطفال (عمر 10 سنوات). 
         مهمتك: شرح اللغة الألمانية ببساطة شديدة باستخدام العامية المصرية المحببة للأطفال.
         قواعدك:
-        1. ممنوع تماماً الكلام في أي موضوع خارج تعلم اللغة الألمانية. إذا سألك الطالب عن أي شيء آخر، قل بلباقة: "أنا هنا عشان أعلمك ألماني وبس، يلا نرجع لدرسنا الجميل! 🇩🇪"
-        2. استخدم الرموز التعبيرية (Emojis) بكثرة لتشجيع الطفل.
-        3. اجعل إجاباتك قصيرة، منسقة، ومنظمة في نقاط أو أسطر منفصلة لتكون سهلة القراءة.
-        4. استخدم الخط العريض **bold** للكلمات الألمانية المهمة.
-        5. في نهاية كل رد، اسأل الطفل سؤالاً بسيطاً بالألمانية لتشجيعه على المحادثة.`,
+        1. ممنوع تماماً الكلام في أي موضوع خارج تعلم اللغة الألمانية.
+        2. استخدم الرموز التعبيرية (Emojis) بكثرة.
+        3. اجعل إجاباتك قصيرة ومنظمة.
+        4. في نهاية كل رد، اسأل الطفل سؤالاً بسيطاً بالألمانية.`,
         
-        translator: `أنت مترجم دقيق بين العربية والألمانية لطلاب مبتدئين.
+        translator: `أنت مترجم دقيق بين العربية والألمانية.
         قواعدك:
         1. ممنوع الكلام في أي شيء خارج الترجمة.
-        2. إذا كانت الكلمة اسماً (Noun)، يجب أن تذكر أداة التعريف (der/die/das) وصيغة الجمع (Plural).
-           مثال: "كتاب" -> "das Buch (Plural: die Bücher)"
-        3. قدم الترجمة فقط بشكل واضح ومختصر بدون مقدمات أو شرح طويل.`
+        2. إذا كانت الكلمة اسماً، اذكر الأداة (der/die/das) والجمع.`
     };
 
     const systemPrompt = prompts[mode] || prompts.teacher;
 
     try {
         const model = 'gemini-1.5-flash';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         let contents = [
             { role: 'user', parts: [{ text: `System Instruction: ${systemPrompt}` }] },
-            { role: 'model', parts: [{ text: "فهمت تماماً. سألتزم بهذه التعليمات بدقة." }] }
+            { role: 'model', parts: [{ text: "فهمت تماماً." }] }
         ];
 
         if (history && Array.isArray(history)) {
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
 
         contents.push({ role: 'user', parts: [{ text: message }] });
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -73,18 +74,22 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        if (data.error) {
-            return res.status(500).json({ error: data.error.message });
+        if (!response.ok) {
+            console.error('Gemini API Error:', data);
+            return res.status(response.status).json({ 
+                error: data.error?.message || 'فشل الاتصال بـ Google Gemini API.' 
+            });
         }
 
         if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
             const reply = data.candidates[0].content.parts[0].text;
             return res.status(200).json({ reply });
         } else {
-            return res.status(500).json({ error: 'AI service failed to generate a response.' });
+            return res.status(500).json({ error: 'لم يتمكن الذكاء الاصطناعي من توليد رد.' });
         }
 
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to connect to AI service.' });
+        console.error('Fetch Error:', error);
+        return res.status(500).json({ error: 'حدث خطأ داخلي في السيرفر.' });
     }
 }
