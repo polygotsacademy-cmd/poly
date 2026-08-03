@@ -43,14 +43,19 @@ async function loadData() {
 
 function setupEventListeners() {
     document.getElementById('login-form').addEventListener('submit', handleLogin);
+    
+    // Sidebar Toggles
     document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
-    document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
+    document.getElementById('sidebar-close').addEventListener('click', toggleSidebar);
     document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
 
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             switchView(item.dataset.view);
-            closeSidebar();
+            // Close sidebar on mobile after clicking
+            if (window.innerWidth < 1024) {
+                closeSidebar();
+            }
         });
     });
 
@@ -59,13 +64,29 @@ function setupEventListeners() {
 
 // Sidebar Logic
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const appContainer = document.getElementById('app-container');
+    
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+    
+    // For desktop, we can also toggle the padding
+    if (window.innerWidth >= 1024) {
+        if (sidebar.classList.contains('open')) {
+            appContainer.style.paddingLeft = 'var(--sidebar-width)';
+        } else {
+            appContainer.style.paddingLeft = '0';
+        }
+    }
 }
 
 function closeSidebar() {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('active');
+    if (window.innerWidth >= 1024) {
+        document.getElementById('app-container').style.paddingLeft = '0';
+    }
 }
 
 // Auth Logic
@@ -129,10 +150,10 @@ function renderView() {
         case 'words': renderWordsView(main); break;
         case 'stories': renderStoriesView(main); break;
         case 'quizzes': renderQuizzesView(main); break;
+        case 'chat': renderChatView(main); break; // 4th position
         case 'materials': renderMaterialsView(main); break;
         case 'messages': renderMessagesView(main); break;
         case 'pronunciation': renderPronunciationView(main); break;
-        case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
     }
 }
@@ -469,7 +490,6 @@ async function sendChatMessage() {
             chatMessages.push({ role: 'ai', content: data.reply });
             incrementDailyChatCount();
         } else {
-            // إظهار الخطأ القادم من السيرفر إذا وجد
             const errorMsg = data.error || 'عذراً، حدث خطأ في الاتصال.';
             chatMessages.push({ role: 'ai', content: `❌ خطأ: ${errorMsg}` });
         }
@@ -480,6 +500,98 @@ async function sendChatMessage() {
     isTyping = false;
     isChatSending = false;
     renderView();
+}
+
+// Stories View
+function renderStoriesView(container) {
+    if (stories.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px;"><p>No stories available.</p></div>`;
+        return;
+    }
+    container.innerHTML = `<h2 style="color: var(--burgundy-color); font-family: 'Cairo', sans-serif;">📚 Short Stories</h2>
+    <div class="stories-list" style="display:flex; flex-direction:column; gap:15px;">
+        ${stories.map((s, index) => `
+            <div class="story-card" onclick="showFullStory(${index})" style="background:white; padding:20px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); cursor:pointer;">
+                <div class="story-info">
+                    <h3 style="color:var(--burgundy-color);">${s.title}</h3>
+                    <p style="color:#666;">${s.text.substring(0, 80)}...</p>
+                </div>
+            </div>
+        `).join('')}
+    </div>`;
+}
+
+function showFullStory(index) {
+    const story = stories[index];
+    const main = document.getElementById('main-content');
+    main.innerHTML = `
+        <div class="story-view" style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+            <button onclick="switchView('stories')" style="background:none; border:none; color:var(--burgundy-color); font-weight:bold; cursor:pointer; margin-bottom:20px;"><i class="fas fa-arrow-left"></i> Back to Stories</button>
+            <h2 style="color:var(--burgundy-color); margin-bottom:20px;">${story.title}</h2>
+            <div class="story-text" style="font-size:18px; line-height:1.8; color:#333;">${story.text}</div>
+            <div class="story-translation" style="margin-top:30px; padding-top:20px; border-top:1px solid #eee; color:#666; font-family:'Cairo', sans-serif;">${story.ar}</div>
+        </div>
+    `;
+}
+
+// Quizzes View
+function renderQuizzesView(container) {
+    const categories = [...new Set(words.map(w => w.cat))];
+    container.innerHTML = `
+        <div class="view-header" style="padding: 10px 20px; text-align: right;">
+            <h2 style="color: var(--burgundy-color); font-family: 'Cairo', sans-serif;">🧠 Quizzes</h2>
+        </div>
+        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px;">
+            ${categories.map(cat => `
+                <div class="category-card" onclick="startQuiz('${cat}')" style="background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;">
+                    <div class="cat-name" style="font-weight: bold; color: #333; font-family: 'Cairo', sans-serif;">${cat}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function startQuiz(cat) {
+    selectedQuizCategory = cat;
+    quizWords = words.filter(w => w.cat === cat).sort(() => Math.random() - 0.5).slice(0, 10);
+    currentQuizIndex = 0;
+    quizScore = 0;
+    quizAnswered = false;
+    renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+    const main = document.getElementById('main-content');
+    if (currentQuizIndex >= quizWords.length) {
+        renderQuizResult(main);
+        return;
+    }
+    const word = quizWords[currentQuizIndex];
+    main.innerHTML = `
+        <div class="quiz-container" style="background:white; padding:30px; border-radius:20px; text-align:center;">
+            <h3>Question ${currentQuizIndex + 1} / ${quizWords.length}</h3>
+            <div style="font-size:60px; margin:20px 0;">${word.emoji}</div>
+            <h2 style="margin-bottom:30px;">${word.word}</h2>
+            <div class="quiz-options" style="display:grid; gap:10px;">
+                <button onclick="checkAnswer(true)" style="padding:15px; border-radius:10px; border:2px solid #eee; background:white; font-weight:bold;">Correct</button>
+                <button onclick="checkAnswer(false)" style="padding:15px; border-radius:10px; border:2px solid #eee; background:white; font-weight:bold;">Incorrect</button>
+            </div>
+        </div>
+    `;
+}
+
+function checkAnswer(ans) {
+    currentQuizIndex++;
+    renderQuizQuestion();
+}
+
+function renderQuizResult(container) {
+    container.innerHTML = `
+        <div class="quiz-result" style="text-align:center; padding:40px;">
+            <h2>Quiz Finished!</h2>
+            <button onclick="switchView('quizzes')" style="margin-top:20px; padding:10px 20px; border-radius:10px; border:none; background:var(--burgundy-color); color:white; font-weight:bold;">Try Another</button>
+        </div>
+    `;
 }
 
 // Games View

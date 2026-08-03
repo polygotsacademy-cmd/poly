@@ -4,8 +4,6 @@ export default async function handler(req, res) {
     }
 
     const { message, history, mode } = req.body;
-    
-    // تأكد من استخدام المفتاح الصحيح لـ Gemini
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -40,25 +38,35 @@ export default async function handler(req, res) {
     const systemPrompt = prompts[mode] || prompts.teacher;
 
     try {
+        // استخدام الإصدار المستقر v1 واسم النموذج الصحيح
         const model = 'gemini-1.5-flash';
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
         
         let contents = [
-            { role: 'user', parts: [{ text: `System Instruction: ${systemPrompt}` }] },
-            { role: 'model', parts: [{ text: "فهمت تماماً." }] }
+            {
+                role: 'user',
+                parts: [{ text: `System Instruction: ${systemPrompt}` }]
+            },
+            {
+                role: 'model',
+                parts: [{ text: "فهمت تماماً. سألتزم بهذه التعليمات بدقة." }]
+            }
         ];
 
         if (history && Array.isArray(history)) {
-            const recentHistory = history.slice(-6);
-            for (const msg of recentHistory) {
-                contents.push({
-                    role: msg.role === 'ai' ? 'model' : 'user',
-                    parts: [{ text: msg.content }]
-                });
-            }
+            // تنظيف التاريخ وإرسال آخر 6 رسائل فقط للحفاظ على التوكنز
+            const recentHistory = history.slice(-6).map(msg => ({
+                role: msg.role === 'ai' ? 'model' : 'user',
+                parts: [{ text: msg.content }]
+            }));
+            contents.push(...recentHistory);
         }
 
-        contents.push({ role: 'user', parts: [{ text: message }] });
+        // إضافة الرسالة الحالية
+        contents.push({
+            role: 'user',
+            parts: [{ text: message }]
+        });
 
         const response = await fetch(url, {
             method: 'POST',
@@ -67,7 +75,9 @@ export default async function handler(req, res) {
                 contents: contents,
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 300
+                    maxOutputTokens: 300,
+                    topP: 0.8,
+                    topK: 40
                 }
             })
         });
@@ -85,11 +95,11 @@ export default async function handler(req, res) {
             const reply = data.candidates[0].content.parts[0].text;
             return res.status(200).json({ reply });
         } else {
-            return res.status(500).json({ error: 'لم يتمكن الذكاء الاصطناعي من توليد رد.' });
+            return res.status(500).json({ error: 'لم يتمكن الذكاء الاصطناعي من توليد رد مناسب.' });
         }
 
     } catch (error) {
         console.error('Fetch Error:', error);
-        return res.status(500).json({ error: 'حدث خطأ داخلي في السيرفر.' });
+        return res.status(500).json({ error: 'حدث خطأ داخلي أثناء معالجة الطلب.' });
     }
 }
