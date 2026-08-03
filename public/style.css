@@ -1798,3 +1798,134 @@ footer {
         height: 300px !important;
     }
 }
+/* ============================================
+   Messages (الرسائل) Section Styles
+   ============================================ */
+
+.messages-header {
+    padding: 20px 15px;
+    text-align: center;
+}
+
+.messages-header h2 {
+    font-family: 'Cairo', sans-serif;
+    color: var(--burgundy-color);
+    font-size: 24px;
+    margin: 0;
+}
+
+.messages-header h2 i {
+    margin-left: 10px;
+}
+
+.messages-list {
+    padding: 0 15px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border-right: 5px solid var(--burgundy-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+.message-card:nth-child(even) {
+    border-right-color: var(--navy-color);
+}
+
+.message-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.message-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.message-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.message-card-title h3 {
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--navy-color);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.message-card-title i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.message-card-date {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    color: #95a5a6;
+    white-space: nowrap;
+    direction: rtl;
+}
+
+.message-card-content {
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.7;
+    direction: rtl;
+}
+
+.message-card-content p {
+    margin: 0;
+}
+
+.message-card-content a {
+    color: var(--burgundy-color);
+    text-decoration: underline;
+}
+
+.message-card-content b,
+.message-card-content strong {
+    color: var(--navy-color);
+    font-weight: 700;
+}
+
+.message-card:last-child {
+    animation-delay: 0.1s;
+}
+
+.messages-empty {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.messages-empty p {
+    font-family: 'Cairo', sans-serif;
+    color: #888;
+    font-size: 18px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -3,6 +3,7 @@ let words = [];
 let stories = [];
 let quizzes = [];
 let materials = [];
+let messages = [];
 let currentUser = null;
 let currentView = 'words';
 let currentCategory = 'Alle';
@@ -36,17 +37,19 @@ async function init() {
 
 async function loadData() {
     try {
-        const [wordsRes, storiesRes, quizzesRes, materialsRes] = await Promise.all([
+        const [wordsRes, storiesRes, quizzesRes, materialsRes, messagesRes] = await Promise.all([
             fetch('words.json').then(r => r.json()),
             fetch('stories.json').then(r => r.json()),
             fetch('quizzes.json').then(r => r.json()),
-            fetch('materials.json').then(r => r.json())
+            fetch('materials.json').then(r => r.json()),
+            fetch('messages.json').then(r => r.json())
         ]);
         words = wordsRes;
         stories = storiesRes;
         quizzes = quizzesRes;
         materials = materialsRes;
-        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length });
+        messages = messagesRes;
+        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length, messages: messages.length });
     } catch (e) {
         console.error("Failed to load data", e);
     }
@@ -215,6 +218,7 @@ function renderView() {
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
+        case 'messages': renderMessagesView(main); break;
     }
 }
 
@@ -799,6 +803,79 @@ function openGame(gameFile) {
         </div>
         <iframe src="${gameFile}" class="game-iframe" style="width:100%; height:calc(100vh - 200px); border:none;" allowfullscreen></iframe>
     `;
+}
+
+// Messages View
+function getCurrentUsername() {
+    // Try to get username from localStorage (stored during login)
+    const saved = localStorage.getItem('polyglots_user');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (parsed.username) return parsed.username;
+        } catch (e) {}
+    }
+    // Fallback to currentUser if available
+    if (currentUser && currentUser.username) return currentUser.username;
+    return null;
+}
+
+function renderMessagesView(container) {
+    const username = getCurrentUsername();
+
+    // Filter messages: isActive === true AND (targetUsers includes "all" OR includes current username)
+    const filteredMessages = messages.filter(msg => {
+        if (!msg.isActive) return false;
+        if (msg.id === 'TEMPLATE') return false; // Skip template
+        const targets = msg.targetUsers || [];
+        if (targets.includes('all')) return true;
+        if (username && targets.includes(username)) return true;
+        return false;
+    });
+
+    let html = `
+        <div class="messages-header" style="text-align: center; padding: 20px;">
+            <h2 style="font-family: 'Cairo', sans-serif; color: var(--primary-color, #7c2f3f);"><i class="fas fa-envelope"></i> الرسائل</h2>
+        </div>
+    `;
+
+    if (filteredMessages.length === 0) {
+        html += `
+            <div class="messages-empty" style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 60px; margin-bottom: 15px;">📭</div>
+                <p style="font-family: 'Cairo', sans-serif; color: #888; font-size: 18px;">لا توجد رسائل جديدة حالياً</p>
+            </div>
+        `;
+    } else {
+        html += `<div class="messages-list">`;
+        html += filteredMessages.map(msg => {
+            const dateObj = new Date(msg.date);
+            const formattedDate = dateObj.toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const isGlobal = (msg.targetUsers || []).includes('all');
+
+            return `
+                <div class="message-card">
+                    <div class="message-card-header">
+                        <div class="message-card-title">
+                            ${isGlobal ? '<i class="fas fa-bullhorn" style="color: #e74c3c;"></i>' : '<i class="fas fa-user-tag" style="color: #3498db;"></i>'}
+                            <h3>${msg.title}</h3>
+                        </div>
+                        <span class="message-card-date">${formattedDate}</span>
+                    </div>
+                    <div class="message-card-content">
+                        <p>${msg.content}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
 }
 
 function applyTheme() {
