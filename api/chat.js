@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     }
 
     const { message, history, mode } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY; // Use available key
+    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'API Key is not configured.' });
@@ -14,47 +14,37 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid or missing message' });
     }
 
-    // Define System Prompts based on Mode
+    // Strict Character Limit Enforcement on Backend (200 chars)
+    if (message.length > 200) {
+        return res.status(400).json({ error: 'الرسالة طويلة جداً (الحد الأقصى 200 حرف).' });
+    }
+
     const prompts = {
-        teacher: `Act as a friendly German teacher strictly following the "Deutschprofis A1.1 and A1.2" curriculum. 
-        Explain grammar simply in Arabic (Egyptian dialect is preferred for friendliness). 
-        Always encourage the student. Use bold text for German words and lists for clarity. 
-        End your response with a simple German question.`,
+        teacher: `أنت 'Polyglots AI'، مدرس ألماني ودود جداً للأطفال (عمر 10 سنوات). 
+        مهمتك: شرح اللغة الألمانية ببساطة شديدة باستخدام العامية المصرية المحببة للأطفال.
+        قواعدك:
+        1. ممنوع تماماً الكلام في أي موضوع خارج تعلم اللغة الألمانية. إذا سألك الطالب عن أي شيء آخر، قل بلباقة: "أنا هنا عشان أعلمك ألماني وبس، يلا نرجع لدرسنا الجميل! 🇩🇪"
+        2. استخدم الرموز التعبيرية (Emojis) بكثرة لتشجيع الطفل.
+        3. اجعل إجاباتك قصيرة، منسقة، ومنظمة في نقاط أو أسطر منفصلة لتكون سهلة القراءة.
+        4. استخدم الخط العريض **bold** للكلمات الألمانية المهمة.
+        5. في نهاية كل رد، اسأل الطفل سؤالاً بسيطاً بالألمانية لتشجيعه على المحادثة.`,
         
-        translator: `Translate between Arabic and German. 
-        If translating a noun to German, you MUST provide the article (der/die/das) and the plural form.
-        Example: 
-        User: "كتاب"
-        Response: "das Buch (Plural: die Bücher)"
-        Provide only the translation without extra chatter.`,
-        
-        homework: `Act as a home tutor for students studying "Deutschprofis A1.1 and A1.2". 
-        First, ask the student for the page and exercise number they are working on. 
-        CRITICAL RULE: NEVER give direct answers to homework. 
-        Instead, give hints, remind them of the relevant grammar rule from the curriculum, and guide them to find the answer themselves. 
-        Explain in Arabic.`,
-        
-        roleplay: `Act as a conversation partner for an A1 German student. 
-        Initiate simple roleplays based on A1 topics like family, food, hobbies, or shopping. 
-        Speak ONLY in simple German. 
-        Ask only ONE question at a time and wait for the student's reply. 
-        Keep your sentences short and appropriate for A1 level.`,
-        
-        corrector: `The student will provide German sentences. 
-        Your job is to correct any grammatical or spelling mistakes. 
-        Explain the correction briefly in Arabic based on A1 rules from the "Deutschprofis" curriculum. 
-        Show the corrected sentence clearly in bold.`
+        translator: `أنت مترجم دقيق بين العربية والألمانية لطلاب مبتدئين.
+        قواعدك:
+        1. ممنوع الكلام في أي شيء خارج الترجمة.
+        2. إذا كانت الكلمة اسماً (Noun)، يجب أن تذكر أداة التعريف (der/die/das) وصيغة الجمع (Plural).
+           مثال: "كتاب" -> "das Buch (Plural: die Bücher)"
+        3. قدم الترجمة فقط بشكل واضح ومختصر بدون مقدمات أو شرح طويل.`
     };
 
     const systemPrompt = prompts[mode] || prompts.teacher;
 
     try {
-        // Use Gemini API as in the original code, but with fallback or simplified logic
-        const model = 'gemini-1.5-flash'; // Using a stable model
+        const model = 'gemini-1.5-flash';
         
         let contents = [
             { role: 'user', parts: [{ text: `System Instruction: ${systemPrompt}` }] },
-            { role: 'model', parts: [{ text: "Understood. I will act according to these instructions." }] }
+            { role: 'model', parts: [{ text: "فهمت تماماً. سألتزم بهذه التعليمات بدقة." }] }
         ];
 
         if (history && Array.isArray(history)) {
@@ -76,7 +66,7 @@ export default async function handler(req, res) {
                 contents: contents,
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 500
+                    maxOutputTokens: 300
                 }
             })
         });
@@ -84,7 +74,6 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         if (data.error) {
-            console.error('API Error:', data.error);
             return res.status(500).json({ error: data.error.message });
         }
 
@@ -96,7 +85,6 @@ export default async function handler(req, res) {
         }
 
     } catch (error) {
-        console.error('Fetch Error:', error);
         return res.status(500).json({ error: 'Failed to connect to AI service.' });
     }
 }
