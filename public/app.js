@@ -3,7 +3,6 @@ let words = [];
 let stories = [];
 let quizzes = [];
 let materials = [];
-let messages = [];
 let currentUser = null;
 let currentView = 'words';
 let currentCategory = 'Alle';
@@ -12,6 +11,7 @@ let dailyChatLimit = 20;
 let isTyping = false;
 let isChatSending = false;
 let translationMode = false;
+let currentChatMode = 'teacher'; // Default mode
 
 // Quiz State
 let selectedQuizCategory = null;
@@ -37,19 +37,17 @@ async function init() {
 
 async function loadData() {
     try {
-        const [wordsRes, storiesRes, quizzesRes, materialsRes, messagesRes] = await Promise.all([
+        const [wordsRes, storiesRes, quizzesRes, materialsRes] = await Promise.all([
             fetch('words.json').then(r => r.json()),
             fetch('stories.json').then(r => r.json()),
             fetch('quizzes.json').then(r => r.json()),
-            fetch('materials.json').then(r => r.json()),
-            fetch('messages.json').then(r => r.json())
+            fetch('materials.json').then(r => r.json())
         ]);
         words = wordsRes;
         stories = storiesRes;
         quizzes = quizzesRes;
         materials = materialsRes;
-        messages = messagesRes;
-        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length, messages: messages.length });
+        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length });
     } catch (e) {
         console.error("Failed to load data", e);
     }
@@ -61,45 +59,11 @@ function setupEventListeners() {
 
     // Nav
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            switchView(item.dataset.view);
-            closeSidebar();
-        });
+        item.addEventListener('click', () => switchView(item.dataset.view));
     });
 
     // Search
     document.getElementById('searchInput').addEventListener('input', handleSearch);
-
-    // Sidebar toggle
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    closeSidebarBtn.addEventListener('click', closeSidebar);
-    sidebarOverlay.addEventListener('click', closeSidebar);
-}
-
-// Sidebar Functions
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('visible');
-}
-
-function openSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    sidebar.classList.add('open');
-    overlay.classList.add('visible');
-}
-
-function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    sidebar.classList.remove('open');
-    overlay.classList.remove('visible');
 }
 
 // Auth Logic
@@ -218,7 +182,6 @@ function renderView() {
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
-        case 'messages': renderMessagesView(main); break;
     }
 }
 
@@ -697,33 +660,56 @@ function renderQuizResult(container) {
 
 // Chat View (Keep original logic but ensure it works)
 function renderChatView(container) {
-    const botName = 'Polyglots Assistant';
-    const modeLabel = translationMode ? '🔄 Translation Mode ON' : '🔄 Translation Mode';
+    const modes = [
+        { id: 'teacher', name: 'المعلم', icon: '👨‍🏫' },
+        { id: 'translator', name: 'المترجم', icon: '🔄' },
+        { id: 'homework', name: 'مساعد الواجبات', icon: '📝' },
+        { id: 'roleplay', name: 'شريك المحادثة', icon: '🎭' },
+        { id: 'corrector', name: 'مُصحح الجمل', icon: '✅' }
+    ];
 
     container.innerHTML = `
-        <div class="chat-container" style="height: calc(100vh - 250px);">
-            <div class="chat-header-bar">
-                <div class="chat-bot-info">
-                    <h3>${botName}</h3>
-                </div>
-                <div class="chat-header-actions">
-                    <button class="chat-action-btn" onclick="toggleTranslationMode()" title="${modeLabel}" style="background:none; border:none; color:white; cursor:pointer; font-size:18px; margin-right:10px;">
-                        <i class="fas fa-language"></i>
+        <div class="chat-container">
+            <div class="chat-mode-container">
+                ${modes.map(m => `
+                    <button class="mode-btn ${currentChatMode === m.id ? 'active' : ''}" onclick="setChatMode('${m.id}')">
+                        ${m.icon} ${m.name}
                     </button>
-                </div>
+                `).join('')}
             </div>
-            <div class="chat-messages" id="chat-messages" style="overflow-y: auto;">
-                ${chatMessages.length === 0 ? '<div class="chat-welcome"><i class="fas fa-robot"></i><p>أهلاً بك! أنا مساعدك الذكي لتعلم اللغة الألمانية. كيف يمكنني مساعدتك اليوم؟</p></div>' : ''}
+            <div class="chat-messages" id="chat-messages">
+                ${chatMessages.length === 0 ? `
+                    <div class="message-row ai">
+                        <div class="message-content">
+                            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="message-text">أهلاً بك! أنا مساعدك الذكي لتعلم اللغة الألمانية. اختر الوضع المناسب وابدأ المحادثة! 🇩🇪</div>
+                        </div>
+                    </div>
+                ` : ''}
                 ${chatMessages.map(m => `
-                    <div class="message ${m.role}">
-                        <div class="message-text">${m.content}</div>
+                    <div class="message-row ${m.role}">
+                        <div class="message-content">
+                            <div class="message-avatar">${m.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}</div>
+                            <div class="message-text">${m.role === 'ai' ? marked.parse(m.content) : m.content}</div>
+                        </div>
                     </div>
                 `).join('')}
-                ${isTyping ? '<div class="message ai"><div class="typing">جاري الكتابة...</div></div>' : ''}
+                ${isTyping ? `
+                    <div class="message-row ai">
+                        <div class="message-content">
+                            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="message-text typing-indicator">جاري الكتابة...</div>
+                        </div>
+                    </div>
+                ` : ''}
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            <div class="chat-input-wrapper">
+                <div class="chat-input-box">
+                    <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()" ${isChatSending ? 'disabled' : ''}>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -734,6 +720,11 @@ function renderChatView(container) {
     }, 100);
 }
 
+function setChatMode(mode) {
+    currentChatMode = mode;
+    renderView();
+}
+
 function toggleTranslationMode() {
     translationMode = !translationMode;
     renderView();
@@ -741,10 +732,12 @@ function toggleTranslationMode() {
 
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
-    if (!input) return;
+    if (!input || isChatSending) return;
+    
     const text = input.value.trim();
     if (!text) return;
 
+    isChatSending = true;
     chatMessages.push({ role: 'user', content: text });
     input.value = '';
     isTyping = true;
@@ -754,7 +747,11 @@ async function sendChatMessage() {
         const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, translationMode })
+            body: JSON.stringify({ 
+                message: text, 
+                mode: currentChatMode,
+                history: chatMessages.slice(-10) // Send recent history for context
+            })
         });
         const data = await res.json();
         if (data.reply) chatMessages.push({ role: 'ai', content: data.reply });
@@ -764,6 +761,7 @@ async function sendChatMessage() {
     }
     
     isTyping = false;
+    isChatSending = false;
     renderView();
 }
 
@@ -803,79 +801,6 @@ function openGame(gameFile) {
         </div>
         <iframe src="${gameFile}" class="game-iframe" style="width:100%; height:calc(100vh - 200px); border:none;" allowfullscreen></iframe>
     `;
-}
-
-// Messages View
-function getCurrentUsername() {
-    // Try to get username from localStorage (stored during login)
-    const saved = localStorage.getItem('polyglots_user');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            if (parsed.username) return parsed.username;
-        } catch (e) {}
-    }
-    // Fallback to currentUser if available
-    if (currentUser && currentUser.username) return currentUser.username;
-    return null;
-}
-
-function renderMessagesView(container) {
-    const username = getCurrentUsername();
-
-    // Filter messages: isActive === true AND (targetUsers includes "all" OR includes current username)
-    const filteredMessages = messages.filter(msg => {
-        if (!msg.isActive) return false;
-        if (msg.id === 'TEMPLATE') return false; // Skip template
-        const targets = msg.targetUsers || [];
-        if (targets.includes('all')) return true;
-        if (username && targets.includes(username)) return true;
-        return false;
-    });
-
-    let html = `
-        <div class="messages-header" style="text-align: center; padding: 20px;">
-            <h2 style="font-family: 'Cairo', sans-serif; color: var(--primary-color, #7c2f3f);"><i class="fas fa-envelope"></i> الرسائل</h2>
-        </div>
-    `;
-
-    if (filteredMessages.length === 0) {
-        html += `
-            <div class="messages-empty" style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 60px; margin-bottom: 15px;">📭</div>
-                <p style="font-family: 'Cairo', sans-serif; color: #888; font-size: 18px;">لا توجد رسائل جديدة حالياً</p>
-            </div>
-        `;
-    } else {
-        html += `<div class="messages-list">`;
-        html += filteredMessages.map(msg => {
-            const dateObj = new Date(msg.date);
-            const formattedDate = dateObj.toLocaleDateString('ar-EG', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            const isGlobal = (msg.targetUsers || []).includes('all');
-
-            return `
-                <div class="message-card">
-                    <div class="message-card-header">
-                        <div class="message-card-title">
-                            ${isGlobal ? '<i class="fas fa-bullhorn" style="color: #e74c3c;"></i>' : '<i class="fas fa-user-tag" style="color: #3498db;"></i>'}
-                            <h3>${msg.title}</h3>
-                        </div>
-                        <span class="message-card-date">${formattedDate}</span>
-                    </div>
-                    <div class="message-card-content">
-                        <p>${msg.content}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        html += `</div>`;
-    }
-
-    container.innerHTML = html;
 }
 
 function applyTheme() {
