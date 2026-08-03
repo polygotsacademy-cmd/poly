@@ -35,34 +35,20 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="app-container" class="screen">
-        <header>
-            <div class="header-top">
-                <img src="academy_logo.png" alt="Logo" class="header-logo">
-                
-            </div>
-            <div id="search-bar-container" class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search in German or Arabic...">
-            </div>
-        </header>
+    <!-- Hamburger Menu Button -->
+    <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
 
-        <main id="main-content">
-            <!-- Content will be injected here -->
-        </main>
-
-        <footer>
-            <div class="footer-content">
-                <p>Polyglots Academy - 15 May city</p>
-                <div class="social-links">
-                    <a href="https://wa.me/201152535924" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://www.facebook.com/profile.php?id=100075621807287" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="https://www.tiktok.com/@polygotsacademy26" target="_blank"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-        </footer>
-
-        <nav class="bottom-nav">
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img src="academy_logo.png" alt="Logo" class="sidebar-logo">
+            <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close navigation">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-nav-items">
             <div class="nav-item active" data-view="words">
                 <i class="fas fa-book"></i>
                 <span>Words</span>
@@ -91,7 +77,36 @@
                 <i class="fas fa-gamepad"></i>
                 <span>Games</span>
             </div>
-        </nav>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="screen">
+        <header>
+            <div class="header-top">
+                <div id="search-bar-container" class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search in German or Arabic...">
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <!-- Content will be injected here -->
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p>Polyglots Academy - 15 May city</p>
+                <div class="social-links">
+                    <a href="https://wa.me/201152535924" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100075621807287" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.tiktok.com/@polygotsacademy26" target="_blank"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script src="app.js"></script>

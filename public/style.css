@@ -145,12 +145,6 @@ header {
     margin-bottom: 15px;
 }
 
-.header-logo {
-    max-height: 85px;
-    display: block;
-    margin: 0 auto;
-}
-
 .header-top {
     display: flex;
     flex-direction: column;
@@ -181,43 +175,147 @@ main {
     margin: 0 auto;
 }
 
-/* Bottom Nav */
-.bottom-nav {
+/* Hamburger Button */
+.hamburger-btn {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--nav-bg);
+    top: 12px;
+    left: 12px;
+    z-index: 2000;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: var(--burgundy-color);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
     display: flex;
-    overflow-x: auto;
-    padding: 10px 0;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(124, 47, 63, 0.35);
+    transition: transform 0.2s, background 0.2s;
 }
 
-.nav-item {
-    flex: 1;
-    min-width: 70px;
+.hamburger-btn:hover {
+    transform: scale(1.08);
+    background: #9a3c4e;
+}
+
+.hamburger-btn:active {
+    transform: scale(0.95);
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--header-bg);
+    z-index: 3000;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: space-between;
+    padding: 20px 16px;
+    border-bottom: 3px solid var(--burgundy-color);
+}
+
+.sidebar-logo {
+    max-height: 60px;
+    display: block;
+}
+
+.close-sidebar-btn {
+    background: none;
+    border: none;
+    color: var(--navy-color);
+    font-size: 20px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.close-sidebar-btn:hover {
+    background: #f0f0f0;
+}
+
+.sidebar-nav-items {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+}
+
+.sidebar-nav-items .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
     cursor: pointer;
     color: #95a5a6;
-    transition: 0.3s;
-}
-
-.nav-item.active {
-    color: var(--nav-active);
-}
-
-.nav-item i {
-    font-size: 20px;
-}
-
-.nav-item span {
-    font-size: 12px;
     font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-nav-items .nav-item:hover {
+    background: #f8f5f5;
+    color: var(--navy-color);
+}
+
+.sidebar-nav-items .nav-item.active {
+    color: var(--nav-active);
+    background: #faf0f2;
+    border-left: 4px solid var(--burgundy-color);
+}
+
+.sidebar-nav-items .nav-item i {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-nav-items .nav-item span {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 2500;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Footer */
@@ -1546,9 +1644,7 @@ footer {
         font-size: 18px;
     }
 
-    .header-logo {
-        max-height: 70px;
-    }
+
 
     .search-input {
         font-size: 13px;
@@ -1583,21 +1679,7 @@ footer {
         font-size: 16px;
     }
 
-    .header-logo {
-        max-height: 60px;
-    }
 
-    .nav-item i {
-        font-size: 18px;
-    }
-
-    .nav-item span {
-        font-size: 10px;
-    }
-
-    .bottom-nav {
-        padding: 8px 0;
-    }
 
     /* Adjust font sizes for mobile readability */
     body {
