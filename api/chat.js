@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -28,119 +28,104 @@ export default async function handler(req, res) {
     const systemPrompt = prompts[mode] || prompts.teacher;
     const fullSystemPrompt = `${systemPrompt}\n\nاللغة المستخدمة للرد: العامية المصرية + ألماني (A1-A2) فقط.`;
 
-    try {
-        const contents = [];
-
-        // Add History
-        if (history && Array.isArray(history)) {
-            history.forEach(msg => {
-                const parts = [];
-                if (msg.content) parts.push({ text: msg.content });
-                if (msg.image) {
-                    const [mime, data] = msg.image.split(';base64,');
-                    parts.push({ inlineData: { mimeType: mime.split(':')[1], data: data } });
-                }
-                if (msg.audio) {
-                    const [mime, data] = msg.audio.split(';base64,');
-                    parts.push({ inlineData: { mimeType: mime.split(':')[1], data: data } });
-                }
-                // Only push if there are parts to avoid empty user/model messages
-                if (parts.length > 0) {
-                    contents.push({
-                        role: msg.role === 'ai' ? 'model' : 'user',
-                        parts: parts
-                    });
-                }
-            });
-        }
-
-        // Prepare current message parts
-        const currentParts = [];
-        if (text) currentParts.push({ text: text });
-        
-        if (image) {
-            const [mime, data] = image.split(';base64,');
-            currentParts.push({
-                inlineData: {
-                    mimeType: mime.split(':')[1],
-                    data: data
-                }
-            });
-        }
-
-        if (audio) {
-            const [mime, data] = audio.split(';base64,');
-            currentParts.push({
-                inlineData: {
-                    mimeType: mime.split(':')[1],
-                    data: data
-                }
-            });
-        }
-
-        // Only push current message if there are parts
-        if (currentParts.length > 0) {
-            contents.push({
-                role: 'user',
-                parts: currentParts
-            });
-        }
-
-        const modelsToTry = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-pro'];
-        let reply = null;
-
-        for (const modelName of modelsToTry) {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: modelName,
-                    systemInstruction: { parts: [{ text: fullSystemPrompt }] }
-                });
-
-                const result = await model.generateContent({
-                    contents: contents,
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 800
-                    },
-                    safetySettings: [
-                        {
-                            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
-                        },
-                        {
-                            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
-                        },
-                        {
-                            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
-                        },
-                        {
-                            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
-                        },
-                    ],
-                });
-
-                reply = result.response.text();
-                if (reply) {
-                    console.log(`Successfully used model: ${modelName}`);
-                    break; // Exit loop if successful
-                }
-            } catch (modelError) {
-                console.error(`Model ${modelName} failed:`, modelError.message);
-                // Continue to next model in the list
+    // Prepare content parts
+    const parts = [];
+    if (text) parts.push({ text: text });
+    
+    if (image) {
+        const [mime, data] = image.split(';base64,');
+        parts.push({
+            inlineData: {
+                mimeType: mime.split(':')[1],
+                data: data
             }
-        }
+        });
+    }
 
-        if (reply) {
-            return res.status(200).json({ reply });
-        } else {
-            return res.status(500).json({ error: 'AI service temporarily unavailable. Please try again later.' });
-        }
+    if (audio) {
+        const [mime, data] = audio.split(';base64,');
+        parts.push({
+            inlineData: {
+                mimeType: mime.split(':')[1],
+                data: data
+            }
+        });
+    }
 
-    } catch (error) {
-        console.error('Server Error:', error);
-        return res.status(500).json({ error: 'Internal server error.' });
+    // Format history for the SDK
+    const chatHistory = [];
+    if (history && Array.isArray(history)) {
+        history.forEach(msg => {
+            const hParts = [];
+            if (msg.content) hParts.push({ text: msg.content });
+            if (msg.image) {
+                const [mime, data] = msg.image.split(';base64,');
+                hParts.push({ inlineData: { mimeType: mime.split(':')[1], data: data } });
+            }
+            if (msg.audio) {
+                const [mime, data] = msg.audio.split(';base64,');
+                hParts.push({ inlineData: { mimeType: mime.split(':')[1], data: data } });
+            }
+            
+            if (hParts.length > 0) {
+                chatHistory.push({
+                    role: msg.role === 'ai' ? 'model' : 'user',
+                    parts: hParts
+                });
+            }
+        });
+    }
+
+    const modelsToTry = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-pro'];
+    let reply = null;
+
+    for (const modelName of modelsToTry) {
+        try {
+            // gemini-pro doesn't support systemInstruction in older versions or some regions, 
+            // but gemini-1.5 models do.
+            const modelConfig = { model: modelName };
+            if (modelName.includes('1.5')) {
+                modelConfig.systemInstruction = fullSystemPrompt;
+            }
+
+            const model = genAI.getGenerativeModel(modelConfig);
+            
+            let result;
+            if (chatHistory.length > 0) {
+                const chat = model.startChat({
+                    history: chatHistory,
+                    generationConfig: {
+                        maxOutputTokens: 800,
+                        temperature: 0.7,
+                    },
+                });
+                result = await chat.sendMessage(parts);
+            } else {
+                // If it's the first message, we can just use generateContent
+                // but we should prepend the system prompt if the model is gemini-pro (no systemInstruction support)
+                let finalParts = parts;
+                if (!modelName.includes('1.5')) {
+                    finalParts = [{ text: `Instructions: ${fullSystemPrompt}` }, ...parts];
+                }
+                result = await model.generateContent(finalParts);
+            }
+
+            const response = await result.response;
+            reply = response.text();
+            
+            if (reply) {
+                console.log(`Successfully used model: ${modelName}`);
+                break;
+            }
+        } catch (error) {
+            console.error(`Error with model ${modelName}:`, error.message);
+            // Continue to next model
+        }
+    }
+
+    if (reply) {
+        return res.status(200).json({ reply });
+    } else {
+        return res.status(500).json({ error: 'AI service temporarily unavailable. All models failed.' });
     }
 }
