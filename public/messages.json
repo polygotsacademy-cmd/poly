@@ -2,8 +2,8 @@
     {
         "id": 1,
         "title": "Welcome to Polyglots Academy",
-        "content": "Welcome to our platform! We are excited to have you here. This is a targeted message just for you.",
-        "targetUsers": ["يوسف"]
+        "content": "عاملة ايه يا ريسة",
+        "targetUsers": ["يوسف" , "فراو"]
     },
     {
         "id": 2,
