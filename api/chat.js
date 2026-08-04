@@ -76,19 +76,16 @@ export default async function handler(req, res) {
         });
     }
 
-    const modelsToTry = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-pro'];
+    // Updated model list based on latest 2026 availability
+    const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash'];
     let reply = null;
 
     for (const modelName of modelsToTry) {
         try {
-            // gemini-pro doesn't support systemInstruction in older versions or some regions, 
-            // but gemini-1.5 models do.
-            const modelConfig = { model: modelName };
-            if (modelName.includes('1.5')) {
-                modelConfig.systemInstruction = fullSystemPrompt;
-            }
-
-            const model = genAI.getGenerativeModel(modelConfig);
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                systemInstruction: fullSystemPrompt
+            });
             
             let result;
             if (chatHistory.length > 0) {
@@ -101,13 +98,7 @@ export default async function handler(req, res) {
                 });
                 result = await chat.sendMessage(parts);
             } else {
-                // If it's the first message, we can just use generateContent
-                // but we should prepend the system prompt if the model is gemini-pro (no systemInstruction support)
-                let finalParts = parts;
-                if (!modelName.includes('1.5')) {
-                    finalParts = [{ text: `Instructions: ${fullSystemPrompt}` }, ...parts];
-                }
-                result = await model.generateContent(finalParts);
+                result = await model.generateContent(parts);
             }
 
             const response = await result.response;
