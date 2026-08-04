@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     };
 
     const systemPrompt = prompts[mode] || prompts.teacher;
-    const fullSystemPrompt = `${systemPrompt}\n\nاللغة المستخدمة للرد: العامية المصرية + ألماني (A1-A2) فقط. Your responses MUST be concise and NEVER exceed 300 words.`
+    const fullSystemPrompt = `${systemPrompt}\n\nاللغة المستخدمة للرد: العامية المصرية + ألماني (A1-A2) فقط.`;
 
     // Prepare content parts
     const parts = [];
@@ -98,13 +98,7 @@ export default async function handler(req, res) {
                 });
                 result = await chat.sendMessage(parts);
             } else {
-                result = await model.generateContent({
-                    contents: parts,
-                    generationConfig: {
-                        maxOutputTokens: 800,
-                        temperature: 0.7,
-                    },
-                });
+                result = await model.generateContent(parts);
             }
 
             const response = await result.response;
