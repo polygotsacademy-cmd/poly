@@ -231,8 +231,6 @@ function switchView(view) {
 function renderView() {
     const main = document.getElementById('main-content');
     main.innerHTML = '';
-    // Only the chat view needs the fixed-height / internal-scroll layout.
-    main.classList.toggle('chat-view-mode', currentView === 'chat');
 
     switch (currentView) {
         case 'words': renderWordsView(main); break;
@@ -244,31 +242,6 @@ function renderView() {
         case 'games': renderGamesView(main); break;
         case 'messages': renderMessagesView(main); break;
     }
-}
-
-// --- Toast Notifications (replaces native alert()) ---
-function showToast(message, type = 'default') {
-    const container = document.getElementById('toast-container');
-    if (!container) {
-        // Fallback, should not normally happen
-        console.warn('Toast container missing:', message);
-        return;
-    }
-
-    const toast = document.createElement('div');
-    toast.className = 'toast' + (type && type !== 'default' ? ` toast-${type}` : '');
-    toast.textContent = message;
-    container.appendChild(toast);
-
-    // Trigger enter animation on next frame
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => toast.classList.add('toast-show'));
-    });
-
-    setTimeout(() => {
-        toast.classList.remove('toast-show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
 
 function renderMessagesView(container) {
@@ -772,24 +745,38 @@ function renderQuizResult(container) {
 
 // --- END NEW QUIZ SYSTEM ---
 
-const DAILY_LIMITS = { images: 3, voice: 3, messages: 20 };
-
 function getDailyUsage() {
     const today = new Date().toISOString().split('T')[0];
     const usage = JSON.parse(localStorage.getItem('polyglots_usage') || '{}');
     if (usage.date !== today) {
-        return { date: today, images: 0, voice: 0, messages: 0 };
+        return { date: today, images: 0, voice: 0, text: 0 };
     }
-    // Ensure older saved objects (from before the messages counter existed) still work
-    if (typeof usage.messages !== 'number') usage.messages = 0;
+    // Handle migration from old format
+    if (usage.text === undefined) usage.text = 0;
     return usage;
 }
 
 function updateDailyUsage(type) {
     const usage = getDailyUsage();
-    usage[type] = (usage[type] || 0) + 1;
+    usage[type]++;
     localStorage.setItem('polyglots_usage', JSON.stringify(usage));
-    return usage;
+}
+
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        setTimeout(() => toast.remove(), 500);
+    }, 2500);
 }
 
 function renderChatView(container) {
@@ -824,9 +811,9 @@ function renderChatView(container) {
                 ` : chatMessages.map(msg => `
                     <div class="msg-poly ${msg.role}">
                         <div class="msg-content">
-                            ${msg.image ? `<img src="${msg.image}" class="msg-image-thumb" onclick="window.open('${msg.image}', '_blank')">` : ''}
-                            ${msg.audio ? `<audio controls src="${msg.audio}" class="msg-audio-player"></audio>` : ''}
-                            ${msg.content ? `<div>${msg.content}</div>` : ''}
+                            ${msg.image ? `<img src="${msg.image}">` : ''}
+                            ${msg.audio ? `<audio controls src="${msg.audio}"></audio>` : ''}
+                            <div>${msg.content}</div>
                         </div>
                     </div>
                 `).join('')}
@@ -843,9 +830,9 @@ function renderChatView(container) {
                     <button class="send-btn-poly" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div class="chat-counters">
-                    <span class="counter-item">الرسائل: ${usage.messages}/${DAILY_LIMITS.messages}</span>
-                    <span class="counter-item">الصور: ${usage.images}/${DAILY_LIMITS.images}</span>
-                    <span class="counter-item">الصوت: ${usage.voice}/${DAILY_LIMITS.voice}</span>
+                    <span class="counter-item">الرسائل: ${usage.text}/20</span>
+                    <span class="counter-item">الصور: ${usage.images}/3</span>
+                    <span class="counter-item">الصوت: ${usage.voice}/3</span>
                 </div>
             </div>
             <input type="file" id="image-input" hidden accept="image/*" onchange="handleImageSelect(event)">
@@ -865,10 +852,10 @@ function setChatMode(mode) {
 
 function triggerImageUpload() {
     const usage = getDailyUsage();
-    if (usage.images >= DAILY_LIMITS.images) {
-        showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
-        return;
-    }
+        if (usage.images >= 3) {
+            showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
+            return;
+        }
     document.getElementById('image-input').click();
 }
 
@@ -903,7 +890,7 @@ function clearMedia() {
 
 async function toggleVoiceRecording() {
     const usage = getDailyUsage();
-    if (usage.voice >= DAILY_LIMITS.voice) {
+    if (usage.voice >= 3) {
         showToast("يا بطل، أنت خلصت الـ 3 تسجيلات بتوع النهاردة! استنى لبكرة بقى. 😊");
         return;
     }
@@ -956,8 +943,8 @@ async function sendMessage() {
     if ((!text && !selectedImage && !selectedAudio) || isChatSending) return;
 
     const usage = getDailyUsage();
-    if (usage.messages >= DAILY_LIMITS.messages) {
-        showToast(`يا بطل، وصلت للحد الأقصى (${DAILY_LIMITS.messages} رسالة) بتوع النهاردة! استنى لبكرة بقى. 😊`);
+    if (usage.text >= 20) {
+        showToast("يا بطل، أنت خلصت الـ 20 رسالة بتوع النهاردة! استنى لبكرة بقى. 😊");
         return;
     }
 
@@ -978,7 +965,7 @@ async function sendMessage() {
         history: chatMessages.slice(-6, -1)
     };
 
-    updateDailyUsage('messages');
+    updateDailyUsage('text');
     if (selectedImage) updateDailyUsage('images');
     if (selectedAudio) updateDailyUsage('voice');
 
