@@ -2123,3 +2123,106 @@ footer {
     50% { transform: scale(1.2); }
     100% { transform: scale(1); }
 }
+
+/* --- PREMIUM REFINEMENTS --- */
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(43, 50, 69, 0.95);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    pointer-events: auto;
+    animation: toast-fade 3s ease-in-out forwards;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+
+@keyframes toast-fade {
+    0% { opacity: 0; transform: translateY(20px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Layout & Scroll Refinement */
+.polyglots-chat-container {
+    height: calc(100vh - 70px) !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .polyglots-chat-container {
+        max-width: 1000px !important;
+        margin: 0 auto !important;
+        border-radius: 20px 20px 0 0 !important;
+    }
+}
+
+/* ChatGPT Style Media Attachments */
+.msg-poly .msg-content img {
+    max-width: 200px !important;
+    height: auto;
+    border-radius: 8px !important;
+    margin-bottom: 10px;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.msg-poly .msg-content audio {
+    width: 240px;
+    height: 35px;
+    margin-bottom: 10px;
+    display: block;
+    border-radius: 30px;
+}
+
+/* Sleek Audio for Dark/Light Bubbles */
+.msg-poly.user audio {
+    filter: invert(1) hue-rotate(180deg) brightness(1.5);
+}
+
+.chat-messages-poly {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    scroll-behavior: smooth;
+}
+
+/* Layout Fix for Chat View */
+#main-content {
+    transition: padding 0.3s ease;
+}
+
+/* When chat is active, remove bottom padding to allow footer to sit just below */
+#main-content:has(.polyglots-chat-container) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+}
