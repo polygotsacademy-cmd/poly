@@ -934,8 +934,8 @@ async function sendMessage() {
     const payload = {
         mode: currentChatMode,
         text: text,
-        image: selectedImage,
-        audio: selectedAudio,
+        image: selectedImage || null,
+        audio: selectedAudio || null,
         history: chatMessages.slice(-6, -1)
     };
 

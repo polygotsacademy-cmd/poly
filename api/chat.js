@@ -53,16 +53,6 @@ export default async function handler(req, res) {
 
     try {
         const contents = [];
-        
-        // Add System Prompt as first user message
-        contents.push({
-            role: 'user',
-            parts: [{ text: `SYSTEM INSTRUCTION: ${fullSystemPrompt}` }]
-        });
-        contents.push({
-            role: 'model',
-            parts: [{ text: "فهمت تماماً. سألتزم بوضعي الحالي وباللغة المطلوبة." }]
-        });
 
         // Add History
         if (history && Array.isArray(history)) {
@@ -70,18 +60,20 @@ export default async function handler(req, res) {
                 const parts = [];
                 if (msg.content) parts.push({ text: msg.content });
                 if (msg.image) {
-                    const [mime, data] = msg.image.split(';base64,');
-                    parts.push({ inline_data: { mime_type: mime.split(':')[1], data: data } });
+                    const [mime, data] = msg.image.split(";base64,");
+                    parts.push({ inline_data: { mime_type: mime.split(":")[1], data: data } });
                 }
                 if (msg.audio) {
-                    const [mime, data] = msg.audio.split(';base64,');
-                    parts.push({ inline_data: { mime_type: mime.split(':')[1], data: data } });
+                    const [mime, data] = msg.audio.split(";base64,");
+                    parts.push({ inline_data: { mime_type: mime.split(":")[1], data: data } });
                 }
-                
-                contents.push({
-                    role: msg.role === 'ai' ? 'model' : 'user',
-                    parts: parts
-                });
+                // Only push if there are parts to avoid empty user/model messages
+                if (parts.length > 0) {
+                    contents.push({
+                        role: msg.role === 'ai' ? 'model' : 'user',
+                        parts: parts
+                    });
+                }
             });
         }
 
@@ -90,42 +82,49 @@ export default async function handler(req, res) {
         if (text) currentParts.push({ text: text });
         
         if (image) {
-            const [mime, data] = image.split(';base64,');
+            const [mime, data] = image.split(";base64,");
             currentParts.push({
                 inline_data: {
-                    mime_type: mime.split(':')[1],
+                    mime_type: mime.split(":")[1],
                     data: data
                 }
             });
         }
 
         if (audio) {
-            const [mime, data] = audio.split(';base64,');
+            const [mime, data] = audio.split(";base64,");
             currentParts.push({
                 inline_data: {
-                    mime_type: mime.split(':')[1],
+                    mime_type: mime.split(":")[1],
                     data: data
                 }
             });
         }
 
-        contents.push({
-            role: 'user',
-            parts: currentParts
-        });
+        // Only push current message if there are parts
+        if (currentParts.length > 0) {
+            contents.push({
+                role: 'user',
+                parts: currentParts
+            });
+        }
+
+        // Prepare the request body for Gemini 1.5 Flash
+        const requestBody = {
+            contents: contents,
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 800
+            },
+            systemInstruction: { parts: [{ text: fullSystemPrompt }] }
+        };
 
         // Use a stable model
         const model = 'gemini-1.5-flash';
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: contents,
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 800
-                }
-            })
+            body: JSON.stringify(requestBody)
         });
 
         const data = await response.json();
