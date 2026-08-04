@@ -8,10 +8,15 @@ let currentUser = null;
 let currentView = 'words';
 let currentCategory = 'Alle';
 let chatMessages = [];
-let dailyChatLimit = 20;
 let isTyping = false;
 let isChatSending = false;
-let translationMode = false;
+let currentChatMode = 'translator'; // translator, teacher, homework, voice
+let selectedImage = null;
+let selectedAudio = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingInterval = null;
+let recordingTime = 0;
 
 // Quiz State
 let selectedQuizCategory = null;
@@ -740,58 +745,206 @@ function renderQuizResult(container) {
 
 // --- END NEW QUIZ SYSTEM ---
 
-// Chat View (Keep original logic but ensure it works)
+function getDailyUsage() {
+    const today = new Date().toISOString().split('T')[0];
+    const usage = JSON.parse(localStorage.getItem('polyglots_usage') || '{}');
+    if (usage.date !== today) {
+        return { date: today, images: 0, voice: 0 };
+    }
+    return usage;
+}
+
+function updateDailyUsage(type) {
+    const usage = getDailyUsage();
+    usage[type]++;
+    localStorage.setItem('polyglots_usage', JSON.stringify(usage));
+}
+
 function renderChatView(container) {
-    const botName = 'Polyglots Assistant';
-    const modeLabel = translationMode ? '🔄 Translation Mode ON' : '🔄 Translation Mode';
+    const usage = getDailyUsage();
+    const gliderPos = {
+        'translator': '0%',
+        'teacher': '100%',
+        'homework': '200%',
+        'voice': '300%'
+    }[currentChatMode];
 
     container.innerHTML = `
-        <div class="chat-container" style="height: calc(100vh - 250px);">
-            <div class="chat-header-bar">
-                <div class="chat-bot-info">
-                    <h3>${botName}</h3>
-                </div>
-                <div class="chat-header-actions">
-                    <button class="chat-action-btn" onclick="toggleTranslationMode()" title="${modeLabel}" style="background:none; border:none; color:white; cursor:pointer; font-size:18px; margin-right:10px;">
-                        <i class="fas fa-language"></i>
-                    </button>
-                </div>
+        <div class="polyglots-chat-container">
+            <div class="chat-header-poly">
+                <h2>Polyglots AI</h2>
             </div>
-            <div class="chat-messages" id="chat-messages" style="overflow-y: auto;">
-                ${chatMessages.length === 0 ? '<div class="chat-welcome"><i class="fas fa-robot"></i><p>أهلاً بك! أنا مساعدك الذكي لتعلم اللغة الألمانية. كيف يمكنني مساعدتك اليوم؟</p></div>' : ''}
-                ${chatMessages.map(m => `
-                    <div class="message ${m.role}">
-                        <div class="message-text">${m.content}</div>
+            
+            <div class="mode-switcher">
+                <div class="mode-glider" style="transform: translateX(${gliderPos})"></div>
+                <button class="mode-btn ${currentChatMode === 'translator' ? 'active' : ''}" onclick="setChatMode('translator')">مترجم</button>
+                <button class="mode-btn ${currentChatMode === 'teacher' ? 'active' : ''}" onclick="setChatMode('teacher')">مدرس</button>
+                <button class="mode-btn ${currentChatMode === 'homework' ? 'active' : ''}" onclick="setChatMode('homework')">حل الواجب</button>
+                <button class="mode-btn ${currentChatMode === 'voice' ? 'active' : ''}" onclick="setChatMode('voice')">اختبار صوتي</button>
+            </div>
+
+            <div class="chat-messages-poly" id="chat-messages">
+                ${chatMessages.length === 0 ? `
+                    <div style="text-align:center; padding:40px; color:#999;">
+                        <i class="fas fa-robot" style="font-size:40px; margin-bottom:15px;"></i>
+                        <p>أهلاً بك في Polyglots AI!<br>اختر النمط المناسب وابدأ التعلم.</p>
+                    </div>
+                ` : chatMessages.map(msg => `
+                    <div class="msg-poly ${msg.role}">
+                        <div class="msg-content">
+                            ${msg.image ? `<img src="${msg.image}">` : ''}
+                            ${msg.audio ? `<audio controls src="${msg.audio}"></audio>` : ''}
+                            <div>${msg.content}</div>
+                        </div>
                     </div>
                 `).join('')}
-                ${isTyping ? '<div class="message ai"><div class="typing">جاري الكتابة...</div></div>' : ''}
+                ${isTyping ? '<div class="msg-poly ai">... جاري التفكير</div>' : ''}
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+
+            <div id="media-preview" class="media-preview"></div>
+
+            <div class="chat-input-poly">
+                <div class="input-wrapper">
+                    <button class="icon-btn" onclick="triggerImageUpload()"><i class="fas fa-camera"></i></button>
+                    <button class="icon-btn" id="mic-btn" onclick="toggleVoiceRecording()"><i class="fas fa-microphone"></i></button>
+                    <input type="text" id="chat-input" placeholder="اكتب هنا..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button class="send-btn-poly" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="chat-counters">
+                    <span class="counter-item">الصور: ${usage.images}/3</span>
+                    <span class="counter-item">الصوت: ${usage.voice}/3</span>
+                </div>
             </div>
+            <input type="file" id="image-input" hidden accept="image/*" onchange="handleImageSelect(event)">
         </div>
     `;
     
     setTimeout(() => {
-        const msgContainer = document.getElementById('chat-messages');
-        if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+        const chatMsgs = document.getElementById('chat-messages');
+        if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
     }, 100);
 }
 
-function toggleTranslationMode() {
-    translationMode = !translationMode;
+function setChatMode(mode) {
+    currentChatMode = mode;
     renderView();
 }
 
-async function sendChatMessage() {
-    const input = document.getElementById('chat-input');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
+function triggerImageUpload() {
+    const usage = getDailyUsage();
+    if (usage.images >= 3) {
+        alert("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
+        return;
+    }
+    document.getElementById('image-input').click();
+}
 
-    chatMessages.push({ role: 'user', content: text });
-    input.value = '';
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        selectedImage = e.target.result;
+        showMediaPreview('image', selectedImage);
+    };
+    reader.readAsDataURL(file);
+}
+
+function showMediaPreview(type, src) {
+    const preview = document.getElementById('media-preview');
+    if (!preview) return;
+    preview.style.display = 'flex';
+    preview.innerHTML = `
+        ${type === 'image' ? `<img src="${src}" class="preview-thumb">` : '<i class="fas fa-volume-up"></i> تسجيل صوتي جاهز'}
+        <span class="remove-media" onclick="clearMedia()"><i class="fas fa-times-circle"></i></span>
+    `;
+}
+
+function clearMedia() {
+    selectedImage = null;
+    selectedAudio = null;
+    const preview = document.getElementById('media-preview');
+    if (preview) preview.style.display = 'none';
+}
+
+async function toggleVoiceRecording() {
+    const usage = getDailyUsage();
+    if (usage.voice >= 3) {
+        alert("يا بطل، أنت خلصت الـ 3 تسجيلات بتوع النهاردة! استنى لبكرة بقى. 😊");
+        return;
+    }
+
+    const micBtn = document.getElementById('mic-btn');
+    
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        micBtn.classList.remove('recording-active');
+        clearInterval(recordingInterval);
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        recordingTime = 0;
+
+        mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedAudio = e.target.result;
+                showMediaPreview('audio', selectedAudio);
+            };
+            reader.readAsDataURL(audioBlob);
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        micBtn.classList.add('recording-active');
+        
+        recordingInterval = setInterval(() => {
+            recordingTime++;
+            if (recordingTime >= 20) {
+                toggleVoiceRecording();
+            }
+        }, 1000);
+
+    } catch (err) {
+        alert("لازم تدينا إذن المايك عشان تقدر تسجل صوتك!");
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input ? input.value.trim() : '';
+    if ((!text && !selectedImage && !selectedAudio) || isChatSending) return;
+
+    const userMsg = { 
+        role: 'user', 
+        content: text,
+        image: selectedImage,
+        audio: selectedAudio
+    };
+    
+    chatMessages.push(userMsg);
+    
+    const payload = {
+        mode: currentChatMode,
+        text: text,
+        image: selectedImage,
+        audio: selectedAudio,
+        history: chatMessages.slice(-6, -1)
+    };
+
+    if (selectedImage) updateDailyUsage('images');
+    if (selectedAudio) updateDailyUsage('voice');
+
+    if (input) input.value = '';
+    clearMedia();
+    isChatSending = true;
     isTyping = true;
     renderView();
 
@@ -799,17 +952,21 @@ async function sendChatMessage() {
         const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, translationMode })
+            body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.reply) chatMessages.push({ role: 'ai', content: data.reply });
-        else chatMessages.push({ role: 'ai', content: 'عذراً، حدث خطأ في الاتصال.' });
-    } catch (e) {
-        chatMessages.push({ role: 'ai', content: 'عذراً، الخادم غير متوفر حالياً.' });
+        if (data.reply) {
+            chatMessages.push({ role: 'ai', content: data.reply });
+        } else {
+            chatMessages.push({ role: 'ai', content: 'عذراً، حدث خطأ ما. حاول مرة أخرى.' });
+        }
+    } catch (err) {
+        chatMessages.push({ role: 'ai', content: 'عذراً، لا يمكنني الاتصال بالخادم حالياً.' });
+    } finally {
+        isChatSending = false;
+        isTyping = false;
+        renderView();
     }
-    
-    isTyping = false;
-    renderView();
 }
 
 // Games View
