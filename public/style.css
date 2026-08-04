@@ -1867,6 +1867,15 @@ footer {
 
 /* --- Polyglots AI Chatbot Revamp --- */
 
+/* Chat view: main content shouldn't add its usual bottom padding here,
+   since the chat container manages its own internal scroll and height. */
+main.chat-view-mode {
+    padding: 10px 10px 0;
+    max-width: 900px;
+    height: calc(100vh - 70px);
+    display: flex;
+}
+
 .polyglots-chat-container {
     display: flex;
     flex-direction: column;
@@ -1876,24 +1885,19 @@ footer {
     overflow: hidden;
     margin: 0 auto;
     border: 1px solid #f0f0f0;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 800px;
+    /* Takes up the viewport height minus the top header/nav bar.
+       This keeps the chat box fixed on screen and pushes the footer
+       just below the initial fold, instead of letting the chat grow
+       infinitely with messages. */
+    height: calc(100vh - 70px);
 }
 
-/* Desktop square-ish look */
-@media (min-width: 768px) {
-    .polyglots-chat-container {
-        max-width: 800px;
-        height: 800px;
-        aspect-ratio: 1/1;
-    }
-}
-
-/* Mobile full height */
 @media (max-width: 767px) {
     .polyglots-chat-container {
-        width: 100%;
-        height: calc(100vh - 120px);
-        border-radius: 0;
+        border-radius: 16px;
     }
 }
 
@@ -1954,12 +1958,15 @@ footer {
 
 .chat-messages-poly {
     flex: 1;
+    min-height: 0; /* required so overflow-y actually scrolls inside a flex column */
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
     background: #f8f9fa;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    scroll-behavior: smooth;
 }
 
 /* Message Styles */
@@ -2007,6 +2014,39 @@ footer {
 .msg-content audio {
     width: 100%;
     margin-top: 8px;
+}
+
+/* ChatGPT-style media attachments inside the user's bubble */
+.msg-image-thumb {
+    display: block;
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
+.msg-poly.ai .msg-image-thumb {
+    border: 1px solid #eee;
+}
+
+.msg-audio-player {
+    display: block;
+    width: 230px;
+    max-width: 100%;
+    height: 40px;
+    margin-bottom: 8px;
+    border-radius: 20px;
+    outline: none;
+}
+
+.msg-poly.user .msg-audio-player {
+    filter: invert(1) grayscale(1) brightness(1.6) contrast(1.2);
+    border-radius: 20px;
 }
 
 /* Input Area */
@@ -2124,105 +2164,60 @@ footer {
     100% { transform: scale(1); }
 }
 
-/* --- PREMIUM REFINEMENTS --- */
-
-/* Toast Notifications */
+/* --- Toast Notifications --- */
 #toast-container {
     position: fixed;
-    bottom: 30px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10000;
+    z-index: 9999;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 10px;
     pointer-events: none;
+    width: 100%;
+    padding: 0 15px;
 }
 
 .toast {
-    background: rgba(43, 50, 69, 0.95);
-    color: white;
-    padding: 12px 25px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
     pointer-events: auto;
-    animation: toast-fade 3s ease-in-out forwards;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255,255,255,0.1);
-    text-align: center;
-}
-
-@keyframes toast-fade {
-    0% { opacity: 0; transform: translateY(20px); }
-    15% { opacity: 1; transform: translateY(0); }
-    85% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
-}
-
-/* Layout & Scroll Refinement */
-.polyglots-chat-container {
-    height: calc(100vh - 70px) !important;
-    max-height: none !important;
-    aspect-ratio: auto !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-}
-
-@media (min-width: 768px) {
-    .polyglots-chat-container {
-        max-width: 1000px !important;
-        margin: 0 auto !important;
-        border-radius: 20px 20px 0 0 !important;
-    }
-}
-
-/* ChatGPT Style Media Attachments */
-.msg-poly .msg-content img {
-    max-width: 200px !important;
-    height: auto;
-    border-radius: 8px !important;
-    margin-bottom: 10px;
-    display: block;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border: 2px solid rgba(255,255,255,0.2);
-}
-
-.msg-poly .msg-content audio {
-    width: 240px;
-    height: 35px;
-    margin-bottom: 10px;
-    display: block;
+    background: rgba(43, 50, 69, 0.96);
+    color: #fff;
+    font-family: 'Cairo', 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 12px 22px;
     border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    max-width: 420px;
+    text-align: center;
+    direction: rtl;
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Sleek Audio for Dark/Light Bubbles */
-.msg-poly.user audio {
-    filter: invert(1) hue-rotate(180deg) brightness(1.5);
+.toast.toast-show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
-.chat-messages-poly {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background: #f8f9fa;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    scroll-behavior: smooth;
+.toast.toast-error {
+    background: rgba(124, 47, 63, 0.96);
 }
 
-/* Layout Fix for Chat View */
-#main-content {
-    transition: padding 0.3s ease;
+.toast.toast-success {
+    background: rgba(46, 204, 113, 0.96);
 }
 
-/* When chat is active, remove bottom padding to allow footer to sit just below */
-#main-content:has(.polyglots-chat-container) {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    max-width: 100% !important;
+@media (max-width: 480px) {
+    #toast-container {
+        top: 12px;
+    }
+    .toast {
+        font-size: 13px;
+        padding: 10px 18px;
+    }
 }
