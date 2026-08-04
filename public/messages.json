@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "title": "Welcome to Polyglots Academy",
+        "content": "Welcome to our platform! We are excited to have you here. This is a targeted message just for you.",
+        "targetUsers": ["admin", "ahmed123", "sara45"]
+    },
+    {
+        "id": 2,
+        "title": "Important Update",
+        "content": "Please check the new materials section for your weekly assignments. Good luck!",
+        "targetUsers": ["ahmed123"]
+    }
+]

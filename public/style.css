@@ -1716,3 +1716,151 @@ footer {
         height: 300px !important;
     }
 }
+
+/* --- New Sidebar & Notification Styles --- */
+
+.top-bar {
+    background: var(--header-bg);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-bottom: 3px solid var(--burgundy-color);
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--navy-color);
+    cursor: pointer;
+    padding: 5px;
+}
+
+.bell-container {
+    position: relative;
+    font-size: 24px;
+    color: #f1c40f; /* YELLOW */
+    cursor: pointer;
+    padding: 5px;
+}
+
+.bell-container .badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #e74c3c; /* RED dot */
+    border-radius: 50%;
+    display: none; /* Hidden by default */
+    border: 2px solid white;
+}
+
+.bell-container .badge.active {
+    display: block;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px; /* Hidden by default */
+    width: 280px;
+    height: 100%;
+    background: white;
+    z-index: 2000;
+    transition: left 0.3s ease;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar-header {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-logo {
+    max-height: 80px;
+}
+
+.sidebar-links {
+    list-style: none;
+    padding: 20px 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-links .nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px 25px;
+    gap: 15px;
+    color: #555;
+    transition: background 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-links .nav-item i {
+    font-size: 18px;
+    width: 25px;
+    text-align: center;
+}
+
+.sidebar-links .nav-item span {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.sidebar-links .nav-item.active {
+    background: #f8f9fa;
+    color: var(--burgundy-color);
+    border-left: 4px solid var(--burgundy-color);
+}
+
+.message-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border-right: 5px solid var(--burgundy-color);
+    text-align: right;
+}
+
+.message-card h3 {
+    color: var(--navy-color);
+    margin-bottom: 10px;
+    font-family: 'Cairo', sans-serif;
+}
+
+.message-card p {
+    color: #666;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1999;
+    display: none;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}

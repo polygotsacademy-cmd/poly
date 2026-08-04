@@ -3,6 +3,7 @@ let words = [];
 let stories = [];
 let quizzes = [];
 let materials = [];
+let messages = [];
 let currentUser = null;
 let currentView = 'words';
 let currentCategory = 'Alle';
@@ -36,17 +37,19 @@ async function init() {
 
 async function loadData() {
     try {
-        const [wordsRes, storiesRes, quizzesRes, materialsRes] = await Promise.all([
+        const [wordsRes, storiesRes, quizzesRes, materialsRes, messagesRes] = await Promise.all([
             fetch('words.json').then(r => r.json()),
             fetch('stories.json').then(r => r.json()),
             fetch('quizzes.json').then(r => r.json()),
-            fetch('materials.json').then(r => r.json())
+            fetch('materials.json').then(r => r.json()),
+            fetch('messages.json').then(r => r.json())
         ]);
         words = wordsRes;
         stories = storiesRes;
         quizzes = quizzesRes;
         materials = materialsRes;
-        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length });
+        messages = messagesRes;
+        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length, messages: messages.length });
     } catch (e) {
         console.error("Failed to load data", e);
     }
@@ -56,13 +59,50 @@ function setupEventListeners() {
     // Login
     document.getElementById('login-form').addEventListener('submit', handleLogin);
 
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            toggleOverlay(sidebar.classList.contains('open'));
+        });
+    }
+
+    // Bell Click
+    const bell = document.getElementById('notification-bell');
+    if (bell) {
+        bell.addEventListener('click', () => {
+            switchView('messages');
+        });
+    }
+
     // Nav
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => switchView(item.dataset.view));
+        item.addEventListener('click', () => {
+            switchView(item.dataset.view);
+            if (sidebar) sidebar.classList.remove('open');
+            toggleOverlay(false);
+        });
     });
 
     // Search
     document.getElementById('searchInput').addEventListener('input', handleSearch);
+}
+
+function toggleOverlay(show) {
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.getElementById('app-container').appendChild(overlay);
+        overlay.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('open');
+            toggleOverlay(false);
+        });
+    }
+    overlay.classList.toggle('active', show);
 }
 
 // Auth Logic
@@ -148,7 +188,21 @@ async function checkRememberedUser() {
 function showApp() {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('app-container').classList.add('active');
+    checkNotifications();
     renderView();
+}
+
+function checkNotifications() {
+    if (!currentUser) return;
+    const userMessages = messages.filter(m => m.targetUsers.includes(currentUser.username));
+    const badge = document.getElementById('notification-badge');
+    if (badge) {
+        if (userMessages.length > 0) {
+            badge.classList.add('active');
+        } else {
+            badge.classList.remove('active');
+        }
+    }
 }
 
 // View Switching
@@ -181,7 +235,36 @@ function renderView() {
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
+        case 'messages': renderMessagesView(main); break;
     }
+}
+
+function renderMessagesView(container) {
+    if (!currentUser) {
+        container.innerHTML = '<div style="text-align:center; padding:40px;">Please login to see messages.</div>';
+        return;
+    }
+
+    const userMessages = messages.filter(m => m.targetUsers.includes(currentUser.username));
+    
+    const html = `
+        <div class="view-header" style="padding: 10px 20px; text-align: right;">
+            <h2 style="color: var(--primary-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-envelope"></i> الرسائل</h2>
+        </div>
+        <div id="messages-section" style="padding: 0 15px;">
+            ${userMessages.length > 0 ? userMessages.map(m => `
+                <div class="message-card">
+                    <h3>${m.title}</h3>
+                    <p>${m.content}</p>
+                </div>
+            `).join('') : '<div style="text-align:center; padding:40px;">لا توجد رسائل جديدة</div>'}
+        </div>
+    `;
+    container.innerHTML = html;
+    
+    // Clear badge when viewing messages
+    const badge = document.getElementById('notification-badge');
+    if (badge) badge.classList.remove('active');
 }
 
 // View Renderers

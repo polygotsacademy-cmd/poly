@@ -7,7 +7,6 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -37,18 +36,63 @@
 
     <!-- Main App Container -->
     <div id="app-container" class="screen">
-        <header>
-            <div class="header-top">
-                <img src="academy_logo.png" alt="Logo" class="header-logo">
-                
+        <div class="top-bar">
+            <button id="sidebar-toggle" class="hamburger-btn">☰</button>
+            <div class="top-bar-right">
+                <div id="notification-bell" class="bell-container">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge" class="badge"></span>
+                </div>
             </div>
-            <div id="search-bar-container" class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search in German or Arabic...">
+        </div>
+
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="academy_logo.png" alt="Logo" class="sidebar-logo">
             </div>
-        </header>
+            <ul class="sidebar-links">
+                <li class="nav-item active" data-view="words">
+                    <i class="fas fa-book"></i>
+                    <span>Words</span>
+                </li>
+                <li class="nav-item" data-view="stories">
+                    <i class="fas fa-book-open"></i>
+                    <span>Stories</span>
+                </li>
+                <li class="nav-item" data-view="quizzes">
+                    <i class="fas fa-vial"></i>
+                    <span>Quizzes</span>
+                </li>
+                <li class="nav-item" data-view="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>المساعد الذكي</span>
+                </li>
+                <li class="nav-item" data-view="materials">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Materials</span>
+                </li>
+                <li class="nav-item" data-view="pronunciation">
+                    <i class="fas fa-volume-up"></i>
+                    <span>Pronunciation</span>
+                </li>
+                <li class="nav-item" data-view="games">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Games</span>
+                </li>
+                <li class="nav-item" data-view="messages">
+                    <i class="fas fa-envelope"></i>
+                    <span>الرسائل</span>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="search-bar-container" class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search in German or Arabic...">
+        </div>
 
         <main id="main-content">
             <!-- Content will be injected here -->
+            <div id="messages-section" class="view-section"></div>
         </main>
 
         <footer>
@@ -61,37 +105,6 @@
                 </div>
             </div>
         </footer>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active" data-view="words">
-                <i class="fas fa-book"></i>
-                <span>Words</span>
-            </div>
-            <div class="nav-item" data-view="stories">
-                <i class="fas fa-book-open"></i>
-                <span>Stories</span>
-            </div>
-            <div class="nav-item" data-view="quizzes">
-                <i class="fas fa-vial"></i>
-                <span>Quizzes</span>
-            </div>
-            <div class="nav-item" data-view="materials">
-                <i class="fas fa-file-alt"></i>
-                <span>Materials</span>
-            </div>
-            <div class="nav-item" data-view="pronunciation">
-                <i class="fas fa-volume-up"></i>
-                <span>Pronunciation</span>
-            </div>
-            <div class="nav-item" data-view="chat">
-                <i class="fas fa-comments"></i>
-                <span>AI Chat</span>
-            </div>
-            <div class="nav-item" data-view="games">
-                <i class="fas fa-gamepad"></i>
-                <span>Games</span>
-            </div>
-        </nav>
     </div>
 
     <script src="app.js"></script>
