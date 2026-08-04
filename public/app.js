@@ -746,10 +746,10 @@ function renderQuizResult(container) {
 // --- END NEW QUIZ SYSTEM ---
 
 function getDailyUsage() {
-    const today = new Date().toISOString().split('T')[0];
-    const usage = JSON.parse(localStorage.getItem('polyglots_usage') || '{}');
+    const today = new Date().toISOString().split("T")[0];
+    const usage = JSON.parse(localStorage.getItem("polyglots_usage") || "{}");
     if (usage.date !== today) {
-        return { date: today, images: 0, voice: 0 };
+        return { date: today, images: 0, voice: 0, messages: 0 };
     }
     return usage;
 }
@@ -757,7 +757,47 @@ function getDailyUsage() {
 function updateDailyUsage(type) {
     const usage = getDailyUsage();
     usage[type]++;
-    localStorage.setItem('polyglots_usage', JSON.stringify(usage));
+    localStorage.setItem("polyglots_usage", JSON.stringify(usage));
+}
+
+function showToast(message) {
+    const toastContainer = document.getElementById("toast-container");
+    if (!toastContainer) return;
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast");
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    // Trigger reflow to enable transition
+    void toast.offsetWidth;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        toast.addEventListener("transitionend", () => toast.remove());
+    }, 3000);
+}
+
+function showToast(message) {
+    const toastContainer = document.getElementById("toast-container");
+    if (!toastContainer) return;
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast");
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    // Trigger reflow to enable transition
+    void toast.offsetWidth;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        toast.addEventListener("transitionend", () => toast.remove());
+    }, 3000);
 }
 
 function renderChatView(container) {
@@ -811,6 +851,7 @@ function renderChatView(container) {
                     <button class="send-btn-poly" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div class="chat-counters">
+                    <span class="counter-item">الرسائل: ${usage.messages}/20</span>
                     <span class="counter-item">الصور: ${usage.images}/3</span>
                     <span class="counter-item">الصوت: ${usage.voice}/3</span>
                 </div>
@@ -833,7 +874,7 @@ function setChatMode(mode) {
 function triggerImageUpload() {
     const usage = getDailyUsage();
     if (usage.images >= 3) {
-        alert("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
+        showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
         return;
     }
     document.getElementById('image-input').click();
@@ -871,7 +912,7 @@ function clearMedia() {
 async function toggleVoiceRecording() {
     const usage = getDailyUsage();
     if (usage.voice >= 3) {
-        alert("يا بطل، أنت خلصت الـ 3 تسجيلات بتوع النهاردة! استنى لبكرة بقى. 😊");
+        showToast("يا بطل، أنت خلصت الـ 3 تسجيلات بتوع النهاردة! استنى لبكرة بقى. 😊");
         return;
     }
 
@@ -913,14 +954,23 @@ async function toggleVoiceRecording() {
         }, 1000);
 
     } catch (err) {
-        alert("لازم تدينا إذن المايك عشان تقدر تسجل صوتك!");
+        showToast("لازم تدينا إذن المايك عشان تقدر تسجل صوتك!");
     }
 }
 
 async function sendMessage() {
     const input = document.getElementById('chat-input');
     const text = input ? input.value.trim() : '';
-    if ((!text && !selectedImage && !selectedAudio) || isChatSending) return;
+    const usage = getDailyUsage();
+
+    if (!text && !selectedImage && !selectedAudio) return;
+
+    if (isChatSending) return;
+
+    if (usage.messages >= 20 && !selectedImage && !selectedAudio) {
+        showToast("يا بطل، أنت خلصت الـ 20 رسالة نصية بتوع النهاردة! استنى لبكرة بقى. 😊");
+        return;
+    }
 
     const userMsg = { 
         role: 'user', 
@@ -941,6 +991,7 @@ async function sendMessage() {
 
     if (selectedImage) updateDailyUsage('images');
     if (selectedAudio) updateDailyUsage('voice');
+    if (text && !selectedImage && !selectedAudio) updateDailyUsage('messages');
 
     if (input) input.value = '';
     clearMedia();
