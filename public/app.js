@@ -1130,7 +1130,6 @@ function startChatListener() {
     
     chatUnsubscribe = db.collection('messages')
         .where('chatId', '==', chatId)
-        .orderBy('timestamp', 'asc')
         .onSnapshot((snapshot) => {
             const messagesArea = document.getElementById('chat-messages-area');
             if (!messagesArea) return;
@@ -1140,9 +1139,15 @@ function startChatListener() {
                 return;
             }
 
+            // Extract and sort messages client-side to avoid composite index requirement
+            const messagesArray = [];
+            snapshot.forEach(doc => {
+                messagesArray.push({ id: doc.id, ...doc.data() });
+            });
+            messagesArray.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
+
             let html = '';
-            snapshot.forEach((doc) => {
-                const msg = doc.data();
+            messagesArray.forEach((msg) => {
                 const isSent = msg.sender === currentUser.username;
                 const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
                 
@@ -1171,7 +1176,9 @@ async function sendChatMessage() {
     if (!text || !currentUser || !currentChatUser) return;
 
     const chatId = getChatId(currentUser.username, currentChatUser);
-    input.value = '';
+    
+    // Disable input while sending
+    input.disabled = true;
 
     try {
         await db.collection('messages').add({
@@ -1181,8 +1188,13 @@ async function sendChatMessage() {
             text: text,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
+        // Clear input ONLY after success
+        input.value = '';
     } catch (error) {
-        console.error("Error sending message: ", error);
-        alert("Failed to send message. Please try again.");
+        console.error("Firestore Send Error:", error);
+        alert("Error sending message: " + error.message);
+    } finally {
+        input.disabled = false;
+        input.focus();
     }
 }
