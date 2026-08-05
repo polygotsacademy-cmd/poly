@@ -1096,6 +1096,7 @@ function selectChat(username) {
 }
 
 function renderChatWindow(targetUser) {
+    const limits = getMediaLimits();
     return `
         <div class="chat-header">
             <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
@@ -1106,13 +1107,59 @@ function renderChatWindow(targetUser) {
         <div class="chat-messages-area" id="chat-messages-area">
             <div style="text-align:center; padding:20px; color:#666;">Loading messages...</div>
         </div>
+        <div class="media-counters">
+            <span>الصور: ${limits.images}/6</span>
+            <span>الصوت: ${limits.audio}/6</span>
+        </div>
         <div class="chat-input-container">
+            <button class="media-btn" onclick="triggerImageUpload()">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input type="file" id="chat-image-upload" accept="image/*" style="display: none;" onchange="handleImageSelection(this)">
             <input type="text" id="chat-msg-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
             <button class="chat-send-btn" onclick="sendChatMessage()">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     `;
+}
+
+// Daily Limits Logic
+function getMediaLimits() {
+    if (!currentUser) return { images: 0, audio: 0 };
+    const date = new Date().toISOString().split('T')[0];
+    const key = `chat_media_limits_${currentUser.username}_${date}`;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : { images: 0, audio: 0 };
+}
+
+function checkMediaLimit(type) {
+    const limits = getMediaLimits();
+    if (type === 'image' && limits.images >= 6) {
+        alert("لقد وصلت للحد الأقصى للصور اليوم (6 صور).");
+        return false;
+    }
+    if (type === 'audio' && limits.audio >= 6) {
+        alert("لقد وصلت للحد الأقصى للرسائل الصوتية اليوم (6 رسائل).");
+        return false;
+    }
+    return true;
+}
+
+function incrementMediaLimit(type) {
+    if (!currentUser) return;
+    const date = new Date().toISOString().split('T')[0];
+    const key = `chat_media_limits_${currentUser.username}_${date}`;
+    const limits = getMediaLimits();
+    if (type === 'image') limits.images++;
+    if (type === 'audio') limits.audio++;
+    localStorage.setItem(key, JSON.stringify(limits));
+    
+    // Update UI counters if visible
+    renderView();
 }
 
 function getChatId(user1, user2) {
@@ -1151,9 +1198,18 @@ function startChatListener() {
                 const isSent = msg.sender === currentUser.username;
                 const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
                 
+                let contentHtml = '';
+                if (msg.type === 'image') {
+                    contentHtml = `<img src="${msg.mediaData}" onclick="window.open('${msg.mediaData}')">`;
+                } else if (msg.type === 'audio') {
+                    contentHtml = `<audio controls src="${msg.mediaData}"></audio>`;
+                } else {
+                    contentHtml = msg.text || '';
+                }
+
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}">
-                        ${msg.text}
+                        ${contentHtml}
                         <span class="time">${time}</span>
                     </div>
                 `;
@@ -1196,5 +1252,145 @@ async function sendChatMessage() {
     } finally {
         input.disabled = false;
         input.focus();
+    }
+}
+
+// Image Upload Logic
+function triggerImageUpload() {
+    if (!checkMediaLimit('image')) return;
+    document.getElementById('chat-image-upload').click();
+}
+
+function handleImageSelection(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Compress Image using Canvas
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            const maxDimension = 800;
+            if (width > height) {
+                if (width > maxDimension) {
+                    height *= maxDimension / width;
+                    width = maxDimension;
+                }
+            } else {
+                if (height > maxDimension) {
+                    width *= maxDimension / height;
+                    height = maxDimension;
+                }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const base64String = canvas.toDataURL('image/jpeg', 0.6);
+            sendMediaMessage('image', base64String);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset input
+    input.value = '';
+}
+
+async function sendMediaMessage(type, data) {
+    if (!currentUser || !currentChatUser) return;
+    const chatId = getChatId(currentUser.username, currentChatUser);
+
+    try {
+        await db.collection('messages').add({
+            chatId: chatId,
+            sender: currentUser.username,
+            receiver: currentChatUser,
+            type: type,
+            mediaData: data,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        incrementMediaLimit(type);
+    } catch (error) {
+        console.error("Error sending media: ", error);
+        alert("Failed to send media. Document might be too large.");
+    }
+}
+
+// Voice Recording Logic
+let chatMediaRecorder = null;
+let chatAudioChunks = [];
+let voiceTimer = null;
+
+async function toggleVoiceRecording() {
+    if (chatMediaRecorder && chatMediaRecorder.state === "recording") {
+        stopVoiceRecording();
+    } else {
+        if (!checkMediaLimit('audio')) return;
+        startVoiceRecording();
+    }
+}
+
+async function startVoiceRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        chatMediaRecorder = new MediaRecorder(stream);
+        chatAudioChunks = [];
+
+        chatMediaRecorder.ondataavailable = (e) => {
+            chatAudioChunks.push(e.data);
+        };
+
+        chatMediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(chatAudioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                sendMediaMessage('audio', reader.result);
+            };
+            reader.readAsDataURL(audioBlob);
+            
+            // Stop all tracks
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        chatMediaRecorder.start();
+        
+        // UI Update
+        const btn = document.getElementById('voice-record-btn');
+        if (btn) {
+            btn.classList.add('recording');
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
+        }
+
+        // Max 20 seconds
+        voiceTimer = setTimeout(() => {
+            if (chatMediaRecorder.state === "recording") {
+                stopVoiceRecording();
+            }
+        }, 20000);
+
+    } catch (err) {
+        console.error("Mic access denied: ", err);
+        alert("يرجى السماح بالوصول للميكروفون لتسجيل الصوت.");
+    }
+}
+
+function stopVoiceRecording() {
+    if (chatMediaRecorder) {
+        chatMediaRecorder.stop();
+        clearTimeout(voiceTimer);
+        
+        // UI Update
+        const btn = document.getElementById('voice-record-btn');
+        if (btn) {
+            btn.classList.remove('recording');
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
     }
 }
