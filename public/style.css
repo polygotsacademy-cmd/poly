@@ -2474,3 +2474,148 @@ footer {
 .chat-msg.received audio::-webkit-media-controls-panel {
     background-color: #fff;
 }
+
+/* Fullscreen Chat */
+.chat-window.chat-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    overflow: auto;
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    margin-top: 50px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Drive Modal Specific */
+.drive-content {
+    width: 90%;
+    height: 80%;
+    background: white;
+    position: relative;
+    border-radius: 10px;
+}
+
+#drive-iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* Delete Prompt Modal */
+.delete-prompt {
+    background: white !important;
+    width: 300px !important;
+    padding: 20px !important;
+    border-radius: 15px !important;
+    text-align: center !important;
+    direction: rtl !important;
+    font-family: 'Cairo', sans-serif !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0 !important;
+}
+
+.delete-btn-option {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif;
+}
+
+.delete-btn-option.everyone {
+    color: #d9534f;
+    background: #f9f9f9;
+}
+
+.delete-btn-option.cancel {
+    background: #eee;
+}
+
+/* Chat Message Enhancements */
+.chat-msg {
+    position: relative;
+}
+
+.delete-msg-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #666;
+    border: 1px solid #ddd;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.chat-msg:hover .delete-msg-btn {
+    display: flex;
+}
+
+.deleted-placeholder {
+    font-style: italic;
+    color: #999 !important;
+}
+
+.chat-header-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.chat-msg img {
+    cursor: zoom-in !important;
+}
+

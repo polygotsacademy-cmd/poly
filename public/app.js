@@ -14,7 +14,7 @@ const db = firebase.firestore();
 let words = [];
 let stories = [];
 let quizzes = [];
-let materials = [];
+
 let messages = [];
 let currentUser = null;
 let currentView = 'words';
@@ -56,19 +56,17 @@ async function init() {
 
 async function loadData() {
     try {
-        const [wordsRes, storiesRes, quizzesRes, materialsRes, messagesRes] = await Promise.all([
+        const [wordsRes, storiesRes, quizzesRes, messagesRes] = await Promise.all([
             fetch('words.json').then(r => r.json()),
             fetch('stories.json').then(r => r.json()),
             fetch('quizzes.json').then(r => r.json()),
-            fetch('materials.json').then(r => r.json()),
             fetch('messages.json').then(r => r.json())
         ]);
         words = wordsRes;
         stories = storiesRes;
         quizzes = quizzesRes;
-        materials = materialsRes;
         messages = messagesRes;
-        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, materials: materials.length, messages: messages.length });
+        console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, messages: messages.length });
     } catch (e) {
         console.error("Failed to load data", e);
     }
@@ -252,7 +250,7 @@ function renderView() {
         case 'words': renderWordsView(main); break;
         case 'stories': renderStoriesView(main); break;
         case 'quizzes': renderQuizzesView(main); break;
-        case 'materials': renderMaterialsView(main); break;
+
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
@@ -412,37 +410,7 @@ function handleSearch() {
 }
 
 // Materials View
-function renderMaterialsView(container) {
-    const groups = ["Alle", "Sa10:00", "Sa12:00", "Sa01:30", "De6:00"];
-    let selectedGroup = localStorage.getItem('selected_group') || "Alle";
 
-    const filterHtml = `<div class="materials-filter">
-        ${groups.map(g => `<button class="cat-btn ${selectedGroup === g ? 'active' : ''}" onclick="setMaterialGroup('${g}')">${g}</button>`).join('')}
-    </div>`;
-
-    const filtered = materials.filter(m => selectedGroup === 'Alle' || m.group === selectedGroup);
-
-    const contentHtml = filtered.length > 0 
-        ? filtered.map(m => `
-            <div class="material-card">
-                <span class="badge ${m.type}">${m.type.toUpperCase()}</span>
-                <h3>${m.title}</h3>
-                <p>${m.description}</p>
-                <div class="deadline">Deadline: ${m.deadline}</div>
-                ${m.link ? `<a href="${m.link}" target="_blank" class="material-btn">Open Link</a>` : ''}
-            </div>
-        `).join('')
-        : `<div class="empty-state" style="text-align:center; padding:40px;">
-            لا يوجد واجبات لمجموعتك حالياً.. استمتع بوقتك يا بطل! 🥳
-          </div>`;
-
-    container.innerHTML = filterHtml + contentHtml;
-}
-
-function setMaterialGroup(group) {
-    localStorage.setItem('selected_group', group);
-    renderView();
-}
 
 // Pronunciation View
 function renderPronunciationView(container) {
@@ -1103,6 +1071,11 @@ function renderChatWindow(targetUser) {
             <div class="contact-info">
                 <h4>${targetUser}</h4>
             </div>
+            <div class="chat-header-actions">
+                <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
         </div>
         <div class="chat-messages-area" id="chat-messages-area">
             <div style="text-align:center; padding:20px; color:#666;">Loading messages...</div>
@@ -1195,20 +1168,34 @@ function startChatListener() {
 
             let html = '';
             messagesArray.forEach((msg) => {
+                // Check if deleted for me
+                if (msg.deletedFor && msg.deletedFor.includes(currentUser.username)) {
+                    return;
+                }
+
                 const isSent = msg.sender === currentUser.username;
                 const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
                 
                 let contentHtml = '';
-                if (msg.type === 'image') {
-                    contentHtml = `<img src="${msg.mediaData}" onclick="window.open('${msg.mediaData}')">`;
+                if (msg.isDeletedForEveryone) {
+                    contentHtml = `<span class="deleted-placeholder"><i class="fas fa-ban"></i> تم مسح هذه الرسالة</span>`;
+                } else if (msg.type === 'image') {
+                    contentHtml = `<img src="${msg.mediaData}" onclick="openLightbox('${msg.mediaData}')">`;
                 } else if (msg.type === 'audio') {
                     contentHtml = `<audio controls src="${msg.mediaData}"></audio>`;
                 } else {
-                    contentHtml = msg.text || '';
+                    contentHtml = formatTextWithLinks(msg.text || '');
                 }
 
+                const deleteBtn = !msg.isDeletedForEveryone ? `
+                    <div class="delete-msg-btn" onclick="deleteMessagePrompt('${msg.id}', ${isSent})">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                ` : '';
+
                 html += `
-                    <div class="chat-msg ${isSent ? 'sent' : 'received'}">
+                    <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
+                        ${deleteBtn}
                         ${contentHtml}
                         <span class="time">${time}</span>
                     </div>
@@ -1392,5 +1379,119 @@ function stopVoiceRecording() {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
         }
+    }
+}
+
+// --- UI Enhancement Functions ---
+
+function toggleFullscreen() {
+    const chatWin = document.querySelector('.chat-window');
+    if (chatWin) {
+        chatWin.classList.toggle('chat-fullscreen');
+        const icon = chatWin.querySelector('.header-btn i');
+        if (icon) {
+            if (chatWin.classList.contains('chat-fullscreen')) {
+                icon.className = 'fas fa-compress';
+            } else {
+                icon.className = 'fas fa-expand';
+            }
+        }
+    }
+}
+
+function openLightbox(src) {
+    const modal = document.getElementById('image-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (modal && img) {
+        modal.style.display = "block";
+        img.src = src;
+    }
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('image-lightbox');
+    if (modal) modal.style.display = "none";
+}
+
+function openDriveModal(url) {
+    const modal = document.getElementById('drive-modal');
+    const iframe = document.getElementById('drive-iframe');
+    if (modal && iframe) {
+        // Extract file ID and create preview URL
+        const match = url.match(/\/file\/d\/(.+?)\//);
+        if (match && match[1]) {
+            const fileId = match[1];
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            modal.style.display = "block";
+        } else {
+            window.open(url, '_blank');
+        }
+    }
+}
+
+function closeDriveModal() {
+    const modal = document.getElementById('drive-modal');
+    const iframe = document.getElementById('drive-iframe');
+    if (modal && iframe) {
+        modal.style.display = "none";
+        iframe.src = "";
+    }
+}
+
+function formatTextWithLinks(text) {
+    if (!text) return '';
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, (url) => {
+        if (url.includes('drive.google.com/file/d/')) {
+            return `<a href="javascript:void(0)" onclick="openDriveModal('${url}')" class="chat-link">${url}</a>`;
+        }
+        return `<a href="${url}" target="_blank" class="chat-link">${url}</a>`;
+    });
+}
+
+// --- Delete Message Logic ---
+
+let currentDeleteMsgId = null;
+
+function deleteMessagePrompt(docId, isSent) {
+    currentDeleteMsgId = docId;
+    const modal = document.getElementById('delete-modal');
+    const everyoneBtn = document.getElementById('delete-everyone-btn');
+    
+    if (modal && everyoneBtn) {
+        modal.style.display = "block";
+        everyoneBtn.style.display = isSent ? "block" : "none";
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    if (modal) modal.style.display = "none";
+    currentDeleteMsgId = null;
+}
+
+async function confirmDelete(type) {
+    if (!currentDeleteMsgId || !currentUser) return;
+    
+    try {
+        const docRef = db.collection('messages').doc(currentDeleteMsgId);
+        
+        if (type === 'everyone') {
+            await docRef.update({
+                isDeletedForEveryone: true,
+                text: '🚫 تم مسح هذه الرسالة',
+                mediaData: null,
+                type: 'text'
+            });
+        } else if (type === 'me') {
+            await docRef.update({
+                deletedFor: firebase.firestore.FieldValue.arrayUnion(currentUser.username)
+            });
+        }
+        
+        closeDeleteModal();
+    } catch (error) {
+        console.error("Delete error:", error);
+        alert("Failed to delete message.");
     }
 }
