@@ -83,11 +83,28 @@ export default function handler(req, res) {
         { username: 'frau_farida', password: '13502009', payment_status: 'Paid' }, 
     ];
 
+    const admins = ["يوسف", "فراو", "frau_farida"];
     const user = users.find(u => u.username === username && u.password === password);
 
     if (user) {
         if (user.payment_status === 'Paid') {
-            return res.status(200).json({ success: true, user: { username: user.username } });
+            const isAdmin = admins.includes(user.username);
+            const responseData = { 
+                success: true, 
+                user: { 
+                    username: user.username,
+                    isAdmin: isAdmin
+                } 
+            };
+
+            if (isAdmin) {
+                // Get all normal students (exclude admins)
+                responseData.user.studentsList = users
+                    .filter(u => !admins.includes(u.username))
+                    .map(u => u.username);
+            }
+
+            return res.status(200).json(responseData);
         } else {
             return res.status(403).json({ success: false, error: 'Your account is not activated. Please contact the academy administration to complete your payment.' });
         }

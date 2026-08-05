@@ -1,3 +1,15 @@
+// Firebase Initialization
+const firebaseConfig = {
+  apiKey: "[AIzaSyAAhoeHyRF_X85YWEqDmyzjRJD9Yavh3bs]",
+  authDomain: "poly-academy.firebaseapp.com",
+  projectId: "poly-academy",
+  storageBucket: "poly-academy.firebasestorage.app",
+  messagingSenderId: "598496806275",
+  appId: "1:598496806275:web:d237b5e03f890571ede2b6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // App State
 let words = [];
 let stories = [];
@@ -12,6 +24,8 @@ let isTyping = false;
 let isChatSending = false;
 let currentChatMode = 'translator'; // translator, teacher, homework, voice
 let selectedImage = null;
+let currentChatUser = null;
+let chatUnsubscribe = null;
 let selectedAudio = null;
 let mediaRecorder = null;
 let audioChunks = [];
@@ -140,6 +154,7 @@ async function handleLogin(e) {
 
         if (data.success) {
             currentUser = data.user;
+            localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
             if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
             }
@@ -180,6 +195,7 @@ async function checkRememberedUser() {
             const data = await res.json();
             if (data.success) {
                 currentUser = data.user;
+                localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
                 showApp();
                 switchView('words');
                 return;
@@ -250,23 +266,55 @@ function renderMessagesView(container) {
         return;
     }
 
-    const userMessages = messages.filter(m => m.targetUsers.includes(currentUser.username));
-    
+    // Read isAdmin and studentsList from localStorage
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    const studentsList = authData.studentsList || [];
+
+    let contacts = [];
+    if (!isAdmin) {
+        // Normal Student: Render exactly 3 contacts
+        contacts = [
+            { name: "Polyglots Academy", username: "يوسف" },
+            { name: "Frau Hadeel", username: "فراو" },
+            { name: "Assistant", username: "frau_farida" }
+        ];
+    } else {
+        // Admin: Render contacts using the studentsList array
+        contacts = studentsList.map(s => ({ name: s, username: s }));
+    }
+
     const html = `
         <div class="view-header" style="padding: 10px 20px; text-align: right;">
-            <h2 style="color: var(--primary-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-envelope"></i> الرسائل</h2>
+            <h2 style="color: var(--burgundy-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-envelope"></i> الرسائل المباشرة</h2>
         </div>
-        <div id="messages-section" style="padding: 0 15px;">
-            ${userMessages.length > 0 ? userMessages.map(m => `
-                <div class="message-card">
-                    <h3>${m.title}</h3>
-                    <p>${m.content}</p>
-                </div>
-            `).join('') : '<div style="text-align:center; padding:40px;">لا توجد رسائل جديدة</div>'}
+        <div class="chat-split-container">
+            <div class="contacts-list">
+                ${contacts.map(c => `
+                    <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
+                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-info">
+                            <h4>${c.name}</h4>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="chat-window" id="chat-window">
+                ${currentChatUser ? renderChatWindow(currentChatUser) : `
+                    <div class="no-chat-selected">
+                        <i class="fas fa-comments"></i>
+                        <p>Select a contact to start messaging</p>
+                    </div>
+                `}
+            </div>
         </div>
     `;
     container.innerHTML = html;
     
+    if (currentChatUser) {
+        startChatListener();
+    }
+
     // Clear badge when viewing messages
     const badge = document.getElementById('notification-badge');
     if (badge) badge.classList.remove('active');
@@ -1040,3 +1088,101 @@ function applyTheme() {
 }
 
 init();
+
+// Real-time Messaging Functions
+function selectChat(username) {
+    currentChatUser = username;
+    renderView();
+}
+
+function renderChatWindow(targetUser) {
+    return `
+        <div class="chat-header">
+            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
+            <div class="contact-info">
+                <h4>${targetUser}</h4>
+            </div>
+        </div>
+        <div class="chat-messages-area" id="chat-messages-area">
+            <div style="text-align:center; padding:20px; color:#666;">Loading messages...</div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-msg-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button class="chat-send-btn" onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    `;
+}
+
+function getChatId(user1, user2) {
+    return [user1, user2].sort().join('_');
+}
+
+function startChatListener() {
+    if (chatUnsubscribe) {
+        chatUnsubscribe();
+    }
+
+    if (!currentUser || !currentChatUser) return;
+
+    const chatId = getChatId(currentUser.username, currentChatUser);
+    
+    chatUnsubscribe = db.collection('messages')
+        .where('chatId', '==', chatId)
+        .orderBy('timestamp', 'asc')
+        .onSnapshot((snapshot) => {
+            const messagesArea = document.getElementById('chat-messages-area');
+            if (!messagesArea) return;
+
+            if (snapshot.empty) {
+                messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No messages yet. Say hi!</div>';
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach((doc) => {
+                const msg = doc.data();
+                const isSent = msg.sender === currentUser.username;
+                const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
+                
+                html += `
+                    <div class="chat-msg ${isSent ? 'sent' : 'received'}">
+                        ${msg.text}
+                        <span class="time">${time}</span>
+                    </div>
+                `;
+            });
+            messagesArea.innerHTML = html;
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }, (error) => {
+            console.error("Error fetching messages: ", error);
+            const messagesArea = document.getElementById('chat-messages-area');
+            if (messagesArea) {
+                messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:red;">Error loading messages.</div>';
+            }
+        });
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chat-msg-input');
+    const text = input.value.trim();
+    
+    if (!text || !currentUser || !currentChatUser) return;
+
+    const chatId = getChatId(currentUser.username, currentChatUser);
+    input.value = '';
+
+    try {
+        await db.collection('messages').add({
+            chatId: chatId,
+            sender: currentUser.username,
+            receiver: currentChatUser,
+            text: text,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error sending message: ", error);
+        alert("Failed to send message. Please try again.");
+    }
+}
