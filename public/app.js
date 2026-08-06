@@ -209,6 +209,7 @@ function showApp() {
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
     renderView();
+    startGlobalNotificationListener();
 }
 
 function checkNotifications() {
@@ -264,21 +265,14 @@ function renderMessagesView(container) {
         return;
     }
 
-    // Read isAdmin and studentsList from localStorage
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
     const studentsList = authData.studentsList || [];
 
     let contacts = [];
     if (!isAdmin) {
-        // Normal Student: Render exactly 3 contacts
-        contacts = [
-            { name: "Polyglots Academy", username: "يوسف" },
-            { name: "Frau Hadeel", username: "فراو" },
-            { name: "Assistant", username: "frau_farida" }
-        ];
+        contacts = [{ name: "Polyglots Academy", username: "admins" }];
     } else {
-        // Admin: Render contacts using the studentsList array
         contacts = studentsList.map(s => ({ name: s, username: s }));
     }
 
@@ -290,7 +284,7 @@ function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-avatar" id="avatar-${c.username}">${c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
@@ -313,9 +307,17 @@ function renderMessagesView(container) {
         startChatListener();
     }
 
-    // Clear badge when viewing messages
-    const badge = document.getElementById('notification-badge');
-    if (badge) badge.classList.remove('active');
+    // Fetch mascots for admin contacts
+    if (isAdmin) {
+        studentsList.forEach(student => {
+            db.collection('users').doc(student).get().then(doc => {
+                if (doc.exists && doc.data().mascot) {
+                    const avatarDiv = document.getElementById(`avatar-${student}`);
+                    if (avatarDiv) avatarDiv.innerHTML = doc.data().mascot;
+                }
+            });
+        });
+    }
 }
 
 // View Renderers
@@ -1136,7 +1138,14 @@ function incrementMediaLimit(type) {
 }
 
 function getChatId(user1, user2) {
-    return [user1, user2].sort().join('_');
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    
+    if (!isAdmin) {
+        return currentUser.username;
+    } else {
+        return user2; // In admin view, user2 is the student username
+    }
 }
 
 function startChatListener() {
@@ -1167,10 +1176,18 @@ function startChatListener() {
             messagesArray.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
 
             let html = '';
+            const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+            const isAdmin = authData.isAdmin || false;
+            const myReceiverId = isAdmin ? 'admins' : currentUser.username;
+
             messagesArray.forEach((msg) => {
-                // Check if deleted for me
                 if (msg.deletedFor && msg.deletedFor.includes(currentUser.username)) {
                     return;
+                }
+
+                // Mark as read if I am the receiver
+                if (msg.receiver === myReceiverId && msg.isRead === false) {
+                    db.collection('messages').doc(msg.id).update({ isRead: true });
                 }
 
                 const isSent = msg.sender === currentUser.username;
@@ -1193,11 +1210,20 @@ function startChatListener() {
                     </div>
                 ` : '';
 
+                const readReceipt = isSent && !msg.isDeletedForEveryone ? `
+                    <span class="read-status ${msg.isRead ? 'read' : 'unread'}">
+                        ${msg.isRead ? '✓✓' : '✓'}
+                    </span>
+                ` : '';
+
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
                         ${contentHtml}
-                        <span class="time">${time}</span>
+                        <div class="msg-footer">
+                            <span class="time">${time}</span>
+                            ${readReceipt}
+                        </div>
                     </div>
                 `;
             });
@@ -1223,12 +1249,17 @@ async function sendChatMessage() {
     // Disable input while sending
     input.disabled = true;
 
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    const receiverId = isAdmin ? currentChatUser : 'admins';
+
     try {
         await db.collection('messages').add({
             chatId: chatId,
             sender: currentUser.username,
-            receiver: currentChatUser,
+            receiver: receiverId,
             text: text,
+            isRead: false,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         // Clear input ONLY after success
@@ -1294,13 +1325,18 @@ async function sendMediaMessage(type, data) {
     if (!currentUser || !currentChatUser) return;
     const chatId = getChatId(currentUser.username, currentChatUser);
 
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    const receiverId = isAdmin ? currentChatUser : 'admins';
+
     try {
         await db.collection('messages').add({
             chatId: chatId,
             sender: currentUser.username,
-            receiver: currentChatUser,
+            receiver: receiverId,
             type: type,
             mediaData: data,
+            isRead: false,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         incrementMediaLimit(type);
@@ -1495,3 +1531,65 @@ async function confirmDelete(type) {
         alert("Failed to delete message.");
     }
 }
+
+// --- Mascot & Notification System ---
+
+const MASCOTS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋'];
+
+function openMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    const grid = document.getElementById('mascot-grid');
+    if (modal && grid) {
+        grid.innerHTML = MASCOTS.map(m => `<div class="mascot-item" onclick="selectMascot('${m}')">${m}</div>`).join('');
+        modal.style.display = "block";
+    }
+}
+
+function closeMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    if (modal) modal.style.display = "none";
+}
+
+async function selectMascot(emoji) {
+    if (!currentUser) return;
+    try {
+        await db.collection('users').doc(currentUser.username).set({ mascot: emoji }, { merge: true });
+        document.getElementById('current-mascot-emoji').innerText = emoji;
+        closeMascotModal();
+        showToast("تم حفظ الشخصية بنجاح! ✨");
+    } catch (error) {
+        console.error("Error saving mascot:", error);
+        showToast("حدث خطأ أثناء حفظ الشخصية.");
+    }
+}
+
+function startGlobalNotificationListener() {
+    if (!currentUser) return;
+    
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    const myReceiverId = isAdmin ? 'admins' : currentUser.username;
+
+    db.collection('messages')
+        .where('receiver', '==', myReceiverId)
+        .where('isRead', '==', false)
+        .onSnapshot(snapshot => {
+            const badge = document.getElementById('notification-badge');
+            if (badge) {
+                if (!snapshot.empty) {
+                    badge.classList.add('active', 'unread-dot');
+                } else {
+                    badge.classList.remove('active', 'unread-dot');
+                }
+            }
+        });
+
+    // Also fetch user's mascot
+    db.collection('users').doc(currentUser.username).get().then(doc => {
+        if (doc.exists && doc.data().mascot) {
+            document.getElementById('current-mascot-emoji').innerText = doc.data().mascot;
+        }
+    });
+}
+
+
