@@ -1240,37 +1240,42 @@ function startChatListener() {
 
 async function sendChatMessage() {
     const input = document.getElementById('chat-msg-input');
-    const text = input.value.trim();
+    const messageText = input.value.trim();
     
-    if (!text || !currentUser || !currentChatUser) return;
-
-    const chatId = getChatId(currentUser.username, currentChatUser);
-    
-    // Disable input while sending
-    input.disabled = true;
+    if (!messageText || !currentUser || !currentChatUser) return;
 
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
-    const receiverId = isAdmin ? currentChatUser : 'admins';
 
-    try {
-        await db.collection('messages').add({
-            chatId: chatId,
-            sender: currentUser.username,
-            receiver: receiverId,
-            text: text,
-            isRead: false,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        // Clear input ONLY after success
+    let chatId, receiver;
+    if (isAdmin === false) {
+        chatId = currentUser.username;
+        receiver = 'admins';
+    } else {
+        chatId = currentChatUser;
+        receiver = currentChatUser;
+    }
+
+    // Disable input while sending
+    input.disabled = true;
+
+    db.collection('messages').add({
+        chatId: chatId,
+        sender: currentUser.username,
+        receiver: receiver,
+        text: messageText,
+        isRead: false,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        console.log("Message sent successfully!");
         input.value = '';
-    } catch (error) {
-        console.error("Firestore Send Error:", error);
-        alert("Error sending message: " + error.message);
-    } finally {
+    }).catch((error) => {
+        console.error("Error sending message: ", error);
+        alert("حدث خطأ أثناء الإرسال: " + error.message);
+    }).finally(() => {
         input.disabled = false;
         input.focus();
-    }
+    });
 }
 
 // Image Upload Logic
@@ -1323,27 +1328,34 @@ function handleImageSelection(input) {
 
 async function sendMediaMessage(type, data) {
     if (!currentUser || !currentChatUser) return;
-    const chatId = getChatId(currentUser.username, currentChatUser);
 
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
-    const receiverId = isAdmin ? currentChatUser : 'admins';
 
-    try {
-        await db.collection('messages').add({
-            chatId: chatId,
-            sender: currentUser.username,
-            receiver: receiverId,
-            type: type,
-            mediaData: data,
-            isRead: false,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        incrementMediaLimit(type);
-    } catch (error) {
-        console.error("Error sending media: ", error);
-        alert("Failed to send media. Document might be too large.");
+    let chatId, receiver;
+    if (isAdmin === false) {
+        chatId = currentUser.username;
+        receiver = 'admins';
+    } else {
+        chatId = currentChatUser;
+        receiver = currentChatUser;
     }
+
+    db.collection('messages').add({
+        chatId: chatId,
+        sender: currentUser.username,
+        receiver: receiver,
+        type: type,
+        mediaData: data,
+        isRead: false,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        console.log("Media message sent successfully!");
+        incrementMediaLimit(type);
+    }).catch((error) => {
+        console.error("Error sending media: ", error);
+        alert("حدث خطأ أثناء إرسال الميديا: " + error.message);
+    });
 }
 
 // Voice Recording Logic
