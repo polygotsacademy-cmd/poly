@@ -1721,7 +1721,7 @@ footer {
 
 .top-bar {
     background: var(--header-bg);
-    padding: 10px 20px;
+    padding: 5px 20px; /* Slimmer top bar */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1730,6 +1730,14 @@ footer {
     z-index: 1001;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border-bottom: 3px solid var(--burgundy-color);
+    height: 60px; /* Fixed height for consistency */
+}
+
+.top-bar-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
 }
 
 .hamburger-btn {
@@ -2717,9 +2725,9 @@ footer {
 
 .mascot-selection {
     background: white !important;
-    width: 320px !important;
-    height: 320px !important;
-    padding: 20px !important;
+    width: 350px !important; /* Slightly wider to fit grid comfortably */
+    height: 350px !important;
+    padding: 15px !important;
     border-radius: 20px !important;
     text-align: center;
     direction: rtl;
@@ -2729,16 +2737,19 @@ footer {
     left: 50%;
     transform: translate(-50%, -50%);
     margin-top: 0 !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* NO scrollbars */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .mascot-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-    margin-top: 15px;
-    padding: 5px;
-    overflow: hidden !important;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    overflow: hidden !important; /* NO scrollbars */
 }
 
 .mascot-item {

@@ -1093,6 +1093,7 @@ function renderChatWindow(targetUser) {
             <button class="media-btn" onclick="triggerImageUpload()">
                 <i class="fas fa-camera"></i>
             </button>
+            <span id="record-timer" style="display:none; color:red; font-weight:bold; margin: 0 5px;">00:00</span>
             <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
                 <i class="fas fa-microphone"></i>
             </button>
@@ -1207,7 +1208,7 @@ function startChatListener() {
                 ` : '';
 
                 const forwardBtn = (isAdmin && isSent && !msg.isDeletedForEveryone) ? `
-                    <div class="forward-msg-btn" onclick="openForwardModal('${msg.id}')">
+                    <div class="forward-msg-btn" onclick="openForwardModal('${msg.id}')" title="إعادة توجيه">
                         <i class="fas fa-share"></i>
                     </div>
                 ` : '';
@@ -1355,6 +1356,9 @@ async function toggleVoiceRecording() {
     }
 }
 
+let recordingInterval = null;
+let recordingSeconds = 0;
+
 async function startVoiceRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1381,17 +1385,27 @@ async function startVoiceRecording() {
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.add('recording');
-            btn.innerHTML = '<i class="fas fa-stop"></i>';
+            btn.innerHTML = '<i class="fas fa-stop" style="color: red;"></i>';
+        }
+        if (timerSpan) {
+            timerSpan.style.display = 'inline';
+            timerSpan.innerText = '00:00';
         }
 
-        // Max 20 seconds
-        voiceTimer = setTimeout(() => {
-            if (chatMediaRecorder.state === "recording") {
+        recordingSeconds = 0;
+        recordingInterval = setInterval(() => {
+            recordingSeconds++;
+            const mins = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+            const secs = (recordingSeconds % 60).toString().padStart(2, '0');
+            if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
+
+            if (recordingSeconds >= 200) {
                 stopVoiceRecording();
             }
-        }, 20000);
+        }, 1000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
@@ -1401,14 +1415,20 @@ async function startVoiceRecording() {
 
 function stopVoiceRecording() {
     if (chatMediaRecorder) {
-        chatMediaRecorder.stop();
-        clearTimeout(voiceTimer);
+        if (chatMediaRecorder.state !== "inactive") {
+            chatMediaRecorder.stop();
+        }
+        clearInterval(recordingInterval);
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (timerSpan) {
+            timerSpan.style.display = 'none';
         }
     }
 }
