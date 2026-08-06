@@ -1064,12 +1064,26 @@ function selectChat(username) {
 }
 
 function renderChatWindow(targetUser) {
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    let displayName = targetUser;
+
+    if (!isAdmin) {
+        const studentContacts = [
+            { name: "Polyglots Academy", username: "يوسف" },
+            { name: "Frau Hadeel", username: "فراو" },
+            { name: "Assistant", username: "frau_farida" }
+        ];
+        const contact = studentContacts.find(c => c.username === targetUser);
+        if (contact) displayName = contact.name;
+    }
+
     const limits = getMediaLimits();
     return `
         <div class="chat-header">
-            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
+            <div class="contact-avatar">${displayName.charAt(0).toUpperCase()}</div>
             <div class="contact-info">
-                <h4>${targetUser}</h4>
+                <h4>${displayName}</h4>
             </div>
             <div class="chat-header-actions">
                 <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
@@ -1088,9 +1102,10 @@ function renderChatWindow(targetUser) {
             <button class="media-btn" onclick="triggerImageUpload()">
                 <i class="fas fa-camera"></i>
             </button>
-            <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
+            <button id="voice-record-btn" class="media-btn" onclick="toggleChatVoiceRecording()">
                 <i class="fas fa-microphone"></i>
             </button>
+            <span id="record-timer" style="display:none; color:red; font-weight:bold; margin: 0 10px;">00:00</span>
             <input type="file" id="chat-image-upload" accept="image/*" style="display: none;" onchange="handleImageSelection(this)">
             <input type="text" id="chat-msg-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
             <button class="chat-send-btn" onclick="sendChatMessage()">
@@ -1313,22 +1328,24 @@ async function sendMediaMessage(type, data) {
 // Voice Recording Logic
 let chatMediaRecorder = null;
 let chatAudioChunks = [];
-let voiceTimer = null;
+let chatRecordingInterval = null;
+let chatRecordingTime = 0;
 
-async function toggleVoiceRecording() {
+async function toggleChatVoiceRecording() {
     if (chatMediaRecorder && chatMediaRecorder.state === "recording") {
-        stopVoiceRecording();
+        stopChatVoiceRecording();
     } else {
         if (!checkMediaLimit('audio')) return;
-        startVoiceRecording();
+        startChatVoiceRecording();
     }
 }
 
-async function startVoiceRecording() {
+async function startChatVoiceRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         chatMediaRecorder = new MediaRecorder(stream);
         chatAudioChunks = [];
+        chatRecordingTime = 0;
 
         chatMediaRecorder.ondataavailable = (e) => {
             chatAudioChunks.push(e.data);
@@ -1350,17 +1367,27 @@ async function startVoiceRecording() {
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.add('recording');
             btn.innerHTML = '<i class="fas fa-stop"></i>';
         }
+        if (timerSpan) {
+            timerSpan.style.display = 'inline';
+            timerSpan.innerText = '00:00';
+        }
 
-        // Max 20 seconds
-        voiceTimer = setTimeout(() => {
-            if (chatMediaRecorder.state === "recording") {
-                stopVoiceRecording();
+        // Timer Interval & 200s Limit
+        chatRecordingInterval = setInterval(() => {
+            chatRecordingTime++;
+            const mins = Math.floor(chatRecordingTime / 60).toString().padStart(2, '0');
+            const secs = (chatRecordingTime % 60).toString().padStart(2, '0');
+            if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
+            
+            if (chatRecordingTime >= 200) {
+                stopChatVoiceRecording();
             }
-        }, 20000);
+        }, 1000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
@@ -1368,16 +1395,20 @@ async function startVoiceRecording() {
     }
 }
 
-function stopVoiceRecording() {
+function stopChatVoiceRecording() {
     if (chatMediaRecorder) {
         chatMediaRecorder.stop();
-        clearTimeout(voiceTimer);
+        clearInterval(chatRecordingInterval);
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (timerSpan) {
+            timerSpan.style.display = 'none';
         }
     }
 }

@@ -2619,3 +2619,11 @@ footer {
     cursor: zoom-in !important;
 }
 
+
+#record-timer {
+    display: none;
+    color: red;
+    font-weight: bold;
+    margin: 0 10px;
+    font-family: 'Cairo', sans-serif;
+}
