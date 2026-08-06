@@ -41,7 +41,8 @@
     <div id="app-container" class="screen">
         <div class="top-bar">
             <button id="sidebar-toggle" class="hamburger-btn">☰</button>
-            <div class="top-bar-right" style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-right" style="display: flex; align-items: center; gap: 12px;">
+                <span id="user-points-badge" onclick="switchView('leaderboard')" style="background: #fff8e1; color: #f57c00; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="لوحة الشرف">⭐ <span id="user-points-val">0</span> XP</span>
                 <span id="user-mascot" onclick="openMascotModal( )" style="font-size: 22px; cursor: pointer; background: #f0f0f0; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">👤</span>
                 <div id="notification-bell" class="bell-container">
                     <i class="fas fa-bell"></i>
@@ -83,6 +84,10 @@
                 <li class="nav-item" data-view="messages">
                     <i class="fas fa-envelope"></i>
                     <span>Messages</span>
+                </li>
+                <li class="nav-item" data-view="leaderboard">
+                    <i class="fas fa-trophy"></i>
+                    <span>لوحة الشرف</span>
                 </li>
             </ul>
         </nav>
