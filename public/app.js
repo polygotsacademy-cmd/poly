@@ -1,3 +1,6 @@
+// Global Cache for Mascots
+window.mascotCache = {};
+
 // Firebase Initialization
 const firebaseConfig = {
   apiKey: "[AIzaSyAAhoeHyRF_X85YWEqDmyzjRJD9Yavh3bs]",
@@ -47,7 +50,7 @@ const SFX_SUCCESS = "https://cdn.pixabay.com/audio/2021/08/04/audio_bbd1614906.m
 const SFX_ERROR = "https://cdn.pixabay.com/audio/2022/03/10/audio_c978b77527.mp3";
 
 // Initialize App
-async function init() {
+async function init( ) {
     await loadData();
     setupEventListeners();
     await checkRememberedUser();
@@ -130,8 +133,6 @@ async function handleLogin(e) {
     const remember = document.getElementById('remember').checked;
 
     try {
-        // Simple mock login for local testing if API doesn't exist
-        // In a real app, this would be a real API call
         if (username === "admin" && password === "admin") {
              currentUser = { username: "Polyglot" };
              if (remember) {
@@ -163,7 +164,6 @@ async function handleLogin(e) {
             document.getElementById('login-error').innerText = data.error || 'Login failed';
         }
     } catch (err) {
-        // Fallback for demo purposes if server is not running
         if (username && password) {
             currentUser = { username };
             showApp();
@@ -208,6 +208,7 @@ function showApp() {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
+    loadUserMascot(); // Load Mascot on login
     renderView();
 }
 
@@ -231,7 +232,6 @@ function switchView(view) {
         item.classList.toggle('active', item.dataset.view === view);
     });
     
-    // Hide/Show Search Bar based on view
     const searchBar = document.getElementById('search-bar-container');
     if (view === 'words') {
         searchBar.style.display = 'block';
@@ -250,7 +250,6 @@ function renderView() {
         case 'words': renderWordsView(main); break;
         case 'stories': renderStoriesView(main); break;
         case 'quizzes': renderQuizzesView(main); break;
-
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
@@ -264,21 +263,18 @@ function renderMessagesView(container) {
         return;
     }
 
-    // Read isAdmin and studentsList from localStorage
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
     const studentsList = authData.studentsList || [];
 
     let contacts = [];
     if (!isAdmin) {
-        // Normal Student: Render exactly 3 contacts
         contacts = [
             { name: "Polyglots Academy", username: "يوسف" },
             { name: "Frau Hadeel", username: "فراو" },
             { name: "Assistant", username: "frau_farida" }
         ];
     } else {
-        // Admin: Render contacts using the studentsList array
         contacts = studentsList.map(s => ({ name: s, username: s }));
     }
 
@@ -290,7 +286,7 @@ function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-avatar" id="avatar-${c.username}">${window.mascotCache[c.username] || c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
@@ -313,7 +309,10 @@ function renderMessagesView(container) {
         startChatListener();
     }
 
-    // Clear badge when viewing messages
+    if (isAdmin) {
+        loadAdminMascots(studentsList);
+    }
+
     const badge = document.getElementById('notification-badge');
     if (badge) badge.classList.remove('active');
 }
@@ -409,10 +408,6 @@ function handleSearch() {
     if (currentView === 'words') renderView();
 }
 
-// Materials View
-
-
-// Pronunciation View
 function renderPronunciationView(container) {
     container.innerHTML = `
         <div class="pronunciation-container">
@@ -427,7 +422,6 @@ function renderPronunciationView(container) {
     `;
 }
 
-// Audio Helpers
 function playGerman(text) {
     if (!text) return;
     if ('speechSynthesis' in window) {
@@ -456,7 +450,6 @@ function playSFX(url) {
     audio.play().catch(e => console.log("SFX play error", e));
 }
 
-// Stories View
 function renderStoriesView(container) {
     if (stories.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:40px;"><p>No stories available.</p></div>`;
@@ -499,91 +492,6 @@ function showFullStory(index) {
         </div>`;
     main.scrollTop = 0;
 }
-
-// --- NEW QUIZ SYSTEM ---
-
-function renderQuizzesView(container) {
-    if (selectedQuizCategory) {
-        if (selectedQuizMode) {
-            renderQuizMode(container);
-        } else {
-            renderQuizModesSelection(container);
-        }
-    } else {
-        renderQuizCategorySelection(container);
-    }
-}
-
-function renderQuizCategorySelection(container) {
-    const categories = [...new Set(words.map(w => w.cat))];
-    const catData = categories.map(cat => {
-        const firstWord = words.find(w => w.cat === cat);
-        return { name: cat, emoji: firstWord ? firstWord.emoji : '📁' };
-    });
-
-    container.innerHTML = `
-        <div class="quiz-intro" style="text-align: center; padding: 20px;">
-            <h2 style="font-family: 'Cairo', sans-serif; color: var(--primary-color);">📝 اختبر معلوماتك</h2>
-            <p style="color: #666; margin-bottom: 20px;">اختر التصنيف الذي تريد التدرب عليه</p>
-        </div>
-        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px;">
-            ${catData.map(cat => `
-                <div class="category-card" onclick="selectQuizCategory('${cat.name}')" style="background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">
-                    <div class="cat-emoji" style="font-size: 40px; margin-bottom: 10px;">${cat.emoji}</div>
-                    <div class="cat-name" style="font-weight: bold; color: #333; font-family: 'Cairo', sans-serif;">${cat.name}</div>
-                    <div class="cat-count" style="font-size: 12px; color: #888; margin-top: 5px;">${words.filter(w => w.cat === cat.name).length} كلمة</div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-function selectQuizCategory(cat) {
-    selectedQuizCategory = cat;
-    selectedQuizMode = null;
-    renderView();
-}
-
-function renderQuizModesSelection(container) {
-    container.innerHTML = `
-        <div class="quiz-modes-view" style="padding: 20px; text-align: center; animation: fadeIn 0.5s;">
-            <button class="back-btn" onclick="selectedQuizCategory=null; renderView();" style="float: right; background: #eee; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer;"><i class="fas fa-arrow-left"></i> رجوع</button>
-            <h2 style="font-family: 'Cairo', sans-serif; margin-bottom: 30px; clear: both;">اختر نمط الاختبار: ${selectedQuizCategory}</h2>
-            
-            <div class="modes-container" style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto;">
-                <div class="mode-card" onclick="startQuizMode('flashcards')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">🎴</div>
-                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكروت (Flashcards)</h3>
-                    <p style="font-size: 14px; color: #777;">كروت تظهر بالألمانية وتتقلب لتظهر المعنى بالعربي</p>
-                </div>
-                
-                <div class="mode-card" onclick="startQuizMode('mcq')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
-                    <h3 style="font-family: 'Cairo', sans-serif;">اختيار من متعدد (MCQ)</h3>
-                    <p style="font-size: 14px; color: #777;">اختر المعنى الصحيح من بين 4 اختيارات</p>
-                </div>
-                
-                <div class="mode-card" onclick="startQuizMode('spelling')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">✍️</div>
-                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكتابة (Spelling)</h3>
-                    <p style="font-size: 14px; color: #777;">اكتب الكلمة بالألمانية بشكل صحيح</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function startQuizMode(mode) {
-    selectedQuizMode = mode;
-    quizWords = words.filter(w => w.cat === selectedQuizCategory).sort(() => Math.random() - 0.5);
-    currentQuizIndex = 0;
-    quizScore = 0;
-    quizAnswered = false;
-    selectedAnswer = null;
-    spellingInput = "";
-    renderView();
-}
-
 function renderQuizMode(container) {
     if (currentQuizIndex >= quizWords.length) {
         renderQuizResult(container);
@@ -640,7 +548,6 @@ function renderFlashcardsUI(word) {
 }
 
 function renderMCQUI(word) {
-    // Generate distractors
     const sameCatWords = words.filter(w => w.cat === selectedQuizCategory && w.id !== word.id);
     const distractors = sameCatWords.sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.ar);
     const options = [word.ar, ...distractors].sort(() => Math.random() - 0.5);
@@ -759,15 +666,12 @@ function renderQuizResult(container) {
     `;
 }
 
-// --- END NEW QUIZ SYSTEM ---
-
 function getDailyUsage() {
     const today = new Date().toISOString().split('T')[0];
     const usage = JSON.parse(localStorage.getItem('polyglots_usage') || '{}');
     if (usage.date !== today) {
         return { date: today, images: 0, voice: 0, text: 0 };
     }
-    // Handle migration from old format
     if (usage.text === undefined) usage.text = 0;
     return usage;
 }
@@ -822,7 +726,8 @@ function renderChatView(container) {
                 ${chatMessages.length === 0 ? `
                     <div style="text-align:center; padding:40px; color:#999;">
                         <i class="fas fa-robot" style="font-size:40px; margin-bottom:15px;"></i>
-                        <p>أهلاً بك في Polyglots AI!<br>اختر النمط المناسب وابدأ التعلم.</p>
+                        <p>أهلاً بك في Polyglots AI!  
+اختر النمط المناسب وابدأ التعلم.</p>
                     </div>
                 ` : chatMessages.map(msg => `
                     <div class="msg-poly ${msg.role}">
@@ -868,10 +773,10 @@ function setChatMode(mode) {
 
 function triggerImageUpload() {
     const usage = getDailyUsage();
-        if (usage.images >= 3) {
-            showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
-            return;
-        }
+    if (usage.images >= 3) {
+        showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
+        return;
+    }
     document.getElementById('image-input').click();
 }
 
@@ -1012,7 +917,6 @@ async function sendMessage() {
     }
 }
 
-// Games View
 function renderGamesView(container) {
     container.innerHTML = `
         <div class="games-container">
@@ -1056,7 +960,6 @@ function applyTheme() {
 }
 
 init();
-
 // Real-time Messaging Functions
 function selectChat(username) {
     currentChatUser = username;
@@ -1064,12 +967,26 @@ function selectChat(username) {
 }
 
 function renderChatWindow(targetUser) {
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const isAdmin = authData.isAdmin || false;
+    let displayName = targetUser;
+
+    if (!isAdmin) {
+        const studentContacts = [
+            { name: "Polyglots Academy", username: "يوسف" },
+            { name: "Frau Hadeel", username: "فراو" },
+            { name: "Assistant", username: "frau_farida" }
+        ];
+        const contact = studentContacts.find(c => c.username === targetUser);
+        if (contact) displayName = contact.name;
+    }
+
     const limits = getMediaLimits();
     return `
         <div class="chat-header">
-            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
+            <div class="contact-avatar">${window.mascotCache[targetUser] || displayName.charAt(0).toUpperCase()}</div>
             <div class="contact-info">
-                <h4>${targetUser}</h4>
+                <h4>${displayName}</h4>
             </div>
             <div class="chat-header-actions">
                 <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
@@ -1088,9 +1005,10 @@ function renderChatWindow(targetUser) {
             <button class="media-btn" onclick="triggerImageUpload()">
                 <i class="fas fa-camera"></i>
             </button>
-            <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
+            <button id="voice-record-btn" class="media-btn" onclick="toggleChatVoiceRecording()">
                 <i class="fas fa-microphone"></i>
             </button>
+            <span id="record-timer" style="display:none; color:red; font-weight:bold; margin: 0 10px;">00:00</span>
             <input type="file" id="chat-image-upload" accept="image/*" style="display: none;" onchange="handleImageSelection(this)">
             <input type="text" id="chat-msg-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
             <button class="chat-send-btn" onclick="sendChatMessage()">
@@ -1100,7 +1018,6 @@ function renderChatWindow(targetUser) {
     `;
 }
 
-// Daily Limits Logic
 function getMediaLimits() {
     if (!currentUser) return { images: 0, audio: 0 };
     const date = new Date().toISOString().split('T')[0];
@@ -1130,8 +1047,6 @@ function incrementMediaLimit(type) {
     if (type === 'image') limits.images++;
     if (type === 'audio') limits.audio++;
     localStorage.setItem(key, JSON.stringify(limits));
-    
-    // Update UI counters if visible
     renderView();
 }
 
@@ -1152,6 +1067,7 @@ function startChatListener() {
         .where('chatId', '==', chatId)
         .onSnapshot((snapshot) => {
             const messagesArea = document.getElementById('chat-messages-area');
+            
             if (!messagesArea) return;
 
             if (snapshot.empty) {
@@ -1243,11 +1159,6 @@ async function sendChatMessage() {
 }
 
 // Image Upload Logic
-function triggerImageUpload() {
-    if (!checkMediaLimit('image')) return;
-    document.getElementById('chat-image-upload').click();
-}
-
 function handleImageSelection(input) {
     const file = input.files[0];
     if (!file) return;
@@ -1313,22 +1224,24 @@ async function sendMediaMessage(type, data) {
 // Voice Recording Logic
 let chatMediaRecorder = null;
 let chatAudioChunks = [];
-let voiceTimer = null;
+let chatRecordingInterval = null;
+let chatRecordingTime = 0;
 
-async function toggleVoiceRecording() {
+async function toggleChatVoiceRecording() {
     if (chatMediaRecorder && chatMediaRecorder.state === "recording") {
-        stopVoiceRecording();
+        stopChatVoiceRecording();
     } else {
         if (!checkMediaLimit('audio')) return;
-        startVoiceRecording();
+        startChatVoiceRecording();
     }
 }
 
-async function startVoiceRecording() {
+async function startChatVoiceRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         chatMediaRecorder = new MediaRecorder(stream);
         chatAudioChunks = [];
+        chatRecordingTime = 0;
 
         chatMediaRecorder.ondataavailable = (e) => {
             chatAudioChunks.push(e.data);
@@ -1350,17 +1263,27 @@ async function startVoiceRecording() {
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.add('recording');
             btn.innerHTML = '<i class="fas fa-stop"></i>';
         }
+        if (timerSpan) {
+            timerSpan.style.display = 'inline';
+            timerSpan.innerText = '00:00';
+        }
 
-        // Max 20 seconds
-        voiceTimer = setTimeout(() => {
-            if (chatMediaRecorder.state === "recording") {
-                stopVoiceRecording();
+        // Timer Interval & 200s Limit
+        chatRecordingInterval = setInterval(() => {
+            chatRecordingTime++;
+            const mins = Math.floor(chatRecordingTime / 60).toString().padStart(2, '0');
+            const secs = (chatRecordingTime % 60).toString().padStart(2, '0');
+            if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
+            
+            if (chatRecordingTime >= 200) {
+                stopChatVoiceRecording();
             }
-        }, 20000);
+        }, 1000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
@@ -1368,16 +1291,20 @@ async function startVoiceRecording() {
     }
 }
 
-function stopVoiceRecording() {
+function stopChatVoiceRecording() {
     if (chatMediaRecorder) {
         chatMediaRecorder.stop();
-        clearTimeout(voiceTimer);
+        clearInterval(chatRecordingInterval);
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
+        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (timerSpan) {
+            timerSpan.style.display = 'none';
         }
     }
 }
@@ -1424,7 +1351,7 @@ function openDriveModal(url) {
             iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
             modal.style.display = "block";
         } else {
-            window.open(url, '_blank');
+            window.open(url, '_blank' );
         }
     }
 }
@@ -1440,7 +1367,7 @@ function closeDriveModal() {
 
 function formatTextWithLinks(text) {
     if (!text) return '';
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlRegex = /(https?:\/\/[^\s]+ )/g;
     return text.replace(urlRegex, (url) => {
         if (url.includes('drive.google.com/file/d/')) {
             return `<a href="javascript:void(0)" onclick="openDriveModal('${url}')" class="chat-link">${url}</a>`;
@@ -1498,31 +1425,63 @@ async function confirmDelete(type) {
 
 // --- MASCOT LOGIC ---
 const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋'];
-const grid = document.getElementById('mascot-grid');
-if(grid) {
-  emojis.forEach(emoji => {
-    let btn = document.createElement('div');
-    btn.innerText = emoji;
-    btn.style.cssText = 'font-size: 24px; cursor: pointer; padding: 5px; background: #f9f9f9; border-radius: 5px;';
-    btn.onclick = () => {
-      document.getElementById('user-mascot').innerText = emoji;
-      document.getElementById('mascot-modal').style.display = 'none';
-      if(window.currentUser) {
-        db.collection('users').doc(window.currentUser).set({ mascot: emoji }, { merge: true });
-      }
-    };
-    grid.appendChild(btn);
-  });
+
+function openMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    const grid = document.getElementById('mascot-grid');
+    if (modal && grid) {
+        if (grid.innerHTML === '') {
+            emojis.forEach(emoji => {
+                let btn = document.createElement('div');
+                btn.className = 'mascot-btn';
+                btn.innerText = emoji;
+                btn.onclick = () => selectMascot(emoji);
+                grid.appendChild(btn);
+            });
+        }
+        modal.style.display = 'block';
+    }
 }
 
-// Load Mascot on login
-setTimeout(() => {
-  if(window.currentUser) {
-    db.collection('users').doc(window.currentUser).get().then(doc => {
-      if(doc.exists && doc.data().mascot) {
-        document.getElementById('user-mascot').innerText = doc.data().mascot;
-      }
+function closeMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function selectMascot(emoji) {
+    const mascotSpan = document.getElementById('user-mascot');
+    if (mascotSpan) mascotSpan.innerText = emoji;
+    closeMascotModal();
+    
+    if (currentUser && currentUser.username) {
+        db.collection('users').doc(currentUser.username).set({ mascot: emoji }, { merge: true })
+        .catch(err => console.error("Error saving mascot:", err));
+    }
+}
+
+function loadUserMascot() {
+    if (currentUser && currentUser.username) {
+        db.collection('users').doc(currentUser.username).get().then(doc => {
+            if (doc.exists && doc.data().mascot) {
+                const mascotSpan = document.getElementById('user-mascot');
+                if (mascotSpan) mascotSpan.innerText = doc.data().mascot;
+            }
+        }).catch(err => console.error("Error loading mascot:", err));
+    }
+}
+
+function loadAdminMascots(studentsList) {
+    if (!studentsList || studentsList.length === 0) return;
+    
+    studentsList.forEach(student => {
+        db.collection('users').doc(student).get().then(doc => {
+            if (doc.exists && doc.data().mascot) {
+                window.mascotCache[student] = doc.data().mascot;
+                const avatarEl = document.getElementById(`avatar-${student}`);
+                if (avatarEl) {
+                    avatarEl.innerText = doc.data().mascot;
+                }
+            }
+        }).catch(err => console.error("Error loading student mascot:", err));
     });
-  }
-}, 2000);
-// --- END MASCOT LOGIC ---
+}

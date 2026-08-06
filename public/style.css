@@ -2619,3 +2619,43 @@ footer {
     cursor: zoom-in !important;
 }
 
+/* Mascot Modal Styles */
+.mascot-content {
+    width: 320px !important;
+    padding: 20px !important;
+    background: white;
+    border-radius: 15px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0 !important;
+}
+
+.mascot-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    justify-items: center;
+}
+
+.mascot-btn {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    transition: transform 0.2s, background 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.mascot-btn:hover {
+    transform: scale(1.2);
+    background: #eee;
+}
+
