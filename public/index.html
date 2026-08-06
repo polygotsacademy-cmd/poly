@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -40,12 +41,12 @@
     <div id="app-container" class="screen">
         <div class="top-bar">
             <button id="sidebar-toggle" class="hamburger-btn">☰</button>
-            <div class="top-bar-right" style="display: flex; flex-direction: row; align-items: center; gap: 15px;">
-                <div id="user-mascot-display" class="user-mascot-display" onclick="openMascotModal()" title="Change Mascot">👤</div>
+            <div class="top-bar-right" style="display: flex; align-items: center; gap: 15px;">
                 <div id="notification-bell" class="bell-container">
                     <i class="fas fa-bell"></i>
                     <span id="notification-badge" class="badge"></span>
                 </div>
+                <span id="user-mascot" style="font-size: 24px; cursor: pointer;" title="Change Mascot">👤</span>
             </div>
         </div>
 
@@ -137,39 +138,39 @@
     <!-- Mascot Selection Modal -->
     <div id="mascot-modal" class="modal">
         <div class="modal-content mascot-modal-content">
-            <span class="close-modal" onclick="closeMascotModal()">&times;</span>
-            <h3 style="color: var(--navy-color); margin-bottom: 15px; text-align: center; font-family: 'Cairo', sans-serif;">اختر تعبيرك المفضل</h3>
+            <span class="close-modal" id="close-mascot-modal">&times;</span>
+            <h3 style="margin-bottom: 15px; font-family: 'Cairo', sans-serif;">اختر التميمة الخاصة بك</h3>
             <div class="mascot-grid">
-                <button class="mascot-btn" onclick="selectMascot('🦁')">🦁</button>
-                <button class="mascot-btn" onclick="selectMascot('🐯')">🐯</button>
-                <button class="mascot-btn" onclick="selectMascot('🐻')">🐻</button>
-                <button class="mascot-btn" onclick="selectMascot('🐼')">🐼</button>
-                <button class="mascot-btn" onclick="selectMascot('🐨')">🐨</button>
-                <button class="mascot-btn" onclick="selectMascot('🦊')">🦊</button>
-                <button class="mascot-btn" onclick="selectMascot('🐰')">🐰</button>
-                <button class="mascot-btn" onclick="selectMascot('🐱')">🐱</button>
-                <button class="mascot-btn" onclick="selectMascot('🐶')">🐶</button>
-                <button class="mascot-btn" onclick="selectMascot('🐵')">🐵</button>
-                <button class="mascot-btn" onclick="selectMascot('🦄')">🦄</button>
-                <button class="mascot-btn" onclick="selectMascot('🐲')">🐲</button>
-                <button class="mascot-btn" onclick="selectMascot('🦖')">🦖</button>
-                <button class="mascot-btn" onclick="selectMascot('🐙')">🐙</button>
-                <button class="mascot-btn" onclick="selectMascot('🐳')">🐳</button>
-                <button class="mascot-btn" onclick="selectMascot('🐬')">🐬</button>
-                <button class="mascot-btn" onclick="selectMascot('🐧')">🐧</button>
-                <button class="mascot-btn" onclick="selectMascot('🦉')">🦉</button>
-                <button class="mascot-btn" onclick="selectMascot('🐸')">🐸</button>
-                <button class="mascot-btn" onclick="selectMascot('🦋')">🦋</button>
-                <button class="mascot-btn" onclick="selectMascot('🐝')">🐝</button>
-                <button class="mascot-btn" onclick="selectMascot('🐞')">🐞</button>
-                <button class="mascot-btn" onclick="selectMascot('🐢')">🐢</button>
-                <button class="mascot-btn" onclick="selectMascot('🦀')">🦀</button>
-                <button class="mascot-btn" onclick="selectMascot('🐘')">🐘</button>
-                <button class="mascot-btn" onclick="selectMascot('🦒')">🦒</button>
-                <button class="mascot-btn" onclick="selectMascot('🦓')">🦓</button>
-                <button class="mascot-btn" onclick="selectMascot('🦘')">🦘</button>
-                <button class="mascot-btn" onclick="selectMascot('🦚')">🦚</button>
-                <button class="mascot-btn" onclick="selectMascot('🦜')">🦜</button>
+                <span class="mascot-option">🦁</span>
+                <span class="mascot-option">🐯</span>
+                <span class="mascot-option">🐻</span>
+                <span class="mascot-option">🐼</span>
+                <span class="mascot-option">🐨</span>
+                <span class="mascot-option">🦊</span>
+                <span class="mascot-option">🐰</span>
+                <span class="mascot-option">🐱</span>
+                <span class="mascot-option">🐶</span>
+                <span class="mascot-option">🦄</span>
+                <span class="mascot-option">🐲</span>
+                <span class="mascot-option">🤖</span>
+                <span class="mascot-option">👻</span>
+                <span class="mascot-option">👽</span>
+                <span class="mascot-option">👾</span>
+                <span class="mascot-option">🤠</span>
+                <span class="mascot-option">😎</span>
+                <span class="mascot-option">🥳</span>
+                <span class="mascot-option">🐸</span>
+                <span class="mascot-option">🐵</span>
+                <span class="mascot-option">🐔</span>
+                <span class="mascot-option">🐧</span>
+                <span class="mascot-option">🦉</span>
+                <span class="mascot-option">🐝</span>
+                <span class="mascot-option">🦋</span>
+                <span class="mascot-option">🐞</span>
+                <span class="mascot-option">🐢</span>
+                <span class="mascot-option">🐙</span>
+                <span class="mascot-option">🐬</span>
+                <span class="mascot-option">🐳</span>
             </div>
         </div>
     </div>

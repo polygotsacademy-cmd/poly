@@ -17,6 +17,7 @@ let quizzes = [];
 
 let messages = [];
 let currentUser = null;
+window.mascotCache = {};
 let currentView = 'words';
 let currentCategory = 'Alle';
 let chatMessages = [];
@@ -133,7 +134,7 @@ async function handleLogin(e) {
         // Simple mock login for local testing if API doesn't exist
         // In a real app, this would be a real API call
         if (username === "admin" && password === "admin") {
-             currentUser = { username: "Polyglot", toString() { return this.username; } };
+             currentUser = { username: "Polyglot" };
              if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
             }
@@ -151,7 +152,7 @@ async function handleLogin(e) {
         const data = await res.json();
 
         if (data.success) {
-            currentUser = data.user ? { ...data.user, toString() { return this.username; } } : null;
+            currentUser = data.user;
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
             if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
@@ -165,7 +166,7 @@ async function handleLogin(e) {
     } catch (err) {
         // Fallback for demo purposes if server is not running
         if (username && password) {
-            currentUser = { username, toString() { return this.username; } };
+            currentUser = { username };
             showApp();
             switchView('words');
         } else {
@@ -180,7 +181,7 @@ async function checkRememberedUser() {
         const { username, password } = JSON.parse(saved);
         try {
             if (username === "admin" && password === "admin") {
-                currentUser = { username: "Polyglot", toString() { return this.username; } };
+                currentUser = { username: "Polyglot" };
                 showApp();
                 switchView('words');
                 return;
@@ -192,7 +193,7 @@ async function checkRememberedUser() {
             });
             const data = await res.json();
             if (data.success) {
-                currentUser = data.user ? { ...data.user, toString() { return this.username; } } : null;
+                currentUser = data.user;
                 localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
                 showApp();
                 switchView('words');
@@ -208,7 +209,7 @@ function showApp() {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
-    loadUserMascot();
+    initUserMascot();
     renderView();
 }
 
@@ -270,6 +271,19 @@ async function renderMessagesView(container) {
     const isAdmin = authData.isAdmin || false;
     const studentsList = authData.studentsList || [];
 
+    // PERFORMANCE: Fetch all user mascots ONCE in bulk to populate window.mascotCache (NO loop fetching)
+    try {
+        const usersSnap = await db.collection('users').get();
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            if (data && data.mascot) {
+                window.mascotCache[doc.id] = data.mascot;
+            }
+        });
+    } catch (e) {
+        console.error("Error fetching mascots cache:", e);
+    }
+
     let contacts = [];
     if (!isAdmin) {
         // Normal Student: Render exactly 3 contacts
@@ -279,22 +293,8 @@ async function renderMessagesView(container) {
             { name: "Assistant", username: "frau_farida" }
         ];
     } else {
-        // Admin: Render contacts using the studentsList array and fetch student mascots
-        contacts = studentsList.map(s => ({ name: s, username: s, mascot: '👤' }));
-        try {
-            const promises = studentsList.map(async (studentUsername) => {
-                const doc = await db.collection('users').doc(studentUsername).get();
-                if (doc.exists && doc.data().mascot) {
-                    const contact = contacts.find(c => c.username === studentUsername);
-                    if (contact) {
-                        contact.mascot = doc.data().mascot;
-                    }
-                }
-            });
-            await Promise.all(promises);
-        } catch (err) {
-            console.error('Error fetching student mascots:', err);
-        }
+        // Admin: Render contacts using the studentsList array
+        contacts = studentsList.map(s => ({ name: s, username: s }));
     }
 
     const html = `
@@ -305,9 +305,9 @@ async function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar" style="font-size: 20px; display: flex; align-items: center; justify-content: center;">${c.mascot || c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-avatar" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">${window.mascotCache[c.username] || '👤'}</div>
                         <div class="contact-info">
-                            <h4>${c.name}</h4>
+                            <h4>${c.name} <span style="font-size: 16px; margin-left: 5px;">${window.mascotCache[c.username] || '👤'}</span></h4>
                         </div>
                     </div>
                 `).join('')}
@@ -1080,11 +1080,12 @@ function selectChat(username) {
 
 function renderChatWindow(targetUser) {
     const limits = getMediaLimits();
+    const targetMascot = window.mascotCache[targetUser] || '👤';
     return `
         <div class="chat-header">
-            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
+            <div class="contact-avatar" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">${targetMascot}</div>
             <div class="contact-info">
-                <h4>${targetUser}</h4>
+                <h4>${targetUser} <span style="font-size: 16px; margin-left: 5px;">${targetMascot}</span></h4>
             </div>
             <div class="chat-header-actions">
                 <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
@@ -1212,7 +1213,10 @@ function startChatListener() {
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
                         ${contentHtml}
-                        <span class="time">${time}</span>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px;">
+                            <span class="time">${time}</span>
+                            ${isSent ? `<span class="read-receipt" style="color: ${msg.isRead ? '#34b7f1' : '#999'}; font-size: 12px;">${msg.isRead ? '✓✓' : '✓'}</span>` : ''}
+                        </div>
                     </div>
                 `;
             });
@@ -1508,47 +1512,5 @@ async function confirmDelete(type) {
     } catch (error) {
         console.error("Delete error:", error);
         alert("Failed to delete message.");
-    }
-}
-
-// --- Mascot Feature Logic ---
-function openMascotModal() {
-    const modal = document.getElementById('mascot-modal');
-    if (modal) modal.style.display = "block";
-}
-
-function closeMascotModal() {
-    const modal = document.getElementById('mascot-modal');
-    if (modal) modal.style.display = "none";
-}
-
-async function selectMascot(selectedEmoji) {
-    closeMascotModal();
-    if (!currentUser) return;
-    try {
-        await db.collection('users').doc(currentUser).set({ mascot: selectedEmoji }, { merge: true });
-        const mascotDisplay = document.getElementById('user-mascot-display');
-        if (mascotDisplay) {
-            mascotDisplay.innerText = selectedEmoji;
-        }
-    } catch (err) {
-        console.error("Error saving mascot:", err);
-    }
-}
-
-async function loadUserMascot() {
-    if (!currentUser) return;
-    try {
-        const doc = await db.collection('users').doc(currentUser).get();
-        const mascotDisplay = document.getElementById('user-mascot-display');
-        if (doc.exists && doc.data().mascot) {
-            if (mascotDisplay) mascotDisplay.innerText = doc.data().mascot;
-        } else {
-            if (mascotDisplay) mascotDisplay.innerText = '👤';
-        }
-    } catch (err) {
-        console.error("Error loading mascot:", err);
-        const mascotDisplay = document.getElementById('user-mascot-display');
-        if (mascotDisplay) mascotDisplay.innerText = '👤';
     }
 }
