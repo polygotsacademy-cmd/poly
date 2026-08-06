@@ -1721,7 +1721,7 @@ footer {
 
 .top-bar {
     background: var(--header-bg);
-    padding: 5px 20px; /* Slimmer top bar */
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1730,14 +1730,6 @@ footer {
     z-index: 1001;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border-bottom: 3px solid var(--burgundy-color);
-    height: 60px; /* Fixed height for consistency */
-}
-
-.top-bar-actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 15px;
 }
 
 .hamburger-btn {
@@ -2604,76 +2596,6 @@ footer {
     display: flex;
 }
 
-.forward-msg-btn {
-    position: absolute;
-    top: -5px;
-    right: 20px;
-    background: rgba(255,255,255,0.8);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #3498db;
-    border: 1px solid #ddd;
-    z-index: 10;
-    cursor: pointer;
-}
-
-.chat-msg:hover .forward-msg-btn {
-    display: flex;
-}
-
-/* Forward Modal Styles */
-.forward-content {
-    background: white !important;
-    width: 90% !important;
-    max-width: 400px !important;
-    padding: 25px !important;
-    border-radius: 20px !important;
-    direction: rtl;
-    font-family: 'Cairo', sans-serif;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin-top: 0 !important;
-}
-
-.forward-list {
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 20px 0;
-    text-align: right;
-}
-
-.forward-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    gap: 10px;
-}
-
-.forward-item input {
-    width: 18px;
-    height: 18px;
-}
-
-.forward-submit-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--burgundy-color);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-}
-
 .deleted-placeholder {
     font-style: italic;
     color: #999 !important;
@@ -2697,106 +2619,3 @@ footer {
     cursor: zoom-in !important;
 }
 
-.msg-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 5px;
-    margin-top: 2px;
-}
-
-
-
-/* Mascot System */
-.mascot-avatar-top {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 50%;
-    display: inline-flex;
-    vertical-align: middle;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-right: 10px;
-}
-
-.mascot-selection {
-    background: white !important;
-    width: 350px !important; /* Slightly wider to fit grid comfortably */
-    height: 350px !important;
-    padding: 15px !important;
-    border-radius: 20px !important;
-    text-align: center;
-    direction: rtl;
-    font-family: 'Cairo', sans-serif;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin-top: 0 !important;
-    overflow: hidden !important; /* NO scrollbars */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.mascot-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-    padding: 10px;
-    overflow: hidden !important; /* NO scrollbars */
-}
-
-.mascot-item {
-    font-size: 30px;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 10px;
-    transition: background 0.2s;
-}
-
-.mascot-item:hover {
-    background: #f0f0f0;
-}
-
-/* Read Receipts */
-.read-status {
-    font-size: 12px;
-    margin-left: 5px;
-}
-
-.read-status.unread {
-    color: #999;
-}
-
-.read-status.read {
-    color: #34b7f1; /* WhatsApp Blue */
-}
-
-/* Notification Bell Red Dot */
-.bell-container .badge.unread-dot {
-    width: 10px;
-    height: 10px;
-    background: #e74c3c;
-    border-radius: 50%;
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    display: none;
-    border: 2px solid #fff;
-}
-
-.bell-container .badge.unread-dot.active {
-    display: block;
-}
-
-/* Contact Avatar Mascot */
-.contact-avatar-mascot {
-    font-size: 20px;
-    margin-right: 5px;
-}

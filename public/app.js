@@ -209,7 +209,6 @@ function showApp() {
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
     renderView();
-    startGlobalNotificationListener();
 }
 
 function checkNotifications() {
@@ -265,19 +264,21 @@ function renderMessagesView(container) {
         return;
     }
 
+    // Read isAdmin and studentsList from localStorage
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
     const studentsList = authData.studentsList || [];
 
     let contacts = [];
     if (!isAdmin) {
-        // Revert to 3 Admin Contacts for students
+        // Normal Student: Render exactly 3 contacts
         contacts = [
             { name: "Polyglots Academy", username: "يوسف" },
             { name: "Frau Hadeel", username: "فراو" },
             { name: "Assistant", username: "frau_farida" }
         ];
     } else {
+        // Admin: Render contacts using the studentsList array
         contacts = studentsList.map(s => ({ name: s, username: s }));
     }
 
@@ -289,7 +290,7 @@ function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar" id="avatar-${c.username}">${c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
@@ -312,15 +313,9 @@ function renderMessagesView(container) {
         startChatListener();
     }
 
-    // Fetch mascots for contacts
-    contacts.forEach(contact => {
-        db.collection('users').doc(contact.username).get().then(doc => {
-            if (doc.exists && doc.data().mascot) {
-                const avatarDiv = document.getElementById(`avatar-${contact.username}`);
-                if (avatarDiv) avatarDiv.innerHTML = doc.data().mascot;
-            }
-        });
-    });
+    // Clear badge when viewing messages
+    const badge = document.getElementById('notification-badge');
+    if (badge) badge.classList.remove('active');
 }
 
 // View Renderers
@@ -1093,7 +1088,6 @@ function renderChatWindow(targetUser) {
             <button class="media-btn" onclick="triggerImageUpload()">
                 <i class="fas fa-camera"></i>
             </button>
-            <span id="record-timer" style="display:none; color:red; font-weight:bold; margin: 0 5px;">00:00</span>
             <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
                 <i class="fas fa-microphone"></i>
             </button>
@@ -1142,7 +1136,6 @@ function incrementMediaLimit(type) {
 }
 
 function getChatId(user1, user2) {
-    // Revert to alphabetical sort join for ALL users
     return [user1, user2].sort().join('_');
 }
 
@@ -1174,17 +1167,10 @@ function startChatListener() {
             messagesArray.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
 
             let html = '';
-            const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-            const isAdmin = authData.isAdmin || false;
-
             messagesArray.forEach((msg) => {
+                // Check if deleted for me
                 if (msg.deletedFor && msg.deletedFor.includes(currentUser.username)) {
                     return;
-                }
-
-                // Mark as read if I am the receiver
-                if (msg.receiver === currentUser.username && msg.isRead === false) {
-                    db.collection('messages').doc(msg.id).update({ isRead: true });
                 }
 
                 const isSent = msg.sender === currentUser.username;
@@ -1207,27 +1193,11 @@ function startChatListener() {
                     </div>
                 ` : '';
 
-                const forwardBtn = (isAdmin && isSent && !msg.isDeletedForEveryone) ? `
-                    <div class="forward-msg-btn" onclick="openForwardModal('${msg.id}')" title="إعادة توجيه">
-                        <i class="fas fa-share"></i>
-                    </div>
-                ` : '';
-
-                const readReceipt = isSent && !msg.isDeletedForEveryone ? `
-                    <span class="read-status ${msg.isRead ? 'read' : 'unread'}">
-                        ${msg.isRead ? '✓✓' : '✓'}
-                    </span>
-                ` : '';
-
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
-                        ${forwardBtn}
                         ${contentHtml}
-                        <div class="msg-footer">
-                            <span class="time">${time}</span>
-                            ${readReceipt}
-                        </div>
+                        <span class="time">${time}</span>
                     </div>
                 `;
             });
@@ -1259,7 +1229,6 @@ async function sendChatMessage() {
             sender: currentUser.username,
             receiver: currentChatUser,
             text: text,
-            isRead: false,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         // Clear input ONLY after success
@@ -1332,7 +1301,6 @@ async function sendMediaMessage(type, data) {
             receiver: currentChatUser,
             type: type,
             mediaData: data,
-            isRead: false,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         incrementMediaLimit(type);
@@ -1355,9 +1323,6 @@ async function toggleVoiceRecording() {
         startVoiceRecording();
     }
 }
-
-let recordingInterval = null;
-let recordingSeconds = 0;
 
 async function startVoiceRecording() {
     try {
@@ -1385,27 +1350,17 @@ async function startVoiceRecording() {
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
-        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.add('recording');
-            btn.innerHTML = '<i class="fas fa-stop" style="color: red;"></i>';
-        }
-        if (timerSpan) {
-            timerSpan.style.display = 'inline';
-            timerSpan.innerText = '00:00';
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
         }
 
-        recordingSeconds = 0;
-        recordingInterval = setInterval(() => {
-            recordingSeconds++;
-            const mins = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
-            const secs = (recordingSeconds % 60).toString().padStart(2, '0');
-            if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
-
-            if (recordingSeconds >= 200) {
+        // Max 20 seconds
+        voiceTimer = setTimeout(() => {
+            if (chatMediaRecorder.state === "recording") {
                 stopVoiceRecording();
             }
-        }, 1000);
+        }, 20000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
@@ -1415,20 +1370,14 @@ async function startVoiceRecording() {
 
 function stopVoiceRecording() {
     if (chatMediaRecorder) {
-        if (chatMediaRecorder.state !== "inactive") {
-            chatMediaRecorder.stop();
-        }
-        clearInterval(recordingInterval);
+        chatMediaRecorder.stop();
+        clearTimeout(voiceTimer);
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
-        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
-        }
-        if (timerSpan) {
-            timerSpan.style.display = 'none';
         }
     }
 }
@@ -1544,138 +1493,5 @@ async function confirmDelete(type) {
     } catch (error) {
         console.error("Delete error:", error);
         alert("Failed to delete message.");
-    }
-}
-
-// --- Mascot & Notification System ---
-
-const MASCOTS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋'];
-
-function openMascotModal() {
-    const modal = document.getElementById('mascot-modal');
-    const grid = document.getElementById('mascot-grid');
-    if (modal && grid) {
-        grid.innerHTML = MASCOTS.map(m => `<div class="mascot-item" onclick="selectMascot('${m}')">${m}</div>`).join('');
-        modal.style.display = "block";
-    }
-}
-
-function closeMascotModal() {
-    const modal = document.getElementById('mascot-modal');
-    if (modal) modal.style.display = "none";
-}
-
-async function selectMascot(emoji) {
-    if (!currentUser) return;
-    try {
-        await db.collection('users').doc(currentUser.username).set({ mascot: emoji }, { merge: true });
-        document.getElementById('current-mascot-emoji').innerText = emoji;
-        closeMascotModal();
-        showToast("تم حفظ الشخصية بنجاح! ✨");
-    } catch (error) {
-        console.error("Error saving mascot:", error);
-        showToast("حدث خطأ أثناء حفظ الشخصية.");
-    }
-}
-
-function startGlobalNotificationListener() {
-    if (!currentUser) return;
-    
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const isAdmin = authData.isAdmin || false;
-    const myReceiverId = isAdmin ? 'admins' : currentUser.username;
-
-    db.collection('messages')
-        .where('receiver', '==', myReceiverId)
-        .where('isRead', '==', false)
-        .onSnapshot(snapshot => {
-            const badge = document.getElementById('notification-badge');
-            if (badge) {
-                if (!snapshot.empty) {
-                    badge.classList.add('active', 'unread-dot');
-                } else {
-                    badge.classList.remove('active', 'unread-dot');
-                }
-            }
-        });
-
-    // Also fetch user's mascot
-    db.collection('users').doc(currentUser.username).get().then(doc => {
-        if (doc.exists && doc.data().mascot) {
-            document.getElementById('current-mascot-emoji').innerText = doc.data().mascot;
-        }
-    });
-}
-
-
-
-// --- Admin Forward/Broadcast Feature ---
-
-let currentForwardMsgId = null;
-
-function openForwardModal(msgId) {
-    currentForwardMsgId = msgId;
-    const modal = document.getElementById('forward-modal');
-    const list = document.getElementById('forward-student-list');
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const studentsList = authData.studentsList || [];
-
-    if (modal && list) {
-        list.innerHTML = studentsList.map(student => `
-            <div class="forward-item">
-                <input type="checkbox" id="forward-${student}" value="${student}">
-                <label for="forward-${student}">${student}</label>
-            </div>
-        `).join('');
-        modal.style.display = "block";
-    }
-}
-
-function closeForwardModal() {
-    const modal = document.getElementById('forward-modal');
-    if (modal) modal.style.display = "none";
-    currentForwardMsgId = null;
-}
-
-async function broadcastMessage() {
-    if (!currentForwardMsgId || !currentUser) return;
-
-    const checkboxes = document.querySelectorAll('#forward-student-list input:checked');
-    const selectedStudents = Array.from(checkboxes).map(cb => cb.value);
-
-    if (selectedStudents.length === 0) {
-        alert("يرجى اختيار طالب واحد على الأقل.");
-        return;
-    }
-
-    try {
-        // Fetch the original message data
-        const doc = await db.collection('messages').doc(currentForwardMsgId).get();
-        if (!doc.exists) {
-            alert("الرسالة الأصلية غير موجودة.");
-            return;
-        }
-
-        const msgData = doc.data();
-        const promises = selectedStudents.map(student => {
-            const chatId = getChatId(currentUser.username, student);
-            return db.collection('messages').add({
-                chatId: chatId,
-                sender: currentUser.username,
-                receiver: student,
-                text: msgData.text || null,
-                type: msgData.type || 'text',
-                mediaData: msgData.mediaData || null,
-                isRead: false,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-
-        await Promise.all(promises);
-        alert(`تم توجيه الرسالة بنجاح إلى ${selectedStudents.length} طالب.`);
-        closeForwardModal();
-    } catch (error) {
-        console.error("Forward error:", error);
-        alert("حدث خطأ أثناء توجيه الرسالة.");
     }
 }

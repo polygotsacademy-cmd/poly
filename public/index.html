@@ -42,14 +42,9 @@
         <div class="top-bar">
             <button id="sidebar-toggle" class="hamburger-btn">☰</button>
             <div class="top-bar-right">
-                <div class="top-bar-actions">
-                    <div id="mascot-display" class="mascot-avatar-top" onclick="openMascotModal()">
-                        <span id="current-mascot-emoji">👤</span>
-                    </div>
-                    <div id="notification-bell" class="bell-container">
-                        <i class="fas fa-bell"></i>
-                        <span id="notification-badge" class="badge"></span>
-                    </div>
+                <div id="notification-bell" class="bell-container">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge" class="badge"></span>
                 </div>
             </div>
         </div>
@@ -136,29 +131,6 @@
             <button onclick="confirmDelete('me')" class="delete-btn-option">مسح لي فقط</button>
             <button id="delete-everyone-btn" onclick="confirmDelete('everyone')" class="delete-btn-option everyone">مسح للجميع</button>
             <button onclick="closeDeleteModal()" class="delete-btn-option cancel">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- Mascot Selection Modal -->
-    <div id="mascot-modal" class="modal">
-        <div class="modal-content mascot-selection">
-            <span class="close-modal" onclick="closeMascotModal()">&times;</span>
-            <h3>اختر شخصيتك (Mascot)</h3>
-            <div id="mascot-grid" class="mascot-grid">
-                <!-- Emojis will be injected here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Forward Message Modal -->
-    <div id="forward-modal" class="modal">
-        <div class="modal-content forward-content">
-            <span class="close-modal" onclick="closeForwardModal()">&times;</span>
-            <h3>توجيه الرسالة</h3>
-            <div id="forward-student-list" class="forward-list">
-                <!-- Students will be injected here -->
-            </div>
-            <button onclick="broadcastMessage()" class="forward-submit-btn">إرسال للجميع المحددين</button>
         </div>
     </div>
 
