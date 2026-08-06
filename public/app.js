@@ -1067,7 +1067,6 @@ function startChatListener() {
         .where('chatId', '==', chatId)
         .onSnapshot((snapshot) => {
             const messagesArea = document.getElementById('chat-messages-area');
-            
             if (!messagesArea) return;
 
             if (snapshot.empty) {
@@ -1075,7 +1074,6 @@ function startChatListener() {
                 return;
             }
 
-            // Extract and sort messages client-side to avoid composite index requirement
             const messagesArray = [];
             snapshot.forEach(doc => {
                 messagesArray.push({ id: doc.id, ...doc.data() });
@@ -1083,13 +1081,20 @@ function startChatListener() {
             messagesArray.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
 
             let html = '';
+            let unreadDocsToUpdate = []; // تجميع الرسائل غير المقروءة لتحديثها
+
             messagesArray.forEach((msg) => {
-                // Check if deleted for me
                 if (msg.deletedFor && msg.deletedFor.includes(currentUser.username)) {
                     return;
                 }
 
                 const isSent = msg.sender === currentUser.username;
+                
+                // إذا كانت الرسالة مبعوثة لي ولم أقرأها بعد، أضفها لقائمة التحديث
+                if (!isSent && msg.isRead === false) {
+                    unreadDocsToUpdate.push(msg.id);
+                }
+
                 const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
                 
                 let contentHtml = '';
@@ -1109,16 +1114,38 @@ function startChatListener() {
                     </div>
                 ` : '';
 
+                // إضافة علامات الصح (Read Receipts)
+                let ticksHtml = '';
+                if (isSent && !msg.isDeletedForEveryone) {
+                    if (msg.isRead) {
+                        ticksHtml = `<span style="color: #34b7f1; margin-left: 5px; font-size: 12px;">✓✓</span>`; // صحين باللون الأزرق
+                    } else {
+                        ticksHtml = `<span style="color: #999; margin-left: 5px; font-size: 12px;">✓</span>`; // صح واحدة رمادي
+                    }
+                }
+
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
                         ${contentHtml}
-                        <span class="time">${time}</span>
+                        <span class="time">${time}${ticksHtml}</span>
                     </div>
                 `;
             });
+            
             messagesArea.innerHTML = html;
             messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // تحديث حالة الرسائل إلى "مقروءة" في قاعدة البيانات
+            if (unreadDocsToUpdate.length > 0) {
+                const batch = db.batch();
+                unreadDocsToUpdate.forEach(docId => {
+                    const docRef = db.collection('messages').doc(docId);
+                    batch.update(docRef, { isRead: true });
+                });
+                batch.commit().catch(err => console.error("Error updating read status:", err));
+            }
+
         }, (error) => {
             console.error("Error fetching messages: ", error);
             const messagesArea = document.getElementById('chat-messages-area');
@@ -1127,7 +1154,6 @@ function startChatListener() {
             }
         });
 }
-
 async function sendChatMessage() {
     const input = document.getElementById('chat-msg-input');
     const text = input.value.trim();
@@ -1136,7 +1162,6 @@ async function sendChatMessage() {
 
     const chatId = getChatId(currentUser.username, currentChatUser);
     
-    // Disable input while sending
     input.disabled = true;
 
     try {
@@ -1145,9 +1170,9 @@ async function sendChatMessage() {
             sender: currentUser.username,
             receiver: currentChatUser,
             text: text,
+            isRead: false, // تمت إضافة حالة القراءة
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        // Clear input ONLY after success
         input.value = '';
     } catch (error) {
         console.error("Firestore Send Error:", error);
@@ -1157,7 +1182,6 @@ async function sendChatMessage() {
         input.focus();
     }
 }
-
 // Image Upload Logic
 function handleImageSelection(input) {
     const file = input.files[0];
@@ -1212,6 +1236,7 @@ async function sendMediaMessage(type, data) {
             receiver: currentChatUser,
             type: type,
             mediaData: data,
+            isRead: false, // تمت إضافة حالة القراءة
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         incrementMediaLimit(type);
@@ -1220,7 +1245,6 @@ async function sendMediaMessage(type, data) {
         alert("Failed to send media. Document might be too large.");
     }
 }
-
 // Voice Recording Logic
 let chatMediaRecorder = null;
 let chatAudioChunks = [];
