@@ -813,13 +813,30 @@ function renderChatView(container) {
         'voice': '300%'
     }[currentChatMode];
 
+    const username = currentUser && currentUser.username ? currentUser.username : 'بطل الأكاديمية';
+    const userMascot = window.mascotCache && window.mascotCache[username] ? window.mascotCache[username] : '🤖';
+
     container.innerHTML = `
         <div class="polyglots-chat-container">
             <div class="chat-header-poly">
-                <h2>Polyglots AI</h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 26px;">🤖</span>
+                    <div>
+                        <h2 style="margin: 0; font-size: 18px;">Polyglots AI</h2>
+                        <span style="font-size: 12px; color: #27ae60; font-weight: normal;">● متصل وجاهز للمساعدة</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fdfbf7 0%, #f4f6f8; border-right: 4px solid var(--burgundy-color); padding: 12px 18px; margin: 15px 20px 0 20px; border-radius: 12px; font-family: 'Cairo', sans-serif; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <div style="font-size: 30px;">${userMascot}</div>
+                <div>
+                    <h4 style="margin: 0; color: #333; font-size: 15px;">أهلاً بك يا ${username}!</h4>
+                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #666;">أنا معلمك الذكي للغة الألمانية. اسألني عن أي قاعدة أو كلمة وسأساعدك فوراً!</p>
+                </div>
             </div>
             
-            <div class="mode-switcher">
+            <div class="mode-switcher" style="margin: 15px 20px;">
                 <div class="mode-glider" style="transform: translateX(${gliderPos})"></div>
                 <button class="mode-btn ${currentChatMode === 'translator' ? 'active' : ''}" onclick="setChatMode('translator')">مترجم</button>
                 <button class="mode-btn ${currentChatMode === 'teacher' ? 'active' : ''}" onclick="setChatMode('teacher')">مدرس</button>
@@ -830,20 +847,34 @@ function renderChatView(container) {
             <div class="chat-messages-poly" id="chat-messages">
                 ${chatMessages.length === 0 ? `
                     <div style="text-align:center; padding:40px; color:#999;">
-                        <i class="fas fa-robot" style="font-size:40px; margin-bottom:15px;"></i>
-                        <p>أهلاً بك في Polyglots AI!  
-اختر النمط المناسب وابدأ التعلم.</p>
+                        <i class="fas fa-comments" style="font-size:40px; margin-bottom:15px; color: #ccc;"></i>
+                        <p style="font-family: 'Cairo', sans-serif; font-size: 15px;">ابدأ المحادثة الآن واكتب سؤالك باللغة الألمانية أو العربية!</p>
                     </div>
                 ` : chatMessages.map(msg => `
                     <div class="msg-poly ${msg.role}">
                         <div class="msg-content">
                             ${msg.image ? `<img src="${msg.image}">` : ''}
                             ${msg.audio ? `<audio controls src="${msg.audio}"></audio>` : ''}
-                            <div>${msg.content}</div>
+                            <div style="white-space: pre-wrap; font-family: 'Cairo', sans-serif;">${msg.content}</div>
+                            ${msg.role === 'ai' ? `
+                                <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px; display: flex; justify-content: flex-end;">
+                                    <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: none; border: none; color: var(--burgundy-color, #800020); cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; font-family: 'Cairo', sans-serif;" title="استمع للنطق">
+                                        <i class="fas fa-volume-up"></i> استمع
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('')}
-                ${isTyping ? '<div class="msg-poly ai">... جاري التفكير</div>' : ''}
+                ${isTyping ? `
+                    <div class="msg-poly ai" style="padding: 15px 20px;">
+                        <div class="typing-dots" style="display: flex; gap: 6px; align-items: center;">
+                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></span>
+                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></span>
+                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+                        </div>
+                    </div>
+                ` : ''}
             </div>
 
             <div id="media-preview" class="media-preview"></div>
