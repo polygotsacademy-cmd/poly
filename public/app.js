@@ -271,7 +271,12 @@ function renderMessagesView(container) {
 
     let contacts = [];
     if (!isAdmin) {
-        contacts = [{ name: "Polyglots Academy", username: "admins" }];
+        // Revert to 3 Admin Contacts for students
+        contacts = [
+            { name: "Polyglots Academy", username: "يوسف" },
+            { name: "Frau Hadeel", username: "فراو" },
+            { name: "Assistant", username: "frau_farida" }
+        ];
     } else {
         contacts = studentsList.map(s => ({ name: s, username: s }));
     }
@@ -307,17 +312,15 @@ function renderMessagesView(container) {
         startChatListener();
     }
 
-    // Fetch mascots for admin contacts
-    if (isAdmin) {
-        studentsList.forEach(student => {
-            db.collection('users').doc(student).get().then(doc => {
-                if (doc.exists && doc.data().mascot) {
-                    const avatarDiv = document.getElementById(`avatar-${student}`);
-                    if (avatarDiv) avatarDiv.innerHTML = doc.data().mascot;
-                }
-            });
+    // Fetch mascots for contacts
+    contacts.forEach(contact => {
+        db.collection('users').doc(contact.username).get().then(doc => {
+            if (doc.exists && doc.data().mascot) {
+                const avatarDiv = document.getElementById(`avatar-${contact.username}`);
+                if (avatarDiv) avatarDiv.innerHTML = doc.data().mascot;
+            }
         });
-    }
+    });
 }
 
 // View Renderers
@@ -1138,14 +1141,8 @@ function incrementMediaLimit(type) {
 }
 
 function getChatId(user1, user2) {
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const isAdmin = authData.isAdmin || false;
-    
-    if (!isAdmin) {
-        return currentUser.username;
-    } else {
-        return user2; // In admin view, user2 is the student username
-    }
+    // Revert to alphabetical sort join for ALL users
+    return [user1, user2].sort().join('_');
 }
 
 function startChatListener() {
@@ -1178,7 +1175,6 @@ function startChatListener() {
             let html = '';
             const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
             const isAdmin = authData.isAdmin || false;
-            const myReceiverId = isAdmin ? 'admins' : currentUser.username;
 
             messagesArray.forEach((msg) => {
                 if (msg.deletedFor && msg.deletedFor.includes(currentUser.username)) {
@@ -1186,7 +1182,7 @@ function startChatListener() {
                 }
 
                 // Mark as read if I am the receiver
-                if (msg.receiver === myReceiverId && msg.isRead === false) {
+                if (msg.receiver === currentUser.username && msg.isRead === false) {
                     db.collection('messages').doc(msg.id).update({ isRead: true });
                 }
 
@@ -1210,6 +1206,12 @@ function startChatListener() {
                     </div>
                 ` : '';
 
+                const forwardBtn = (isAdmin && isSent && !msg.isDeletedForEveryone) ? `
+                    <div class="forward-msg-btn" onclick="openForwardModal('${msg.id}')">
+                        <i class="fas fa-share"></i>
+                    </div>
+                ` : '';
+
                 const readReceipt = isSent && !msg.isDeletedForEveryone ? `
                     <span class="read-status ${msg.isRead ? 'read' : 'unread'}">
                         ${msg.isRead ? '✓✓' : '✓'}
@@ -1219,6 +1221,7 @@ function startChatListener() {
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
+                        ${forwardBtn}
                         ${contentHtml}
                         <div class="msg-footer">
                             <span class="time">${time}</span>
@@ -1240,42 +1243,33 @@ function startChatListener() {
 
 async function sendChatMessage() {
     const input = document.getElementById('chat-msg-input');
-    const messageText = input.value.trim();
+    const text = input.value.trim();
     
-    if (!messageText || !currentUser || !currentChatUser) return;
+    if (!text || !currentUser || !currentChatUser) return;
 
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const isAdmin = authData.isAdmin || false;
-
-    let chatId, receiver;
-    if (isAdmin === false) {
-        chatId = currentUser.username;
-        receiver = 'admins';
-    } else {
-        chatId = currentChatUser;
-        receiver = currentChatUser;
-    }
-
+    const chatId = getChatId(currentUser.username, currentChatUser);
+    
     // Disable input while sending
     input.disabled = true;
 
-    db.collection('messages').add({
-        chatId: chatId,
-        sender: currentUser.username,
-        receiver: receiver,
-        text: messageText,
-        isRead: false,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        console.log("Message sent successfully!");
+    try {
+        await db.collection('messages').add({
+            chatId: chatId,
+            sender: currentUser.username,
+            receiver: currentChatUser,
+            text: text,
+            isRead: false,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // Clear input ONLY after success
         input.value = '';
-    }).catch((error) => {
-        console.error("Error sending message: ", error);
-        alert("حدث خطأ أثناء الإرسال: " + error.message);
-    }).finally(() => {
+    } catch (error) {
+        console.error("Firestore Send Error:", error);
+        alert("Error sending message: " + error.message);
+    } finally {
         input.disabled = false;
         input.focus();
-    });
+    }
 }
 
 // Image Upload Logic
@@ -1328,34 +1322,23 @@ function handleImageSelection(input) {
 
 async function sendMediaMessage(type, data) {
     if (!currentUser || !currentChatUser) return;
+    const chatId = getChatId(currentUser.username, currentChatUser);
 
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const isAdmin = authData.isAdmin || false;
-
-    let chatId, receiver;
-    if (isAdmin === false) {
-        chatId = currentUser.username;
-        receiver = 'admins';
-    } else {
-        chatId = currentChatUser;
-        receiver = currentChatUser;
-    }
-
-    db.collection('messages').add({
-        chatId: chatId,
-        sender: currentUser.username,
-        receiver: receiver,
-        type: type,
-        mediaData: data,
-        isRead: false,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        console.log("Media message sent successfully!");
+    try {
+        await db.collection('messages').add({
+            chatId: chatId,
+            sender: currentUser.username,
+            receiver: currentChatUser,
+            type: type,
+            mediaData: data,
+            isRead: false,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
         incrementMediaLimit(type);
-    }).catch((error) => {
+    } catch (error) {
         console.error("Error sending media: ", error);
-        alert("حدث خطأ أثناء إرسال الميديا: " + error.message);
-    });
+        alert("Failed to send media. Document might be too large.");
+    }
 }
 
 // Voice Recording Logic
@@ -1605,3 +1588,74 @@ function startGlobalNotificationListener() {
 }
 
 
+
+// --- Admin Forward/Broadcast Feature ---
+
+let currentForwardMsgId = null;
+
+function openForwardModal(msgId) {
+    currentForwardMsgId = msgId;
+    const modal = document.getElementById('forward-modal');
+    const list = document.getElementById('forward-student-list');
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    const studentsList = authData.studentsList || [];
+
+    if (modal && list) {
+        list.innerHTML = studentsList.map(student => `
+            <div class="forward-item">
+                <input type="checkbox" id="forward-${student}" value="${student}">
+                <label for="forward-${student}">${student}</label>
+            </div>
+        `).join('');
+        modal.style.display = "block";
+    }
+}
+
+function closeForwardModal() {
+    const modal = document.getElementById('forward-modal');
+    if (modal) modal.style.display = "none";
+    currentForwardMsgId = null;
+}
+
+async function broadcastMessage() {
+    if (!currentForwardMsgId || !currentUser) return;
+
+    const checkboxes = document.querySelectorAll('#forward-student-list input:checked');
+    const selectedStudents = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedStudents.length === 0) {
+        alert("يرجى اختيار طالب واحد على الأقل.");
+        return;
+    }
+
+    try {
+        // Fetch the original message data
+        const doc = await db.collection('messages').doc(currentForwardMsgId).get();
+        if (!doc.exists) {
+            alert("الرسالة الأصلية غير موجودة.");
+            return;
+        }
+
+        const msgData = doc.data();
+        const promises = selectedStudents.map(student => {
+            const chatId = getChatId(currentUser.username, student);
+            return db.collection('messages').add({
+                chatId: chatId,
+                sender: currentUser.username,
+                receiver: student,
+                text: msgData.text || null,
+                type: msgData.type || 'text',
+                mediaData: msgData.mediaData || null,
+                isRead: false,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        await Promise.all(promises);
+        alert(`تم توجيه الرسالة بنجاح إلى ${selectedStudents.length} طالب.`);
+        closeForwardModal();
+    } catch (error) {
+        console.error("Forward error:", error);
+        alert("حدث خطأ أثناء توجيه الرسالة.");
+    }
+}

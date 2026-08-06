@@ -148,6 +148,18 @@
         </div>
     </div>
 
+    <!-- Forward Message Modal -->
+    <div id="forward-modal" class="modal">
+        <div class="modal-content forward-content">
+            <span class="close-modal" onclick="closeForwardModal()">&times;</span>
+            <h3>توجيه الرسالة</h3>
+            <div id="forward-student-list" class="forward-list">
+                <!-- Students will be injected here -->
+            </div>
+            <button onclick="broadcastMessage()" class="forward-submit-btn">إرسال للجميع المحددين</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
