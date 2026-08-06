@@ -41,12 +41,15 @@
     <div id="app-container" class="screen">
         <div class="top-bar">
             <button id="sidebar-toggle" class="hamburger-btn">☰</button>
-            <div class="top-bar-right" style="display: flex; align-items: center; gap: 15px;">
+            <div class="top-bar-right">
+<div style="display: flex; align-items: center; gap: 15px;">
+  <span id="user-mascot" onclick="document.getElementById('mascot-modal').style.display='flex'" style="font-size: 24px; cursor: pointer; background: #f0f0f0; border-radius: 50%; padding: 5px;">👤</span>
+  <!-- Keep the existing bell icon HTML here -->
                 <div id="notification-bell" class="bell-container">
                     <i class="fas fa-bell"></i>
                     <span id="notification-badge" class="badge"></span>
                 </div>
-                <span id="user-mascot" style="font-size: 24px; cursor: pointer;" title="Change Mascot">👤</span>
+</div>
             </div>
         </div>
 
@@ -135,46 +138,15 @@
         </div>
     </div>
 
-    <!-- Mascot Selection Modal -->
-    <div id="mascot-modal" class="modal">
-        <div class="modal-content mascot-modal-content">
-            <span class="close-modal" id="close-mascot-modal">&times;</span>
-            <h3 style="margin-bottom: 15px; font-family: 'Cairo', sans-serif;">اختر التميمة الخاصة بك</h3>
-            <div class="mascot-grid">
-                <span class="mascot-option">🦁</span>
-                <span class="mascot-option">🐯</span>
-                <span class="mascot-option">🐻</span>
-                <span class="mascot-option">🐼</span>
-                <span class="mascot-option">🐨</span>
-                <span class="mascot-option">🦊</span>
-                <span class="mascot-option">🐰</span>
-                <span class="mascot-option">🐱</span>
-                <span class="mascot-option">🐶</span>
-                <span class="mascot-option">🦄</span>
-                <span class="mascot-option">🐲</span>
-                <span class="mascot-option">🤖</span>
-                <span class="mascot-option">👻</span>
-                <span class="mascot-option">👽</span>
-                <span class="mascot-option">👾</span>
-                <span class="mascot-option">🤠</span>
-                <span class="mascot-option">😎</span>
-                <span class="mascot-option">🥳</span>
-                <span class="mascot-option">🐸</span>
-                <span class="mascot-option">🐵</span>
-                <span class="mascot-option">🐔</span>
-                <span class="mascot-option">🐧</span>
-                <span class="mascot-option">🦉</span>
-                <span class="mascot-option">🐝</span>
-                <span class="mascot-option">🦋</span>
-                <span class="mascot-option">🐞</span>
-                <span class="mascot-option">🐢</span>
-                <span class="mascot-option">🐙</span>
-                <span class="mascot-option">🐬</span>
-                <span class="mascot-option">🐳</span>
-            </div>
-        </div>
-    </div>
-
     <script src="app.js"></script>
+<div id="mascot-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; padding: 20px; border-radius: 10px; width: 320px; text-align: center;">
+    <h3 style="margin-top: 0;">اختر شخصيتك</h3>
+    <div id="mascot-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px;">
+      <!-- Emojis injected via JS -->
+    </div>
+    <button onclick="document.getElementById('mascot-modal').style.display='none'" style="padding: 8px 15px; cursor: pointer;">إغلاق</button>
+  </div>
+</div>
 </body>
 </html>

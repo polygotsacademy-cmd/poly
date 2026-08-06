@@ -17,7 +17,6 @@ let quizzes = [];
 
 let messages = [];
 let currentUser = null;
-window.mascotCache = {};
 let currentView = 'words';
 let currentCategory = 'Alle';
 let chatMessages = [];
@@ -209,7 +208,6 @@ function showApp() {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
-    initUserMascot();
     renderView();
 }
 
@@ -260,7 +258,7 @@ function renderView() {
     }
 }
 
-async function renderMessagesView(container) {
+function renderMessagesView(container) {
     if (!currentUser) {
         container.innerHTML = '<div style="text-align:center; padding:40px;">Please login to see messages.</div>';
         return;
@@ -270,19 +268,6 @@ async function renderMessagesView(container) {
     const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
     const isAdmin = authData.isAdmin || false;
     const studentsList = authData.studentsList || [];
-
-    // PERFORMANCE: Fetch all user mascots ONCE in bulk to populate window.mascotCache (NO loop fetching)
-    try {
-        const usersSnap = await db.collection('users').get();
-        usersSnap.forEach(doc => {
-            const data = doc.data();
-            if (data && data.mascot) {
-                window.mascotCache[doc.id] = data.mascot;
-            }
-        });
-    } catch (e) {
-        console.error("Error fetching mascots cache:", e);
-    }
 
     let contacts = [];
     if (!isAdmin) {
@@ -305,9 +290,9 @@ async function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">${window.mascotCache[c.username] || '👤'}</div>
+                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
-                            <h4>${c.name} <span style="font-size: 16px; margin-left: 5px;">${window.mascotCache[c.username] || '👤'}</span></h4>
+                            <h4>${c.name}</h4>
                         </div>
                     </div>
                 `).join('')}
@@ -1080,12 +1065,11 @@ function selectChat(username) {
 
 function renderChatWindow(targetUser) {
     const limits = getMediaLimits();
-    const targetMascot = window.mascotCache[targetUser] || '👤';
     return `
         <div class="chat-header">
-            <div class="contact-avatar" style="font-size: 24px; display: flex; align-items: center; justify-content: center;">${targetMascot}</div>
+            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
             <div class="contact-info">
-                <h4>${targetUser} <span style="font-size: 16px; margin-left: 5px;">${targetMascot}</span></h4>
+                <h4>${targetUser}</h4>
             </div>
             <div class="chat-header-actions">
                 <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
@@ -1213,10 +1197,7 @@ function startChatListener() {
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
                         ${deleteBtn}
                         ${contentHtml}
-                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px;">
-                            <span class="time">${time}</span>
-                            ${isSent ? `<span class="read-receipt" style="color: ${msg.isRead ? '#34b7f1' : '#999'}; font-size: 12px;">${msg.isRead ? '✓✓' : '✓'}</span>` : ''}
-                        </div>
+                        <span class="time">${time}</span>
                     </div>
                 `;
             });
@@ -1514,3 +1495,34 @@ async function confirmDelete(type) {
         alert("Failed to delete message.");
     }
 }
+
+// --- MASCOT LOGIC ---
+const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋'];
+const grid = document.getElementById('mascot-grid');
+if(grid) {
+  emojis.forEach(emoji => {
+    let btn = document.createElement('div');
+    btn.innerText = emoji;
+    btn.style.cssText = 'font-size: 24px; cursor: pointer; padding: 5px; background: #f9f9f9; border-radius: 5px;';
+    btn.onclick = () => {
+      document.getElementById('user-mascot').innerText = emoji;
+      document.getElementById('mascot-modal').style.display = 'none';
+      if(window.currentUser) {
+        db.collection('users').doc(window.currentUser).set({ mascot: emoji }, { merge: true });
+      }
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// Load Mascot on login
+setTimeout(() => {
+  if(window.currentUser) {
+    db.collection('users').doc(window.currentUser).get().then(doc => {
+      if(doc.exists && doc.data().mascot) {
+        document.getElementById('user-mascot').innerText = doc.data().mascot;
+      }
+    });
+  }
+}, 2000);
+// --- END MASCOT LOGIC ---
