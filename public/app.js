@@ -133,7 +133,7 @@ async function handleLogin(e) {
         // Simple mock login for local testing if API doesn't exist
         // In a real app, this would be a real API call
         if (username === "admin" && password === "admin") {
-             currentUser = { username: "Polyglot" };
+             currentUser = { username: "Polyglot", toString() { return this.username; } };
              if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
             }
@@ -151,7 +151,7 @@ async function handleLogin(e) {
         const data = await res.json();
 
         if (data.success) {
-            currentUser = data.user;
+            currentUser = data.user ? { ...data.user, toString() { return this.username; } } : null;
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
             if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
@@ -165,7 +165,7 @@ async function handleLogin(e) {
     } catch (err) {
         // Fallback for demo purposes if server is not running
         if (username && password) {
-            currentUser = { username };
+            currentUser = { username, toString() { return this.username; } };
             showApp();
             switchView('words');
         } else {
@@ -180,7 +180,7 @@ async function checkRememberedUser() {
         const { username, password } = JSON.parse(saved);
         try {
             if (username === "admin" && password === "admin") {
-                currentUser = { username: "Polyglot" };
+                currentUser = { username: "Polyglot", toString() { return this.username; } };
                 showApp();
                 switchView('words');
                 return;
@@ -192,7 +192,7 @@ async function checkRememberedUser() {
             });
             const data = await res.json();
             if (data.success) {
-                currentUser = data.user;
+                currentUser = data.user ? { ...data.user, toString() { return this.username; } } : null;
                 localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
                 showApp();
                 switchView('words');
@@ -208,6 +208,7 @@ function showApp() {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('app-container').classList.add('active');
     checkNotifications();
+    loadUserMascot();
     renderView();
 }
 
@@ -258,7 +259,7 @@ function renderView() {
     }
 }
 
-function renderMessagesView(container) {
+async function renderMessagesView(container) {
     if (!currentUser) {
         container.innerHTML = '<div style="text-align:center; padding:40px;">Please login to see messages.</div>';
         return;
@@ -278,8 +279,22 @@ function renderMessagesView(container) {
             { name: "Assistant", username: "frau_farida" }
         ];
     } else {
-        // Admin: Render contacts using the studentsList array
-        contacts = studentsList.map(s => ({ name: s, username: s }));
+        // Admin: Render contacts using the studentsList array and fetch student mascots
+        contacts = studentsList.map(s => ({ name: s, username: s, mascot: '👤' }));
+        try {
+            const promises = studentsList.map(async (studentUsername) => {
+                const doc = await db.collection('users').doc(studentUsername).get();
+                if (doc.exists && doc.data().mascot) {
+                    const contact = contacts.find(c => c.username === studentUsername);
+                    if (contact) {
+                        contact.mascot = doc.data().mascot;
+                    }
+                }
+            });
+            await Promise.all(promises);
+        } catch (err) {
+            console.error('Error fetching student mascots:', err);
+        }
     }
 
     const html = `
@@ -290,7 +305,7 @@ function renderMessagesView(container) {
             <div class="contacts-list">
                 ${contacts.map(c => `
                     <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
-                        <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                        <div class="contact-avatar" style="font-size: 20px; display: flex; align-items: center; justify-content: center;">${c.mascot || c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
@@ -1064,26 +1079,12 @@ function selectChat(username) {
 }
 
 function renderChatWindow(targetUser) {
-    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
-    const isAdmin = authData.isAdmin || false;
-    let displayName = targetUser;
-
-    if (!isAdmin) {
-        const studentContacts = [
-            { name: "Polyglots Academy", username: "يوسف" },
-            { name: "Frau Hadeel", username: "فراو" },
-            { name: "Assistant", username: "frau_farida" }
-        ];
-        const contact = studentContacts.find(c => c.username === targetUser);
-        if (contact) displayName = contact.name;
-    }
-
     const limits = getMediaLimits();
     return `
         <div class="chat-header">
-            <div class="contact-avatar">${displayName.charAt(0).toUpperCase()}</div>
+            <div class="contact-avatar">${targetUser.charAt(0).toUpperCase()}</div>
             <div class="contact-info">
-                <h4>${displayName}</h4>
+                <h4>${targetUser}</h4>
             </div>
             <div class="chat-header-actions">
                 <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen">
@@ -1102,10 +1103,9 @@ function renderChatWindow(targetUser) {
             <button class="media-btn" onclick="triggerImageUpload()">
                 <i class="fas fa-camera"></i>
             </button>
-            <button id="voice-record-btn" class="media-btn" onclick="toggleChatVoiceRecording()">
+            <button id="voice-record-btn" class="media-btn" onclick="toggleVoiceRecording()">
                 <i class="fas fa-microphone"></i>
             </button>
-            <span id="record-timer" style="display:none; color:red; font-weight:bold; margin: 0 10px;">00:00</span>
             <input type="file" id="chat-image-upload" accept="image/*" style="display: none;" onchange="handleImageSelection(this)">
             <input type="text" id="chat-msg-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
             <button class="chat-send-btn" onclick="sendChatMessage()">
@@ -1328,24 +1328,22 @@ async function sendMediaMessage(type, data) {
 // Voice Recording Logic
 let chatMediaRecorder = null;
 let chatAudioChunks = [];
-let chatRecordingInterval = null;
-let chatRecordingTime = 0;
+let voiceTimer = null;
 
-async function toggleChatVoiceRecording() {
+async function toggleVoiceRecording() {
     if (chatMediaRecorder && chatMediaRecorder.state === "recording") {
-        stopChatVoiceRecording();
+        stopVoiceRecording();
     } else {
         if (!checkMediaLimit('audio')) return;
-        startChatVoiceRecording();
+        startVoiceRecording();
     }
 }
 
-async function startChatVoiceRecording() {
+async function startVoiceRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         chatMediaRecorder = new MediaRecorder(stream);
         chatAudioChunks = [];
-        chatRecordingTime = 0;
 
         chatMediaRecorder.ondataavailable = (e) => {
             chatAudioChunks.push(e.data);
@@ -1367,27 +1365,17 @@ async function startChatVoiceRecording() {
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
-        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.add('recording');
             btn.innerHTML = '<i class="fas fa-stop"></i>';
         }
-        if (timerSpan) {
-            timerSpan.style.display = 'inline';
-            timerSpan.innerText = '00:00';
-        }
 
-        // Timer Interval & 200s Limit
-        chatRecordingInterval = setInterval(() => {
-            chatRecordingTime++;
-            const mins = Math.floor(chatRecordingTime / 60).toString().padStart(2, '0');
-            const secs = (chatRecordingTime % 60).toString().padStart(2, '0');
-            if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
-            
-            if (chatRecordingTime >= 200) {
-                stopChatVoiceRecording();
+        // Max 20 seconds
+        voiceTimer = setTimeout(() => {
+            if (chatMediaRecorder.state === "recording") {
+                stopVoiceRecording();
             }
-        }, 1000);
+        }, 20000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
@@ -1395,20 +1383,16 @@ async function startChatVoiceRecording() {
     }
 }
 
-function stopChatVoiceRecording() {
+function stopVoiceRecording() {
     if (chatMediaRecorder) {
         chatMediaRecorder.stop();
-        clearInterval(chatRecordingInterval);
+        clearTimeout(voiceTimer);
         
         // UI Update
         const btn = document.getElementById('voice-record-btn');
-        const timerSpan = document.getElementById('record-timer');
         if (btn) {
             btn.classList.remove('recording');
             btn.innerHTML = '<i class="fas fa-microphone"></i>';
-        }
-        if (timerSpan) {
-            timerSpan.style.display = 'none';
         }
     }
 }
@@ -1524,5 +1508,47 @@ async function confirmDelete(type) {
     } catch (error) {
         console.error("Delete error:", error);
         alert("Failed to delete message.");
+    }
+}
+
+// --- Mascot Feature Logic ---
+function openMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    if (modal) modal.style.display = "block";
+}
+
+function closeMascotModal() {
+    const modal = document.getElementById('mascot-modal');
+    if (modal) modal.style.display = "none";
+}
+
+async function selectMascot(selectedEmoji) {
+    closeMascotModal();
+    if (!currentUser) return;
+    try {
+        await db.collection('users').doc(currentUser).set({ mascot: selectedEmoji }, { merge: true });
+        const mascotDisplay = document.getElementById('user-mascot-display');
+        if (mascotDisplay) {
+            mascotDisplay.innerText = selectedEmoji;
+        }
+    } catch (err) {
+        console.error("Error saving mascot:", err);
+    }
+}
+
+async function loadUserMascot() {
+    if (!currentUser) return;
+    try {
+        const doc = await db.collection('users').doc(currentUser).get();
+        const mascotDisplay = document.getElementById('user-mascot-display');
+        if (doc.exists && doc.data().mascot) {
+            if (mascotDisplay) mascotDisplay.innerText = doc.data().mascot;
+        } else {
+            if (mascotDisplay) mascotDisplay.innerText = '👤';
+        }
+    } catch (err) {
+        console.error("Error loading mascot:", err);
+        const mascotDisplay = document.getElementById('user-mascot-display');
+        if (mascotDisplay) mascotDisplay.innerText = '👤';
     }
 }

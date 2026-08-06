@@ -2620,10 +2620,64 @@ footer {
 }
 
 
-#record-timer {
-    display: none;
-    color: red;
-    font-weight: bold;
-    margin: 0 10px;
-    font-family: 'Cairo', sans-serif;
+/* --- Mascot Feature Styles --- */
+.top-bar-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-mascot-display {
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.user-mascot-display:hover {
+    transform: scale(1.1);
+}
+
+.mascot-modal-content {
+    background: #ffffff;
+    width: 420px;
+    max-width: 90%;
+    border-radius: 16px;
+    padding: 25px 20px 20px 20px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin: 10vh auto auto auto;
+    overflow: hidden;
+}
+
+.mascot-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 15px;
+    justify-items: center;
+}
+
+.mascot-btn {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mascot-btn:hover {
+    background: #e2e6ea;
+    border-color: var(--burgundy-color);
+    transform: scale(1.1);
 }
