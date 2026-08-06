@@ -445,6 +445,13 @@ function playWordAudio(wordId) {
     const audio = new Audio(audioPath);
     audio.onerror = () => playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word);
     audio.play().catch(() => playGerman(wordObj.art ? `${wordObj.art} ${wordObj.word}` : wordObj.word));
+
+    // Award 3 points for listening to a word (tracked in sessionStorage to avoid spamming the same word)
+    const listenedKey = `listened_word_${wordId}`;
+    if (!sessionStorage.getItem(listenedKey)) {
+        sessionStorage.setItem(listenedKey, 'true');
+        awardPoints(3, 'استماع لكلمة');
+    }
 }
 
 function playSFX(url) {
@@ -475,6 +482,13 @@ function renderStoriesView(container) {
 function showFullStory(index) {
     const story = stories[index];
     const main = document.getElementById('main-content');
+
+    // Award 10 points for reading/listening to a story (tracked in sessionStorage)
+    const storyKey = `read_story_${story.id}`;
+    if (!sessionStorage.getItem(storyKey)) {
+        sessionStorage.setItem(storyKey, 'true');
+        awardPoints(10, 'قراءة قصة');
+    }
     const audioPlayer = story.audio ? `
         <div class="story-audio-player">
             <p style="margin-bottom:8px; font-size:14px; color:#555;"><i class="fas fa-headphones"></i> استمع للقصة:</p>
@@ -732,6 +746,13 @@ function renderQuizResult(container) {
     const percentage = Math.round((quizScore / quizWords.length) * 100);
     let emoji = percentage >= 80 ? '🏆' : percentage >= 60 ? '⭐' : '💪';
     let message = percentage >= 80 ? 'أحسنت صنعاً يا بطل!' : percentage >= 60 ? 'عمل جيد، استمر في التدرب!' : 'لا بأس، حاول مرة أخرى!';
+
+    // Award 8 points if score > 70% (tracked per quiz category/mode session)
+    const quizKey = `quiz_reward_${selectedQuizCategory}_${selectedQuizMode}`;
+    if (percentage > 70 && !sessionStorage.getItem(quizKey)) {
+        sessionStorage.setItem(quizKey, 'true');
+        awardPoints(8, 'اجتياز اختبار (>70%)');
+    }
 
     container.innerHTML = `
         <div class="quiz-result" style="text-align: center; padding: 40px 20px; animation: scaleIn 0.5s;">
