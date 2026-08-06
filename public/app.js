@@ -494,6 +494,88 @@ function showFullStory(index) {
         </div>`;
     main.scrollTop = 0;
 }
+function renderQuizzesView(container) {
+    if (selectedQuizCategory) {
+        if (selectedQuizMode) {
+            renderQuizMode(container);
+        } else {
+            renderQuizModesSelection(container);
+        }
+    } else {
+        renderQuizCategorySelection(container);
+    }
+}
+
+function renderQuizCategorySelection(container) {
+    const categories = [...new Set(words.map(w => w.cat))];
+    const catData = categories.map(cat => {
+        const firstWord = words.find(w => w.cat === cat);
+        return { name: cat, emoji: firstWord ? firstWord.emoji : '📁' };
+    });
+
+    container.innerHTML = `
+        <div class="quiz-intro" style="text-align: center; padding: 20px;">
+            <h2 style="font-family: 'Cairo', sans-serif; color: var(--primary-color);">📝 اختبر معلوماتك</h2>
+            <p style="color: #666; margin-bottom: 20px;">اختر التصنيف الذي تريد التدرب عليه</p>
+        </div>
+        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px;">
+            ${catData.map(cat => `
+                <div class="category-card" onclick="selectQuizCategory('${cat.name}')" style="background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">
+                    <div class="cat-emoji" style="font-size: 40px; margin-bottom: 10px;">${cat.emoji}</div>
+                    <div class="cat-name" style="font-weight: bold; color: #333; font-family: 'Cairo', sans-serif;">${cat.name}</div>
+                    <div class="cat-count" style="font-size: 12px; color: #888; margin-top: 5px;">${words.filter(w => w.cat === cat.name).length} كلمة</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function selectQuizCategory(cat) {
+    selectedQuizCategory = cat;
+    selectedQuizMode = null;
+    renderView();
+}
+
+function renderQuizModesSelection(container) {
+    container.innerHTML = `
+        <div class="quiz-modes-view" style="padding: 20px; text-align: center; animation: fadeIn 0.5s;">
+            <button class="back-btn" onclick="selectedQuizCategory=null; renderView();" style="float: right; background: #eee; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer;"><i class="fas fa-arrow-left"></i> رجوع</button>
+            <h2 style="font-family: 'Cairo', sans-serif; margin-bottom: 30px; clear: both;">اختر نمط الاختبار: ${selectedQuizCategory}</h2>
+            
+            <div class="modes-container" style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto;">
+                <div class="mode-card" onclick="startQuizMode('flashcards')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🎴</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكروت (Flashcards)</h3>
+                    <p style="font-size: 14px; color: #777;">كروت تظهر بالألمانية وتتقلب لتظهر المعنى بالعربي</p>
+                </div>
+                
+                <div class="mode-card" onclick="startQuizMode('mcq')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">اختيار من متعدد (MCQ)</h3>
+                    <p style="font-size: 14px; color: #777;">اختر المعنى الصحيح من بين 4 اختيارات</p>
+                </div>
+                
+                <div class="mode-card" onclick="startQuizMode('spelling')" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.2s;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">✍️</div>
+                    <h3 style="font-family: 'Cairo', sans-serif;">نمط الكتابة (Spelling)</h3>
+                    <p style="font-size: 14px; color: #777;">اكتب الكلمة بالألمانية بشكل صحيح</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function startQuizMode(mode) {
+    selectedQuizMode = mode;
+    quizWords = words.filter(w => w.cat === selectedQuizCategory).sort(() => Math.random() - 0.5);
+    currentQuizIndex = 0;
+    quizScore = 0;
+    quizAnswered = false;
+    selectedAnswer = null;
+    spellingInput = "";
+    renderView();
+}
+
 function renderQuizMode(container) {
     if (currentQuizIndex >= quizWords.length) {
         renderQuizResult(container);
