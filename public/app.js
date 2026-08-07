@@ -814,29 +814,21 @@ function renderChatView(container) {
     }[currentChatMode];
 
     const username = currentUser && currentUser.username ? currentUser.username : 'بطل الأكاديمية';
-    const userMascot = window.mascotCache && window.mascotCache[username] ? window.mascotCache[username] : '🤖';
+    const userMascot = window.mascotCache && window.mascotCache[username] ? window.mascotCache[username] : '👤';
 
     container.innerHTML = `
-        <div class="polyglots-chat-container">
-            <div class="chat-header-poly">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 26px;">🤖</span>
+        <div class="claude-chat-container">
+            <div class="claude-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; background: #d97706; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">AI</div>
                     <div>
-                        <h2 style="margin: 0; font-size: 18px;">Polyglots AI</h2>
-                        <span style="font-size: 12px; color: #27ae60; font-weight: normal;">● متصل وجاهز للمساعدة</span>
+                        <h2 style="margin: 0; font-size: 16px; font-family: 'Cairo', sans-serif; color: #2d3748;">Polyglots AI</h2>
+                        <span style="font-size: 12px; color: #718096; font-family: 'Cairo', sans-serif;">مساعدك الذكي لتعلم الألمانية</span>
                     </div>
                 </div>
             </div>
 
-            <div style="background: linear-gradient(135deg, #fdfbf7 0%, #f4f6f8; border-right: 4px solid var(--burgundy-color); padding: 12px 18px; margin: 15px 20px 0 20px; border-radius: 12px; font-family: 'Cairo', sans-serif; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-                <div style="font-size: 30px;">${userMascot}</div>
-                <div>
-                    <h4 style="margin: 0; color: #333; font-size: 15px;">أهلاً بك يا ${username}!</h4>
-                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #666;">أنا معلمك الذكي للغة الألمانية. اسألني عن أي قاعدة أو كلمة وسأساعدك فوراً!</p>
-                </div>
-            </div>
-            
-            <div class="mode-switcher" style="margin: 15px 20px;">
+            <div class="claude-mode-bar">
                 <div class="mode-glider" style="transform: translateX(${gliderPos})"></div>
                 <button class="mode-btn ${currentChatMode === 'translator' ? 'active' : ''}" onclick="setChatMode('translator')">مترجم</button>
                 <button class="mode-btn ${currentChatMode === 'teacher' ? 'active' : ''}" onclick="setChatMode('teacher')">مدرس</button>
@@ -844,21 +836,25 @@ function renderChatView(container) {
                 <button class="mode-btn ${currentChatMode === 'voice' ? 'active' : ''}" onclick="setChatMode('voice')">اختبار صوتي</button>
             </div>
 
-            <div class="chat-messages-poly" id="chat-messages">
+            <div class="claude-messages-area" id="chat-messages">
                 ${chatMessages.length === 0 ? `
-                    <div style="text-align:center; padding:40px; color:#999;">
-                        <i class="fas fa-comments" style="font-size:40px; margin-bottom:15px; color: #ccc;"></i>
-                        <p style="font-family: 'Cairo', sans-serif; font-size: 15px;">ابدأ المحادثة الآن واكتب سؤالك باللغة الألمانية أو العربية!</p>
+                    <div class="claude-welcome">
+                        <div style="font-size: 48px; margin-bottom: 15px;">✨</div>
+                        <h3 style="font-family: 'Cairo', sans-serif; color: #2d3748; margin-bottom: 8px;">مرحباً بك يا ${username} ${userMascot}</h3>
+                        <p style="color: #718096; font-family: 'Cairo', sans-serif; font-size: 14px; max-width: 400px; line-height: 1.6;">كيف يمكنني مساعدتك في رحلة تعلم اللغة الألمانية اليوم؟ اسأل عن القواعد، الكلمات، أو الترجمة.</p>
                     </div>
                 ` : chatMessages.map(msg => `
-                    <div class="msg-poly ${msg.role}">
-                        <div class="msg-content">
-                            ${msg.image ? `<img src="${msg.image}">` : ''}
-                            ${msg.audio ? `<audio controls src="${msg.audio}"></audio>` : ''}
-                            <div style="white-space: pre-wrap; font-family: 'Cairo', sans-serif;">${msg.content}</div>
+                    <div class="claude-msg ${msg.role}">
+                        <div class="claude-msg-avatar">
+                            ${msg.role === 'user' ? userMascot : 'AI'}
+                        </div>
+                        <div class="claude-msg-body">
+                            ${msg.image ? `<img src="${msg.image}" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px;">` : ''}
+                            ${msg.audio ? `<audio controls src="${msg.audio}" style="width: 100%; margin-bottom: 8px;"></audio>` : ''}
+                            <div style="white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.7;">${msg.content}</div>
                             ${msg.role === 'ai' ? `
-                                <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px; display: flex; justify-content: flex-end;">
-                                    <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: none; border: none; color: var(--burgundy-color, #800020); cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; font-family: 'Cairo', sans-serif;" title="استمع للنطق">
+                                <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+                                    <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: #f7fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; font-family: 'Cairo', sans-serif;" title="استمع للنطق">
                                         <i class="fas fa-volume-up"></i> استمع
                                     </button>
                                 </div>
@@ -867,11 +863,14 @@ function renderChatView(container) {
                     </div>
                 `).join('')}
                 ${isTyping ? `
-                    <div class="msg-poly ai" style="padding: 15px 20px;">
-                        <div class="typing-dots" style="display: flex; gap: 6px; align-items: center;">
-                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></span>
-                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></span>
-                            <span style="width: 8px; height: 8px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+                    <div class="claude-msg ai">
+                        <div class="claude-msg-avatar">AI</div>
+                        <div class="claude-msg-body" style="padding: 12px 18px;">
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span style="width: 7px; height: 7px; background: #a0aec0; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></span>
+                                <span style="width: 7px; height: 7px; background: #a0aec0; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></span>
+                                <span style="width: 7px; height: 7px; background: #a0aec0; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+                            </div>
                         </div>
                     </div>
                 ` : ''}

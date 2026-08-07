@@ -2659,3 +2659,142 @@ footer {
     background: #eee;
 }
 
+
+/* Claude-like Minimalist Chat UI */
+.claude-chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+    border: 1px solid #edf2f7;
+    overflow: hidden;
+    font-family: 'Cairo', sans-serif;
+}
+
+.claude-header {
+    padding: 15px 25px;
+    border-bottom: 1px solid #edf2f7;
+    background: #ffffff;
+}
+
+.claude-mode-bar {
+    display: flex;
+    background: #f7fafc;
+    padding: 4px;
+    margin: 15px 25px 0 25px;
+    border-radius: 10px;
+    position: relative;
+    border: 1px solid #e2e8f0;
+}
+
+.claude-mode-bar .mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    cursor: pointer;
+    z-index: 2;
+    transition: color 0.2s;
+    font-family: 'Cairo', sans-serif;
+}
+
+.claude-mode-bar .mode-btn.active {
+    color: #1a202c;
+}
+
+.claude-mode-bar .mode-glider {
+    position: absolute;
+    width: 25%;
+    height: calc(100% - 8px);
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    top: 4px;
+    right: 0;
+}
+
+.claude-messages-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #ffffff;
+}
+
+.claude-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: #4a5568;
+}
+
+.claude-msg {
+    display: flex;
+    gap: 15px;
+    max-width: 85%;
+    animation: fadeInChat 0.3s ease;
+}
+
+.claude-msg.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.claude-msg.ai {
+    align-self: flex-start;
+}
+
+.claude-msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.claude-msg.user .claude-msg-avatar {
+    background: #3182ce;
+    color: white;
+}
+
+.claude-msg.ai .claude-msg-avatar {
+    background: #d97706;
+    color: white;
+}
+
+.claude-msg-body {
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.claude-msg.user .claude-msg-body {
+    background: #ebf8ff;
+    color: #2b6cb0;
+    border-top-left-radius: 4px;
+}
+
+.claude-msg.ai .claude-msg-body {
+    background: #f7fafc;
+    color: #2d3748;
+    border: 1px solid #edf2f7;
+    border-top-right-radius: 4px;
+}
