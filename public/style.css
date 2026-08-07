@@ -2831,3 +2831,67 @@ footer {
 .announcement-empty.error { color: #9b3b49; }
 .announcement-muted { color: #8b7a80; font-size: 13px; }
 @media (max-width: 600px) { .announcement-view { padding: 15px 10px 35px; } .announcement-heading h2 { font-size: 23px; } .announcement-composer { padding: 14px; } .announcement-recipient-list { grid-template-columns: 1fr 1fr; } .announcement-card { padding: 13px; } }
+/* Small UI refinements requested for the top bar and search area */
+.top-bar-center {
+    position: relative;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 52%;
+    overflow: hidden;
+    padding: 0 10px;
+    color: var(--navy-color, #2d3748);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.top-bar-center span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.top-bar-center img {
+    width: 22px;
+    height: 16px;
+    flex: 0 0 auto;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.sidebar-logo {
+    max-height: 105px;
+    max-width: 190px;
+}
+.search-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 15px;
+}
+.search-container .search-input {
+    width: min(560px, 70%);
+}
+@media (max-width: 600px) {
+    .top-bar-center {
+        right: 4px;
+        max-width: 55%;
+        font-size: 12px;
+        gap: 4px;
+        padding: 0 4px;
+    }
+    .top-bar-center img {
+        width: 20px;
+        height: 14px;
+    }
+    .sidebar-logo {
+        max-height: 95px;
+        max-width: 175px;
+    }
+    .search-container .search-input {
+        width: min(520px, 88%);
+    }
+}
