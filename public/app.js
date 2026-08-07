@@ -874,12 +874,12 @@ function renderChatView(container) {
             <div class="chat-input-poly">
                 <div class="input-wrapper" style="position: relative;">
                     <div class="mode-dropdown-container" style="position: relative; display: inline-block;">
-                        <button onclick="toggleModeDropdown()" class="mode-chip-btn" style="background: #edf2f7; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold; color: #2d3748; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <button type="button" onclick="event.stopPropagation(); toggleModeDropdown();" class="mode-chip-btn" style="background: #edf2f7; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold; color: #2d3748; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <i class="fas ${currentChatMode === 'translator' ? 'fa-language' : 'fa-chalkboard-teacher'}" style="color: #d97706;"></i>
                             <span>${currentChatMode === 'translator' ? 'مترجم' : 'مدرس'}</span>
                             <i class="fas fa-chevron-down" style="font-size: 10px; color: #718096;"></i>
                         </button>
-                        <div id="mode-dropdown-menu" style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; width: 140px; z-index: 100; overflow: hidden;">
+                        <div id="mode-dropdown-menu" style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; width: 140px; z-index: 1000; overflow: hidden;">
                             <div onclick="setChatMode('translator'); toggleModeDropdown();" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-family: 'Cairo', sans-serif; background: ${currentChatMode === 'translator' ? '#fff5f5' : 'white'}; color: ${currentChatMode === 'translator' ? '#800020' : '#2d3748'}; font-weight: ${currentChatMode === 'translator' ? 'bold' : 'normal'};">
                                 <i class="fas fa-language"></i> مترجم
                             </div>
@@ -1835,3 +1835,20 @@ async function renderLeaderboardView(container) {
     }
 }
 // --- END GAMIFICATION SYSTEM ---
+
+function toggleModeDropdown() {
+    const menu = document.getElementById('mode-dropdown-menu');
+    if (menu) {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('mode-dropdown-menu');
+    const btn = document.querySelector('.mode-chip-btn');
+    if (menu && menu.style.display === 'block') {
+        if (!menu.contains(event.target) && btn && !btn.contains(event.target)) {
+            menu.style.display = 'none';
+        }
+    }
+});
