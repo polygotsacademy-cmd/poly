@@ -829,19 +829,16 @@ function renderChatView(container) {
             </div>
 
             <div class="claude-mode-bar">
-                <div class="mode-glider" style="transform: translateX(${gliderPos})"></div>
+                <div class="mode-glider" style="transform: translateX(${currentChatMode === 'translator' ? '0%' : '100%'}); width: 50%;"></div>
                 <button class="mode-btn ${currentChatMode === 'translator' ? 'active' : ''}" onclick="setChatMode('translator')">مترجم</button>
                 <button class="mode-btn ${currentChatMode === 'teacher' ? 'active' : ''}" onclick="setChatMode('teacher')">مدرس</button>
-                <button class="mode-btn ${currentChatMode === 'homework' ? 'active' : ''}" onclick="setChatMode('homework')">حل الواجب</button>
-                <button class="mode-btn ${currentChatMode === 'voice' ? 'active' : ''}" onclick="setChatMode('voice')">اختبار صوتي</button>
             </div>
 
             <div class="claude-messages-area" id="chat-messages">
                 ${chatMessages.length === 0 ? `
-                    <div class="claude-welcome">
-                        <div style="font-size: 48px; margin-bottom: 15px;">✨</div>
-                        <h3 style="font-family: 'Cairo', sans-serif; color: #2d3748; margin-bottom: 8px;">مرحباً بك يا ${username} ${userMascot}</h3>
-                        <p style="color: #718096; font-family: 'Cairo', sans-serif; font-size: 14px; max-width: 400px; line-height: 1.6;">كيف يمكنني مساعدتك في رحلة تعلم اللغة الألمانية اليوم؟ اسأل عن القواعد، الكلمات، أو الترجمة.</p>
+                    <div style="text-align: center; color: #a0aec0; margin: auto; font-family: 'Cairo', sans-serif; font-size: 14px;">
+                        <i class="fas fa-robot" style="font-size: 32px; margin-bottom: 8px; color: #cbd5e0;"></i>
+                        <p>ابدأ المحادثة الآن...</p>
                     </div>
                 ` : chatMessages.map(msg => `
                     <div class="claude-msg ${msg.role}">
@@ -852,7 +849,7 @@ function renderChatView(container) {
                             ${msg.image ? `<img src="${msg.image}" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px;">` : ''}
                             ${msg.audio ? `<audio controls src="${msg.audio}" style="width: 100%; margin-bottom: 8px;"></audio>` : ''}
                             <div style="white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.7;">${msg.content}</div>
-                            ${msg.role === 'ai' ? `
+                            ${msg.role === 'ai' && currentChatMode === 'translator' ? `
                                 <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
                                     <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: #f7fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; font-family: 'Cairo', sans-serif;" title="استمع للنطق">
                                         <i class="fas fa-volume-up"></i> استمع
@@ -902,8 +899,11 @@ function renderChatView(container) {
 }
 
 function setChatMode(mode) {
-    currentChatMode = mode;
-    renderView();
+    if (currentChatMode !== mode) {
+        currentChatMode = mode;
+        chatMessages = []; // Clear chat messages for clean slate on mode change
+        renderView();
+    }
 }
 
 function triggerImageUpload() {
