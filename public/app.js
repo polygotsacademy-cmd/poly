@@ -969,21 +969,27 @@ async function toggleVoiceRecording() {
         mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
         mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const duration = recordingTime;
             const reader = new FileReader();
             reader.onload = (e) => {
-                selectedAudio = e.target.result;
-                showMediaPreview('audio', selectedAudio);
+                selectedAudio = { data: e.target.result, duration: duration };
+                showMediaPreview('audio', selectedAudio.data);
             };
             reader.readAsDataURL(audioBlob);
             stream.getTracks().forEach(track => track.stop());
+            const input = document.getElementById('chat-input');
+            if (input) input.placeholder = "اكتب هنا...";
         };
 
         mediaRecorder.start();
         micBtn.classList.add('recording-active');
+        showToast("🎙️ جاري التسجيل... (أقصى مدة 30 ثانية)");
         
         recordingInterval = setInterval(() => {
             recordingTime++;
-            if (recordingTime >= 20) {
+            const input = document.getElementById('chat-input');
+            if (input) input.placeholder = `جاري التسجيل (${recordingTime} ثانية)...`;
+            if (recordingTime >= 30) {
                 toggleVoiceRecording();
             }
         }, 1000);
