@@ -98,9 +98,12 @@ export default function handler(req, res) {
             };
 
             if (isAdmin) {
-                // Get all normal students (exclude admins)
+                // Yusuf needs all registered usernames for Announcement recipients.
+                // Other admins keep the original student-only list for Poly chat.
                 responseData.user.studentsList = users
-                    .filter(u => !admins.includes(u.username))
+                    .filter(u => user.username === 'يوسف'
+                        ? u.username !== user.username
+                        : !admins.includes(u.username))
                     .map(u => u.username);
             }
 
