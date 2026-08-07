@@ -828,11 +828,7 @@ function renderChatView(container) {
                 </div>
             </div>
 
-            <div class="claude-mode-bar">
-                <div class="mode-glider" style="transform: translateX(${currentChatMode === 'translator' ? '0%' : '100%'}); width: 50%;"></div>
-                <button class="mode-btn ${currentChatMode === 'translator' ? 'active' : ''}" onclick="setChatMode('translator')">مترجم</button>
-                <button class="mode-btn ${currentChatMode === 'teacher' ? 'active' : ''}" onclick="setChatMode('teacher')">مدرس</button>
-            </div>
+
 
             <div class="claude-messages-area" id="chat-messages">
                 ${chatMessages.length === 0 ? `
@@ -876,7 +872,22 @@ function renderChatView(container) {
             <div id="media-preview" class="media-preview"></div>
 
             <div class="chat-input-poly">
-                <div class="input-wrapper">
+                <div class="input-wrapper" style="position: relative;">
+                    <div class="mode-dropdown-container" style="position: relative; display: inline-block;">
+                        <button onclick="toggleModeDropdown()" class="mode-chip-btn" style="background: #edf2f7; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold; color: #2d3748; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas ${currentChatMode === 'translator' ? 'fa-language' : 'fa-chalkboard-teacher'}" style="color: #d97706;"></i>
+                            <span>${currentChatMode === 'translator' ? 'مترجم' : 'مدرس'}</span>
+                            <i class="fas fa-chevron-down" style="font-size: 10px; color: #718096;"></i>
+                        </button>
+                        <div id="mode-dropdown-menu" style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; width: 140px; z-index: 100; overflow: hidden;">
+                            <div onclick="setChatMode('translator'); toggleModeDropdown();" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-family: 'Cairo', sans-serif; background: ${currentChatMode === 'translator' ? '#fff5f5' : 'white'}; color: ${currentChatMode === 'translator' ? '#800020' : '#2d3748'}; font-weight: ${currentChatMode === 'translator' ? 'bold' : 'normal'};">
+                                <i class="fas fa-language"></i> مترجم
+                            </div>
+                            <div onclick="setChatMode('teacher'); toggleModeDropdown();" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-family: 'Cairo', sans-serif; background: ${currentChatMode === 'teacher' ? '#fff5f5' : 'white'}; color: ${currentChatMode === 'teacher' ? '#800020' : '#2d3748'}; font-weight: ${currentChatMode === 'teacher' ? 'bold' : 'normal'};">
+                                <i class="fas fa-chalkboard-teacher"></i> مدرس
+                            </div>
+                        </div>
+                    </div>
                     <button class="icon-btn" onclick="triggerImageUpload()"><i class="fas fa-camera"></i></button>
                     <button class="icon-btn" id="mic-btn" onclick="toggleVoiceRecording()"><i class="fas fa-microphone"></i></button>
                     <input type="text" id="chat-input" placeholder="اكتب هنا..." onkeypress="if(event.key === 'Enter') sendMessage()">
