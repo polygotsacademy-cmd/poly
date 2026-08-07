@@ -256,6 +256,7 @@ function renderView() {
         case 'games': renderGamesView(main); break;
         case 'messages': renderMessagesView(main); break;
         case 'leaderboard': renderLeaderboardView(main); break;
+        case 'announcement': renderAnnouncementView(main); break;
     }
 }
 
