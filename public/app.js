@@ -222,13 +222,15 @@ function showApp() {
 function updateNotificationBadge() {
     const badge = document.getElementById('notification-badge');
     if (badge) {
-        badge.classList.toggle('active', hasStaticNotifications || hasUnreadChatMessages);
+        badge.classList.toggle('active', hasUnreadChatMessages);
     }
 }
 
 function checkNotifications() {
     if (!currentUser) return;
-    hasStaticNotifications = messages.some(m => (m.targetUsers || []).includes(currentUser.username));
+    // The bell follows real-time Firestore chat messages only.
+    // Static messages.json entries are not unread chat messages.
+    hasStaticNotifications = false;
     updateNotificationBadge();
 }
 
