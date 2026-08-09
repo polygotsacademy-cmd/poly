@@ -451,7 +451,8 @@ function renderMessagesView(container) {
         contacts = [
             { name: "Polyglots Academy", username: "يوسف" },
             { name: "Frau Hadeel", username: "فراو" },
-            { name: "Assistant", username: "frau_farida" }
+            { name: "Assistant", username: "frau_farida" },
+            { name: "Assistant 2", username: "frau_rawan" }
         ];
     } else {
         contacts = studentsList.map(s => ({ name: s, username: s }));
@@ -1324,7 +1325,8 @@ function renderChatWindow(targetUser) {
         const studentContacts = [
             { name: "Polyglots Academy", username: "يوسف" },
             { name: "Frau Hadeel", username: "فراو" },
-            { name: "Assistant", username: "frau_farida" }
+            { name: "Assistant", username: "frau_farida" },
+            { name: "Assistant 2", username: "frau_rawan" }
         ];
         const contact = studentContacts.find(c => c.username === targetUser);
         if (contact) displayName = contact.name;
