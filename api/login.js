@@ -81,6 +81,8 @@ export default function handler(req, res) {
         { username: 'malik_w_a', password: '063972', payment_status: 'Paid' },
         // ادم محمد محمود
         { username: 'adam_m_m', password: '524817', payment_status: 'Paid' },
+        // يحيى محمد رمضان
+        { username: 'yaya_m_r', password: '520017', payment_status: 'Paid' },
         // فراو فريدة
         { username: 'frau_farida', password: '13502009', payment_status: 'Paid' }, 
     ];
