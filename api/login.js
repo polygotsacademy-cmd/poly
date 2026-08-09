@@ -41,8 +41,8 @@ export default function handler(req, res) {
         { username: 'juwairiyah_a_h', password: '156040', payment_status: 'Paid' },
         // محمد أحمد محمود
         { username: 'mohamed_a_m', password: '551721', payment_status: 'Paid' },
-        // مريم محمد سعيد
-        { username: 'maryam_m_s', password: '874216', payment_status: 'Paid' },
+        // روان
+        { username: 'frau_rawan', password: '874216', payment_status: 'Paid' },
         // ليان احمد جمال
         { username: 'layan_a_g', password: '629154', payment_status: 'Paid' },
         // خديجة مصطفي محمود
@@ -83,7 +83,7 @@ export default function handler(req, res) {
         { username: 'frau_farida', password: '13502009', payment_status: 'Paid' }, 
     ];
 
-    const admins = ["يوسف", "فراو", "frau_farida"];
+    const admins = ["يوسف", "فراو", "frau_farida","frau_rawan"];
     const user = users.find(u => u.username === username && u.password === password);
 
     if (user) {

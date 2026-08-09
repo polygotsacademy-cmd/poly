@@ -137,7 +137,7 @@ async function handleLogin(e) {
 
     try {
         if (username === "admin" && password === "admin") {
-             currentUser = { username: "Polyglot" };
+             currentUser = { username: "Polyglot", isAdmin: true };
              if (remember) {
                 localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
             }
@@ -183,7 +183,7 @@ async function checkRememberedUser() {
         const { username, password } = JSON.parse(saved);
         try {
             if (username === "admin" && password === "admin") {
-                currentUser = { username: "Polyglot" };
+                currentUser = { username: "Polyglot", isAdmin: true };
                 showApp();
                 switchView('words');
                 return;
@@ -1865,6 +1865,14 @@ let userStreak = 0;
 
 async function initGamification() {
     if (!currentUser || !currentUser.username) return;
+
+    // Admin accounts never receive or accumulate gamification points.
+    if (currentUser.isAdmin === true) {
+        userPoints = 0;
+        userStreak = 0;
+        updatePointsUI();
+        return;
+    }
     const userRef = db.collection('users').doc(currentUser.username);
     try {
         const doc = await userRef.get();
@@ -1915,7 +1923,7 @@ function updatePointsUI() {
 }
 
 async function awardPoints(pointsToAdd, reason = '') {
-    if (!currentUser || !currentUser.username) return;
+    if (!currentUser || !currentUser.username || currentUser.isAdmin === true) return;
     userPoints += pointsToAdd;
     updatePointsUI();
     
