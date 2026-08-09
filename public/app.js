@@ -679,11 +679,11 @@ function showFullStory(index) {
 
     const storyAudio = main.querySelector('.story-audio-player audio');
     if (storyAudio) {
-        storyAudio.addEventListener('play', () => {
+        storyAudio.addEventListener('ended', () => {
             const storyKey = `listened_story_${story.id}`;
             if (!sessionStorage.getItem(storyKey)) {
                 sessionStorage.setItem(storyKey, 'true');
-                awardPoints(10, 'استماع لقصة');
+                awardPoints(10, 'الاستماع للقصة بالكامل');
             }
         }, { once: true });
     }
