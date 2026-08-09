@@ -29,6 +29,9 @@ let currentChatMode = 'translator'; // translator, teacher, homework, voice
 let selectedImage = null;
 let currentChatUser = null;
 let chatUnsubscribe = null;
+let notificationUnsubscribe = null;
+let hasUnreadChatMessages = false;
+let hasStaticNotifications = false;
 let selectedAudio = null;
 let mediaRecorder = null;
 let audioChunks = [];
@@ -210,22 +213,41 @@ function showApp() {
     const announcementNav = document.getElementById('nav-announcement');
     if (announcementNav) announcementNav.style.display = 'flex';
     checkNotifications();
+    listenForUnreadMessages();
     loadUserMascot();
     initGamification(); // Load Mascot on login
     renderView();
 }
 
-function checkNotifications() {
-    if (!currentUser) return;
-    const userMessages = messages.filter(m => m.targetUsers.includes(currentUser.username));
+function updateNotificationBadge() {
     const badge = document.getElementById('notification-badge');
     if (badge) {
-        if (userMessages.length > 0) {
-            badge.classList.add('active');
-        } else {
-            badge.classList.remove('active');
-        }
+        badge.classList.toggle('active', hasStaticNotifications || hasUnreadChatMessages);
     }
+}
+
+function checkNotifications() {
+    if (!currentUser) return;
+    hasStaticNotifications = messages.some(m => (m.targetUsers || []).includes(currentUser.username));
+    updateNotificationBadge();
+}
+
+function listenForUnreadMessages() {
+    if (notificationUnsubscribe) {
+        notificationUnsubscribe();
+        notificationUnsubscribe = null;
+    }
+    if (!currentUser) return;
+
+    // Listen to incoming messages and filter isRead locally to avoid requiring a composite index.
+    notificationUnsubscribe = db.collection('messages')
+        .where('receiver', '==', currentUser.username)
+        .onSnapshot((snapshot) => {
+            hasUnreadChatMessages = snapshot.docs.some(doc => doc.data().isRead === false);
+            updateNotificationBadge();
+        }, (error) => {
+            console.error('Error listening for unread messages:', error);
+        });
 }
 
 // View Switching
@@ -237,7 +259,7 @@ function switchView(view) {
     
     const searchBar = document.getElementById('search-bar-container');
     if (view === 'words') {
-        searchBar.style.display = 'block';
+        searchBar.style.display = 'flex';
     } else {
         searchBar.style.display = 'none';
     }
@@ -468,8 +490,7 @@ function renderMessagesView(container) {
         loadAdminMascots(studentsList);
     }
 
-    const badge = document.getElementById('notification-badge');
-    if (badge) badge.classList.remove('active');
+    updateNotificationBadge();
 }
 
 // View Renderers
@@ -636,12 +657,6 @@ function showFullStory(index) {
     const story = stories[index];
     const main = document.getElementById('main-content');
 
-    // Award 10 points for reading/listening to a story (tracked in sessionStorage)
-    const storyKey = `read_story_${story.id}`;
-    if (!sessionStorage.getItem(storyKey)) {
-        sessionStorage.setItem(storyKey, 'true');
-        awardPoints(10, 'قراءة قصة');
-    }
     const audioPlayer = story.audio ? `
         <div class="story-audio-player">
             <p style="margin-bottom:8px; font-size:14px; color:#555;"><i class="fas fa-headphones"></i> استمع للقصة:</p>
@@ -659,6 +674,17 @@ function showFullStory(index) {
                 <p class="arabic-translation">${story.translation}</p>
             </div>
         </div>`;
+
+    const storyAudio = main.querySelector('.story-audio-player audio');
+    if (storyAudio) {
+        storyAudio.addEventListener('play', () => {
+            const storyKey = `listened_story_${story.id}`;
+            if (!sessionStorage.getItem(storyKey)) {
+                sessionStorage.setItem(storyKey, 'true');
+                awardPoints(10, 'استماع لقصة');
+            }
+        }, { once: true });
+    }
     main.scrollTop = 0;
 }
 function renderQuizzesView(container) {
