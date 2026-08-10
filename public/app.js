@@ -31,6 +31,7 @@ let currentChatUser = null;
 let chatUnsubscribe = null;
 let notificationUnsubscribe = null;
 let hasUnreadChatMessages = false;
+let unreadMessagesByUser = {};
 let hasStaticNotifications = false;
 let selectedAudio = null;
 let mediaRecorder = null;
@@ -234,6 +235,16 @@ function checkNotifications() {
     updateNotificationBadge();
 }
 
+function updateContactUnreadIndicators() {
+    document.querySelectorAll('.contact-item[data-username]').forEach(contactEl => {
+        const username = contactEl.dataset.username;
+        const badge = contactEl.querySelector('.contact-unread-badge');
+        if (badge) {
+            badge.style.display = unreadMessagesByUser[username] ? 'inline-flex' : 'none';
+        }
+    });
+}
+
 function listenForUnreadMessages() {
     if (notificationUnsubscribe) {
         notificationUnsubscribe();
@@ -241,12 +252,21 @@ function listenForUnreadMessages() {
     }
     if (!currentUser) return;
 
-    // Listen to incoming messages and filter isRead locally to avoid requiring a composite index.
+    // Listen to incoming messages and build unread state per sender.
     notificationUnsubscribe = db.collection('messages')
         .where('receiver', '==', currentUser.username)
         .onSnapshot((snapshot) => {
-            hasUnreadChatMessages = snapshot.docs.some(doc => doc.data().isRead === false);
+            const nextUnreadMessagesByUser = {};
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.isRead === false && data.sender) {
+                    nextUnreadMessagesByUser[data.sender] = true;
+                }
+            });
+            unreadMessagesByUser = nextUnreadMessagesByUser;
+            hasUnreadChatMessages = Object.keys(unreadMessagesByUser).length > 0;
             updateNotificationBadge();
+            updateContactUnreadIndicators();
         }, (error) => {
             console.error('Error listening for unread messages:', error);
         });
@@ -465,11 +485,12 @@ function renderMessagesView(container) {
         <div class="chat-split-container">
             <div class="contacts-list">
                 ${contacts.map(c => `
-                    <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" onclick="selectChat('${c.username}')">
+                    <div class="contact-item ${currentChatUser === c.username ? 'active' : ''}" data-username="${c.username}" onclick="selectChat('${c.username}')">
                         <div class="contact-avatar" id="avatar-${c.username}">${window.mascotCache[c.username] || c.name.charAt(0).toUpperCase()}</div>
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
+                        <span class="contact-unread-badge" style="display:${unreadMessagesByUser[c.username] ? 'inline-flex' : 'none'}; width:10px; height:10px; margin-left:auto; background:#e53935; border-radius:50%; box-shadow:0 0 0 2px #fff;" title="رسالة غير مقروءة"></span>
                     </div>
                 `).join('')}
             </div>
