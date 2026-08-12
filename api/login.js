@@ -84,7 +84,11 @@ export default function handler(req, res) {
         // يحيى محمد رمضان
         { username: 'yaya_m_r', password: '520017', payment_status: 'Paid' },
         // فراو فريدة
-        { username: 'frau_farida', password: '13502009', payment_status: 'Paid' }, 
+        { username: 'frau_farida', password: '13502009', payment_status: 'Paid' },
+        // أنس محمود
+        { username: 'anas_mahmoud', password: '220901', payment_status: 'Paid' },
+        // مكة محمود 
+              { username: 'makka_mahmoud', password: '220902', payment_status: 'Paid' },
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
