@@ -1,0 +1,17 @@
+{
+  "purpose": "Safe CSS split preserving original cascade order.",
+  "original": "_original_snapshot/style.css.original",
+  "styles": [
+    "00-foundation.css",
+    "01-shell.css",
+    "02-learning.css",
+    "03-stories-quizzes-games.css",
+    "04-ai-chat.css",
+    "05-responsive.css",
+    "06-navigation.css",
+    "07-ai-chat-refinements.css",
+    "08-messages-modals.css",
+    "09-chat-announcements.css"
+  ],
+  "note": "Do not reorder linked styles without testing visual regressions."
+}

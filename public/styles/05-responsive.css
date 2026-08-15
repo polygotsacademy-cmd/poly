@@ -1,0 +1,197 @@
+/* Polyglots current site — 05-responsive.css. This order is part of the existing visual cascade. */
+
+/* --- Responsive Design Improvements --- */
+
+/* For Tablets and smaller screens (max-width: 768px) */
+@media (max-width: 768px) {
+    main {
+        padding: 15px 10px 120px;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .card {
+        height: 200px;
+    }
+
+    .card-front .emoji {
+        font-size: 50px;
+    }
+
+    .word-container .word {
+        font-size: 18px;
+    }
+
+    .header-logo {
+        max-height: 70px;
+    }
+
+    .search-input {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}
+
+/* For Mobile Phones (max-width: 480px) */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 25px 20px;
+        width: 95%;
+    }
+
+    .login-logo {
+        max-width: 120px;
+        margin-bottom: 15px;
+    }
+
+    .login-container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .input-group input {
+        padding: 10px 12px 10px 40px;
+        font-size: 14px;
+    }
+
+    #login-btn {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .header-logo {
+        max-height: 60px;
+    }
+
+    .nav-item i {
+        font-size: 18px;
+    }
+
+    .nav-item span {
+        font-size: 10px;
+    }
+
+    .bottom-nav {
+        padding: 8px 0;
+    }
+
+    /* Adjust font sizes for mobile readability */
+    body {
+        font-size: 14px;
+    }
+
+    .arabic-trans {
+        font-size: 22px;
+    }
+
+    /* Fix horizontal scroll for categories on mobile */
+    .categories {
+        padding-bottom: 10px;
+    }
+    
+    .cat-btn {
+        padding: 6px 15px;
+        font-size: 13px;
+    }
+}
+
+/* Fix for very small screens or landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    #login-screen {
+        position: absolute;
+        height: auto;
+        min-height: 100%;
+        padding: 20px 0;
+    }
+    
+    .login-container {
+        margin: 20px auto;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Quiz Enhanced Styles */
+.mode-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--burgundy-color);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.flashcard-quiz-view .card-inner {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quiz-option {
+    position: relative;
+    overflow: hidden;
+}
+
+.quiz-option::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.05);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+}
+
+.quiz-option:active::after {
+    transform: translateX(0);
+}
+
+#spelling-input:focus {
+    border-color: var(--burgundy-color) !important;
+    box-shadow: 0 0 0 4px rgba(160, 32, 64, 0.1);
+}
+
+.feedback-spelling {
+    animation: bounceIn 0.5s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .mode-card {
+        padding: 15px !important;
+    }
+    
+    .flashcard-quiz-view {
+        height: 300px !important;
+    }
+}

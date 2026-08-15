@@ -1,0 +1,41 @@
+/* Polyglots current site — 00-foundation.css. This order is part of the existing visual cascade. */
+
+:root {
+    --bg-color: #e8f0f2;
+    --header-bg: #ffffff;
+    --navy-color: #2b3245;
+    --burgundy-color: #7c2f3f;
+    --text-color: #2b3245;
+    --card-bg: #ffffff;
+    --der-color: #3498db;
+    --die-color: #e74c3c;
+    --das-color: #2ecc71;
+    --other-color: #95a5a6;
+    --nav-bg: #ffffff;
+    --nav-active: #7c2f3f;
+}
+
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Nunito', 'Cairo', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.screen {
+    display: none;
+    min-height: 100vh;
+}
+
+.screen.active {
+    display: block;
+}

@@ -1,0 +1,20 @@
+{
+  "purpose": "Safe behavioral split of the original app.js into classic scripts loaded in original order.",
+  "original": "_original_snapshot/app.js.original",
+  "modules": [
+    "00-core.js",
+    "01-router.js",
+    "02-announcements.js",
+    "03-messages-view.js",
+    "04-vocabulary.js",
+    "05-stories.js",
+    "06-quizzes.js",
+    "07-ai-chat.js",
+    "08-games-theme.js",
+    "09-direct-messages.js",
+    "10-mascots.js",
+    "11-gamification.js",
+    "12-chat-dropdown.js"
+  ],
+  "note": "Do not change script order unless dependencies are audited. Keep functions global while legacy inline onclick handlers remain."
+}
