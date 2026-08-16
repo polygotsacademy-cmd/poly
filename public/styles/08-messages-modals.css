@@ -347,26 +347,47 @@
     position: relative;
 }
 
-.delete-msg-btn {
+.message-actions {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: rgba(255,255,255,0.8);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    top: -8px;
+    right: -8px;
     display: none;
     align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #666;
-    border: 1px solid #ddd;
+    gap: 4px;
     z-index: 10;
-    cursor: pointer;
 }
 
-.chat-msg:hover .delete-msg-btn {
+.chat-msg:hover .message-actions,
+.chat-msg:focus-within .message-actions {
     display: flex;
+}
+
+.message-action-btn {
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #666;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    padding: 0;
+}
+
+.message-action-btn:hover {
+    color: var(--burgundy-color);
+    transform: scale(1.08);
+}
+
+.delete-msg-btn {
+    position: static;
+}
+
+.forward-msg-btn {
+    color: var(--navy-color);
 }
 
 .deleted-placeholder {
@@ -390,6 +411,110 @@
 
 .chat-msg img {
     cursor: zoom-in !important;
+}
+
+/* Forward Message Modal */
+.forward-prompt {
+    background: white;
+    width: min(420px, 92vw) !important;
+    max-height: 80vh;
+    padding: 22px !important;
+    border-radius: 15px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 !important;
+    direction: rtl;
+    font-family: 'Cairo', sans-serif;
+}
+
+.forward-prompt h3 {
+    margin: 0 0 16px;
+    color: var(--navy-color);
+    text-align: center;
+}
+
+.forward-select-all,
+.forward-recipient {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.forward-select-all {
+    background: #f4f6f8;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.forward-recipients-list {
+    max-height: 42vh;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 6px;
+}
+
+.forward-recipient:hover {
+    background: #f8f8f8;
+}
+
+.forward-recipient input,
+.forward-select-all input {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--burgundy-color);
+}
+
+.forward-empty {
+    text-align: center;
+    color: #888;
+    padding: 18px;
+}
+
+.forward-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.forward-btn {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-weight: bold;
+}
+
+.forward-btn.confirm {
+    background: var(--burgundy-color);
+    color: white;
+}
+
+.forward-btn.cancel {
+    background: #eee;
+    color: #333;
+}
+
+.forward-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.chat-link {
+    color: #1769aa;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
+.chat-msg.sent .chat-link {
+    color: #075e54;
 }
 
 /* Mascot Modal Styles */

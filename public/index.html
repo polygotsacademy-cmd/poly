@@ -158,6 +158,22 @@
         </div>
     </div>
 
+    <!-- Forward Message Modal -->
+    <div id="forward-modal" class="modal">
+        <div class="modal-content forward-prompt">
+            <h3>إعادة توجيه الرسالة</h3>
+            <label class="forward-select-all">
+                <input type="checkbox" onchange="toggleAllForwardRecipients(this)">
+                <span>اختيار كل المستلمين</span>
+            </label>
+            <div id="forward-recipients-list" class="forward-recipients-list"></div>
+            <div class="forward-modal-actions">
+                <button id="confirm-forward-btn" onclick="confirmForwardMessage()" class="forward-btn confirm">إرسال</button>
+                <button onclick="closeForwardModal()" class="forward-btn cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mascot Selection Modal -->
     <div id="mascot-modal" class="modal">
         <div class="modal-content mascot-content">

@@ -1,6 +1,9 @@
 /* Polyglots current site — 09-direct-messages.js. Keep this file as a classic script; inline handlers in the existing HTML depend on its global functions. */
 
 // Real-time Messaging Functions
+window.chatMessageCache = window.chatMessageCache || {};
+let currentForwardMessageId = null;
+
 function selectChat(username) {
     currentChatUser = username;
     renderView();
@@ -116,8 +119,11 @@ function startChatListener() {
             }
 
             const messagesArray = [];
+            window.chatMessageCache = {};
             snapshot.forEach(doc => {
-                messagesArray.push({ id: doc.id, ...doc.data() });
+                const message = { id: doc.id, ...doc.data() };
+                messagesArray.push(message);
+                window.chatMessageCache[doc.id] = message;
             });
             messagesArray.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
 
@@ -149,9 +155,14 @@ function startChatListener() {
                     contentHtml = formatTextWithLinks(msg.text || '');
                 }
 
-                const deleteBtn = !msg.isDeletedForEveryone ? `
-                    <div class="delete-msg-btn" onclick="deleteMessagePrompt('${msg.id}', ${isSent})">
-                        <i class="fas fa-trash"></i>
+                const messageActions = !msg.isDeletedForEveryone ? `
+                    <div class="message-actions">
+                        <button class="message-action-btn forward-msg-btn" onclick="forwardMessagePrompt('${msg.id}')" title="إعادة توجيه الرسالة" aria-label="إعادة توجيه الرسالة">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        <button class="message-action-btn delete-msg-btn" onclick="deleteMessagePrompt('${msg.id}', ${isSent})" title="حذف الرسالة" aria-label="حذف الرسالة">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 ` : '';
 
@@ -167,7 +178,7 @@ function startChatListener() {
 
                 html += `
                     <div class="chat-msg ${isSent ? 'sent' : 'received'}" data-id="${msg.id}">
-                        ${deleteBtn}
+                        ${messageActions}
                         ${contentHtml}
                         <span class="time">${time}${ticksHtml}</span>
                     </div>
@@ -430,15 +441,112 @@ function closeDriveModal() {
     }
 }
 
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+}
+
 function formatTextWithLinks(text) {
     if (!text) return '';
-    const urlRegex = /(https?:\/\/[^\s]+ )/g;
-    return text.replace(urlRegex, (url) => {
-        if (url.includes('drive.google.com/file/d/')) {
-            return `<a href="javascript:void(0)" onclick="openDriveModal('${url}')" class="chat-link">${url}</a>`;
-        }
-        return `<a href="${url}" target="_blank" class="chat-link">${url}</a>`;
+    const escapedText = escapeHtml(text);
+    const urlRegex = /(https?:\/\/[^\s<]+)/gi;
+    return escapedText.replace(urlRegex, (url) => {
+        const cleanUrl = url.replace(/[.,!?؛،。]+$/g, '');
+        const trailing = url.slice(cleanUrl.length);
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-link">${cleanUrl}</a>${trailing}`;
+    }).replace(/\n/g, '<br>');
+}
+
+// --- Forward Message Logic ---
+
+function getForwardRecipients() {
+    const authData = JSON.parse(localStorage.getItem('polyglots_auth_data') || '{}');
+    if (authData.isAdmin) {
+        return (authData.studentsList || []).map(username => ({ username, name: username }));
+    }
+    return [
+        { username: 'يوسف', name: 'Polyglots Academy' },
+        { username: 'فراو', name: 'Frau Hadeel' },
+        { username: 'frau_farida', name: 'Assistant' },
+        { username: 'frau_rawan', name: 'Assistant 2' }
+    ];
+}
+
+function forwardMessagePrompt(messageId) {
+    const message = window.chatMessageCache && window.chatMessageCache[messageId];
+    const modal = document.getElementById('forward-modal');
+    const list = document.getElementById('forward-recipients-list');
+    if (!message || !modal || !list) return;
+
+    currentForwardMessageId = messageId;
+    const recipients = getForwardRecipients();
+    list.innerHTML = recipients.length ? recipients.map(recipient => `
+        <label class="forward-recipient">
+            <input type="checkbox" name="forward-recipient" value="${escapeHtml(recipient.username)}">
+            <span>${escapeHtml(recipient.name)}</span>
+        </label>
+    `).join('') : '<p class="forward-empty">لا يوجد مستلمون متاحون.</p>';
+    modal.style.display = 'block';
+}
+
+function closeForwardModal() {
+    const modal = document.getElementById('forward-modal');
+    if (modal) modal.style.display = 'none';
+    currentForwardMessageId = null;
+}
+
+function toggleAllForwardRecipients(checkbox) {
+    document.querySelectorAll('input[name="forward-recipient"]').forEach(input => {
+        input.checked = checkbox.checked;
     });
+}
+
+async function confirmForwardMessage() {
+    const message = window.chatMessageCache && window.chatMessageCache[currentForwardMessageId];
+    const selected = Array.from(document.querySelectorAll('input[name="forward-recipient"]:checked')).map(input => input.value);
+    if (!message || !currentUser || !selected.length) {
+        alert('اختر مستلماً واحداً على الأقل لإعادة توجيه الرسالة.');
+        return;
+    }
+
+    const forwardButton = document.getElementById('confirm-forward-btn');
+    if (forwardButton) forwardButton.disabled = true;
+    try {
+        const batch = db.batch();
+        selected.forEach(receiver => {
+            const messageRef = db.collection('messages').doc();
+            const forwardedMessage = {
+                chatId: getChatId(currentUser.username, receiver),
+                sender: currentUser.username,
+                receiver,
+                isRead: false,
+                forwarded: true,
+                forwardedFrom: message.sender || '',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (message.type === 'image' || message.type === 'audio') {
+                forwardedMessage.type = message.type;
+                forwardedMessage.mediaData = message.mediaData;
+            } else {
+                forwardedMessage.type = 'text';
+                forwardedMessage.text = message.text || '';
+            }
+            batch.set(messageRef, forwardedMessage);
+        });
+        await batch.commit();
+        closeForwardModal();
+        alert(`تمت إعادة توجيه الرسالة إلى ${selected.length} مستلم.`);
+    } catch (error) {
+        console.error('Forward message error:', error);
+        alert('تعذر إعادة توجيه الرسالة. حاول مرة أخرى.');
+    } finally {
+        if (forwardButton) forwardButton.disabled = false;
+    }
 }
 
 // --- Delete Message Logic ---
