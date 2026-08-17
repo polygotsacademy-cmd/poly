@@ -61,6 +61,7 @@ async function init( ) {
     setupEventListeners();
     await checkRememberedUser();
     applyTheme();
+    if (window.applyLanguage) window.applyLanguage();
 }
 
 async function loadData() {
@@ -95,6 +96,10 @@ function setupEventListeners() {
             toggleOverlay(sidebar.classList.contains('open'));
         });
     }
+
+    // Language toggle
+    const languageToggle = document.getElementById('language-toggle');
+    if (languageToggle && window.toggleLanguage) languageToggle.addEventListener('click', window.toggleLanguage);
 
     // Logout
     const logoutButton = document.getElementById('logout-btn');

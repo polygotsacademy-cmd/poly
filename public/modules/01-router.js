@@ -32,4 +32,5 @@ function renderView() {
         case 'leaderboard': renderLeaderboardView(main); break;
         case 'announcement': renderAnnouncementView(main); break;
     }
+    if (window.applyLanguage) window.applyLanguage();
 }

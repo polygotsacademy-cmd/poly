@@ -372,6 +372,37 @@ footer {
 }
 
 /* Secure session controls */
+.login-language-toggle {
+    display: block;
+    margin: 0 auto 14px;
+}
+
+.language-toggle {
+    border: 1px solid #d9c1c8;
+    border-radius: 12px;
+    padding: 7px 10px;
+    background: #fff;
+    color: #800020;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.language-toggle:hover {
+    background: #fff5f7;
+}
+
+.language-toggle:active {
+    transform: scale(0.97);
+}
+
+.language-toggle:focus-visible {
+    outline: 3px solid rgba(128, 0, 32, 0.25);
+    outline-offset: 2px;
+}
+
 .logout-btn {
     border: 0;
     border-radius: 12px;
@@ -404,6 +435,7 @@ footer {
 }
 
 @media (max-width: 520px) {
+    .language-toggle,
     .logout-btn {
         padding: 6px 8px;
         font-size: 11px;
