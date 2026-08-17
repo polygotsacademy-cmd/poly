@@ -25,11 +25,13 @@ function renderView() {
         case 'words': renderWordsView(main); break;
         case 'stories': renderStoriesView(main); break;
         case 'quizzes': renderQuizzesView(main); break;
+        case 'daily': renderDailyQuizView(main); break;
         case 'pronunciation': renderPronunciationView(main); break;
         case 'chat': renderChatView(main); break;
         case 'games': renderGamesView(main); break;
         case 'messages': renderMessagesView(main); break;
         case 'leaderboard': renderLeaderboardView(main); break;
         case 'announcement': renderAnnouncementView(main); break;
+        case 'admin': renderAdminView(main); break;
     }
 }

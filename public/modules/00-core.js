@@ -32,6 +32,8 @@ let selectedImage = null;
 let currentChatUser = null;
 let chatUnsubscribe = null;
 let notificationUnsubscribe = null;
+let userAccessTimer = null;
+let lastSeenWriteAt = 0;
 let hasUnreadChatMessages = false;
 let unreadMessagesByUser = {};
 let hasStaticNotifications = false;
@@ -78,6 +80,23 @@ async function loadData() {
         console.log('Data loaded:', { words: words.length, stories: stories.length, quizzes: quizzes.length, messages: messages.length });
     } catch (e) {
         console.error("Failed to load data", e);
+    }
+}
+
+async function loadFirestoreContent() {
+    if (!currentUser) return;
+    try {
+        const [wordSnapshot, storySnapshot] = await Promise.all([
+            db.collection('contentWords').where('published', '==', true).get(),
+            db.collection('contentStories').where('published', '==', true).get()
+        ]);
+        const allowed = item => item.audience === 'all' || (item.recipients || []).includes(currentUser.username);
+        const firestoreWords = wordSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), art: doc.data().art || '', cat: doc.data().cat || 'Alle', word: doc.data().word || '', ar: doc.data().ar || '', pl: doc.data().pl || '' })).filter(allowed);
+        const firestoreStories = storySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(allowed);
+        if (firestoreWords.length) words = [...words, ...firestoreWords];
+        if (firestoreStories.length) stories = [...stories, ...firestoreStories];
+    } catch (error) {
+        console.warn('Firestore content is unavailable; keeping JSON content.', error);
     }
 }
 
@@ -166,7 +185,10 @@ async function handleLogin(e) {
             // Keep only non-sensitive profile data for legacy modules; never store the password.
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
             localStorage.removeItem('polyglots_user');
+            if (!(await enforceCurrentUserAccess())) return;
+            await loadFirestoreContent();
             showApp();
+            startUserAccessMonitor();
             switchView('words');
             window.scrollTo(0, 0);
         } else {
@@ -183,6 +205,34 @@ async function handleLogin(e) {
     }
 }
 
+async function enforceCurrentUserAccess() {
+    if (!currentUser || !currentUser.username || currentUser.username === 'يوسف') return true;
+    try {
+        const doc = await db.collection('users').doc(currentUser.username).get();
+        if (doc.exists && doc.data().active === false) {
+            await logout();
+            const error = document.getElementById('login-error');
+            if (error) error.innerText = 'تم إيقاف هذا الحساب. تواصل مع إدارة الأكاديمية.';
+            return false;
+        }
+        const now = Date.now();
+        if (now - lastSeenWriteAt > 5 * 60 * 1000) {
+            lastSeenWriteAt = now;
+            await db.collection('users').doc(currentUser.username).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        }
+        return true;
+    } catch (error) {
+        console.error('User access check failed:', error);
+        return true;
+    }
+}
+
+function startUserAccessMonitor() {
+    if (userAccessTimer) clearInterval(userAccessTimer);
+    if (!currentUser || currentUser.username === 'يوسف') return;
+    userAccessTimer = setInterval(enforceCurrentUserAccess, 60 * 1000);
+}
+
 async function checkRememberedUser() {
     // Old versions stored the password locally. Remove it without using or transmitting it.
     localStorage.removeItem('polyglots_user');
@@ -196,7 +246,10 @@ async function checkRememberedUser() {
             if (window.resetChatUsageCache) window.resetChatUsageCache();
             currentUser = data.user;
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
+            if (!(await enforceCurrentUserAccess())) return;
+            await loadFirestoreContent();
             showApp();
+            startUserAccessMonitor();
             switchView('words');
         }
     } catch (err) {
@@ -223,6 +276,12 @@ async function logout() {
         chatUnsubscribe = null;
     }
     currentUser = null;
+    if (userAccessTimer) {
+        clearInterval(userAccessTimer);
+        userAccessTimer = null;
+    }
+    const adminNav = document.getElementById('nav-admin');
+    if (adminNav) adminNav.style.display = 'none';
     if (window.resetAIUsageCache) window.resetAIUsageCache();
     if (window.resetChatUsageCache) window.resetChatUsageCache();
     localStorage.removeItem('polyglots_auth_data');
@@ -238,6 +297,9 @@ function showApp() {
     document.getElementById('app-container').classList.add('active');
     const announcementNav = document.getElementById('nav-announcement');
     if (announcementNav) announcementNav.style.display = 'flex';
+    const adminNav = document.getElementById('nav-admin');
+    const isYusufAdmin = currentUser?.username === 'يوسف' && currentUser?.isAdmin === true;
+    if (adminNav) adminNav.style.display = isYusufAdmin ? 'flex' : 'none';
     checkNotifications();
     listenForUnreadMessages();
     loadUserMascot();

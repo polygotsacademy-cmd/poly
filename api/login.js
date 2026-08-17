@@ -1,4 +1,17 @@
 import { createSessionToken, setSessionCookie } from './_session.js';
+import crypto from 'crypto';
+import fs from 'fs';
+
+function passwordOverrideMatches(username, password) {
+    try {
+        const raw = fs.readFileSync(new URL('./password-overrides.json', import.meta.url), 'utf8');
+        const overrides = JSON.parse(raw || '{}');
+        const stored = overrides[username];
+        if (!stored) return false;
+        const candidate = crypto.scryptSync(String(password), process.env.PASSWORD_SALT || 'polyglots-password-salt', 32).toString('hex');
+        return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(stored));
+    } catch { return false; }
+}
 
 export default function handler(req, res) {
     if (req.method !== 'POST') {
@@ -97,7 +110,7 @@ export default function handler(req, res) {
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username && (u.password === password || passwordOverrideMatches(username, password)));
 
     if (user) {
         if (user.payment_status === 'Paid') {
