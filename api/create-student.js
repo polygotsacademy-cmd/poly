@@ -1,10 +1,11 @@
 import crypto from 'crypto';
 import fs from 'fs';
+import path from 'path';
 import { getCookie, readSessionToken } from './_session.js';
 
 function hashPassword(password) { return crypto.scryptSync(String(password), process.env.PASSWORD_SALT || 'polyglots-password-salt', 32).toString('hex'); }
 function headers() { return { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' }; }
-function readJsonFile(name, fallback) { try { return JSON.parse(fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8')); } catch { return fallback; } }
+function readJsonFile(name, fallback) { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'api', name), 'utf8')); } catch { return fallback; } }
 
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');

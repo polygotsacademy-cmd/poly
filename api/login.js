@@ -1,6 +1,7 @@
 import { createSessionToken, setSessionCookie } from './_session.js';
 import crypto from 'crypto';
 import fs from 'fs';
+import path from 'path';
 
 function passwordHashMatches(password, stored) {
     try {
@@ -13,7 +14,7 @@ function passwordHashMatches(password, stored) {
 
 function passwordOverrideMatches(username, password) {
     try {
-        const raw = fs.readFileSync(new URL('./password-overrides.json', import.meta.url), 'utf8');
+        const raw = fs.readFileSync(path.join(process.cwd(), 'api', 'password-overrides.json'), 'utf8');
         const overrides = JSON.parse(raw || '{}');
         const stored = overrides[username];
         if (!stored) return false;
@@ -119,7 +120,7 @@ export default function handler(req, res) {
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
     let newUsers = {};
-    try { newUsers = JSON.parse(fs.readFileSync(new URL('./new-users.json', import.meta.url), 'utf8') || '{}'); } catch { newUsers = {}; }
+    try { newUsers = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'api', 'new-users.json'), 'utf8') || '{}'); } catch { newUsers = {}; }
     const legacyUser = users.find(u => u.username === username && (u.password === password || passwordOverrideMatches(username, password)));
     const registeredUser = newUsers[username];
     const newUser = registeredUser && passwordHashMatches(password, registeredUser.passwordHash)
