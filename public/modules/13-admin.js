@@ -60,7 +60,7 @@ function renderAdminView(main) {
         return;
     }
     main.innerHTML = `<section class="admin-shell">
-        <div class="admin-heading"><div><span class="admin-kicker">إدارة الأكاديمية</span><h1>لوحة التحكم</h1><p>إدارة الطلاب والصلاحيات والنتائج من مكان واحد.</p></div><button class="admin-refresh" onclick="renderAdminView(document.getElementById('main-content'))"><i class="fas fa-sync-alt"></i> تحديث</button></div>
+        <div class="admin-heading"><div><span class="admin-kicker">إدارة الأكاديمية</span><h1>لوحة التحكم</h1><p>إدارة الطلاب والصلاحيات والنتائج من مكان واحد.</p></div><div class="admin-heading-actions"><button class="admin-add-student" onclick="openNewStudentModal()"><i class="fas fa-user-plus"></i> إضافة طالب</button><button class="admin-refresh" onclick="renderAdminView(document.getElementById('main-content'))"><i class="fas fa-sync-alt"></i> تحديث</button></div></div>
         <div class="admin-tabs"><button class="admin-tab active" data-admin-tab="students" onclick="switchAdminTab('students')"><i class="fas fa-users"></i> إدارة الطلاب</button><button class="admin-tab" data-admin-tab="content" onclick="switchAdminTab('content')"><i class="fas fa-layer-group"></i> إدارة المحتوى</button></div>
         <div id="admin-panel-body"><div class="admin-loading"><i class="fas fa-spinner fa-spin"></i> جاري تحميل بيانات الطلاب...</div></div>
     </section>`;
@@ -93,6 +93,25 @@ function openStudentEditor(encodedUsername) {
     modal.id = 'admin-student-modal';
     modal.innerHTML = `<div class="admin-modal"><button class="admin-modal-close" onclick="closeStudentEditor()">&times;</button><h2>تعديل بيانات الطالب</h2><p class="admin-modal-subtitle">${escapeAdminHtml(username)} — لا يتم عرض كلمة المرور الحالية.</p><form id="student-edit-form" onsubmit="saveStudentEditor(event, '${encodeURIComponent(username)}')"><div class="admin-form-grid"><label>الاسم الظاهر<input name="displayName" value="${escapeAdminHtml(student.displayName || username)}"></label><label>اسم الشات<input name="chatName" value="${escapeAdminHtml(student.chatName || student.displayName || username)}"></label><label>النقاط<input name="points" type="number" min="0" value="${Number(student.points || 0)}"></label><label>كلمة مرور جديدة<input name="newPassword" type="password" minlength="4" placeholder="سيتم تفعيلها عبر نشر آمن لاحقًا"></label></div><label class="admin-results-label">نتائج الاختبارات (JSON قابل للتعديل)<textarea name="testResults" rows="5">${escapeAdminHtml(JSON.stringify(student.testResults || {}, null, 2))}</textarea></label><div class="admin-switches"><label class="admin-switch"><input name="active" type="checkbox" ${student.active !== false ? 'checked' : ''}><span>السماح بالدخول</span></label><label class="admin-switch"><input name="aiEnabled" type="checkbox" ${student.aiEnabled !== false ? 'checked' : ''}><span>السماح باستخدام Polyglots AI</span></label></div><h3>الأقسام المتاحة</h3><div class="admin-sections-grid">${adminSectionsHtml(Array.isArray(student.visibleSections) ? student.visibleSections : [])}</div><div class="admin-editor-actions"><button type="button" class="admin-cancel" onclick="closeStudentEditor()">إلغاء</button><button type="submit" class="admin-save">حفظ التعديلات</button></div></form></div>`;
     document.body.appendChild(modal);
+}
+
+function openNewStudentModal() {
+    if (!isYusufAdmin()) return;
+    const modal = document.createElement('div'); modal.className = 'admin-modal-backdrop'; modal.id = 'admin-new-student-modal';
+    modal.innerHTML = `<div class="admin-modal"><button class="admin-modal-close" onclick="closeNewStudentModal()">&times;</button><h2>إضافة طالب جديد</h2><p class="admin-modal-subtitle">سيصبح الحساب فعالًا بعد Commit وإعادة نشر Vercel.</p><form onsubmit="saveNewStudent(event)"><div class="admin-form-grid"><label>اسم المستخدم<input name="username" required minlength="3" maxlength="40" pattern="[-_\\p{L}\\p{N}]+" placeholder="student_01"></label><label>كلمة المرور<input name="password" type="password" required minlength="4"></label><label>الاسم الظاهر<input name="displayName" placeholder="اسم الطالب"></label><label>النقاط الابتدائية<input name="points" type="number" min="0" value="0"></label></div><div class="admin-switches"><label class="admin-switch"><input name="aiEnabled" type="checkbox" checked><span>السماح بـ Polyglots AI</span></label></div><h3>الأقسام المتاحة</h3><div class="admin-sections-grid">${adminSectionsHtml(['words','stories','quizzes','pronunciation','games','chat','messages','leaderboard'])}</div><div class="admin-editor-actions"><button type="button" class="admin-cancel" onclick="closeNewStudentModal()">إلغاء</button><button type="submit" class="admin-save">إنشاء الطالب</button></div></form></div>`;
+    document.body.appendChild(modal);
+}
+function closeNewStudentModal() { document.getElementById('admin-new-student-modal')?.remove(); }
+async function saveNewStudent(event) {
+    event.preventDefault(); const form = event.target;
+    const visibleSections = [...form.querySelectorAll('[data-section]:checked')].map(input => input.dataset.section);
+    const payload = { username: form.username.value.trim(), password: form.password.value, displayName: form.displayName.value.trim() || form.username.value.trim(), aiEnabled: form.aiEnabled.checked, visibleSections };
+    try {
+        const response = await fetch('/api/create-student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || 'تعذر إنشاء الطالب');
+        closeNewStudentModal(); showToast('تم إنشاء الطالب ورفع السجل إلى GitHub. سيعمل الحساب بعد إعادة نشر Vercel.', 'success');
+    } catch (error) { console.error('Student creation failed:', error); showToast(error.message || 'تعذر إنشاء الطالب.', 'error'); }
 }
 
 function closeStudentEditor() { document.getElementById('admin-student-modal')?.remove(); }
@@ -191,6 +210,9 @@ function switchAdminTab(tab) {
 window.renderAdminView = renderAdminView;
 window.renderAdminStudentsPanel = renderAdminStudentsPanel;
 window.openStudentEditor = openStudentEditor;
+window.openNewStudentModal = openNewStudentModal;
+window.closeNewStudentModal = closeNewStudentModal;
+window.saveNewStudent = saveNewStudent;
 window.closeStudentEditor = closeStudentEditor;
 window.saveStudentEditor = saveStudentEditor;
 window.switchAdminTab = switchAdminTab;

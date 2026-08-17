@@ -2,14 +2,22 @@ import { createSessionToken, setSessionCookie } from './_session.js';
 import crypto from 'crypto';
 import fs from 'fs';
 
+function passwordHashMatches(password, stored) {
+    try {
+        if (!stored) return false;
+        const candidate = crypto.scryptSync(String(password), process.env.PASSWORD_SALT || 'polyglots-password-salt', 32).toString('hex');
+        const a = Buffer.from(candidate); const b = Buffer.from(stored);
+        return a.length === b.length && crypto.timingSafeEqual(a, b);
+    } catch { return false; }
+}
+
 function passwordOverrideMatches(username, password) {
     try {
         const raw = fs.readFileSync(new URL('./password-overrides.json', import.meta.url), 'utf8');
         const overrides = JSON.parse(raw || '{}');
         const stored = overrides[username];
         if (!stored) return false;
-        const candidate = crypto.scryptSync(String(password), process.env.PASSWORD_SALT || 'polyglots-password-salt', 32).toString('hex');
-        return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(stored));
+        return passwordHashMatches(password, stored);
     } catch { return false; }
 }
 
@@ -110,7 +118,14 @@ export default function handler(req, res) {
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
-    const user = users.find(u => u.username === username && (u.password === password || passwordOverrideMatches(username, password)));
+    let newUsers = {};
+    try { newUsers = JSON.parse(fs.readFileSync(new URL('./new-users.json', import.meta.url), 'utf8') || '{}'); } catch { newUsers = {}; }
+    const legacyUser = users.find(u => u.username === username && (u.password === password || passwordOverrideMatches(username, password)));
+    const registeredUser = newUsers[username];
+    const newUser = registeredUser && passwordHashMatches(password, registeredUser.passwordHash)
+        ? { username, password: '', payment_status: registeredUser.payment_status || 'Paid', profile: registeredUser }
+        : null;
+    const user = legacyUser || newUser;
 
     if (user) {
         if (user.payment_status === 'Paid') {
@@ -119,7 +134,8 @@ export default function handler(req, res) {
                 success: true, 
                 user: { 
                     username: user.username,
-                    isAdmin: isAdmin
+                    isAdmin: isAdmin,
+                    ...(user.profile ? { displayName: user.profile.displayName, chatName: user.profile.chatName, active: user.profile.active, aiEnabled: user.profile.aiEnabled, visibleSections: user.profile.visibleSections, points: user.profile.points } : {})
                 } 
             };
 

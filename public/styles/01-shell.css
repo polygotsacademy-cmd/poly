@@ -410,7 +410,9 @@ footer {
 .admin-kicker { color: #f4c542; font-size: 12px; font-weight: 900; }
 .admin-heading h1 { margin: 5px 0 4px; font-size: 28px; }
 .admin-heading p { margin: 0; opacity: .8; }
-.admin-refresh, .admin-edit-btn, .admin-save, .admin-cancel { border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 800; }
+.admin-refresh, .admin-edit-btn, .admin-save, .admin-cancel, .admin-add-student { border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 800; }
+.admin-heading-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-add-student { background: #f4c542; color: #172846; }
 .admin-refresh { background: rgba(255,255,255,.15); color: #fff; }
 .admin-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
 .admin-tab { border: 1px solid #dce3ee; background: #fff; color: #667085; border-radius: 12px; padding: 12px 16px; cursor: pointer; font-weight: 800; }
