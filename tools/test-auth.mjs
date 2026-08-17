@@ -1,6 +1,7 @@
 import loginHandler from '../api/login.js';
 import sessionHandler from '../api/session.js';
 import logoutHandler from '../api/logout.js';
+import { createSessionToken } from '../api/_session.js';
 
 process.env.SESSION_SECRET = 'local-test-session-secret-please-replace-in-vercel-123456';
 
@@ -15,9 +16,13 @@ function makeResponse() {
   };
 }
 
+const removedAdminRes = makeResponse();
+await loginHandler({ method: 'POST', body: { username: 'admin', password: 'admin' }, headers: { 'x-forwarded-proto': 'http' } }, removedAdminRes);
+if (removedAdminRes.statusCode !== 401 || removedAdminRes.body?.success !== false) throw new Error('Legacy admin account should be rejected');
+
 const loginReq = {
   method: 'POST',
-  body: { username: 'admin', password: 'admin', remember: true },
+  body: { username: 'يوسف', password: '0338', remember: true },
   headers: { 'x-forwarded-proto': 'http' }
 };
 const loginRes = makeResponse();
@@ -29,15 +34,20 @@ if (!cookie || !cookie.startsWith('polyglots_session=')) throw new Error('Sessio
 const studentLoginRes = makeResponse();
 await loginHandler({
   method: 'POST',
-  body: { username: 'يوسف', password: '0338', remember: false },
+  body: { username: 'فراو', password: '07072000', remember: false },
   headers: { 'x-forwarded-proto': 'http' }
 }, studentLoginRes);
-if (studentLoginRes.statusCode !== 200 || studentLoginRes.body?.user?.username !== 'يوسف' || studentLoginRes.body?.user?.isAdmin !== true) throw new Error('Student/admin login compatibility test failed');
+if (studentLoginRes.statusCode !== 200 || studentLoginRes.body?.user?.username !== 'فراو' || studentLoginRes.body?.user?.isAdmin !== true) throw new Error('Student/admin login compatibility test failed');
 
 const sessionReq = { method: 'GET', headers: { cookie, 'x-forwarded-proto': 'http' } };
 const sessionRes = makeResponse();
 await sessionHandler(sessionReq, sessionRes);
 if (sessionRes.statusCode !== 200 || sessionRes.body?.user?.isAdmin !== true) throw new Error('Session restore test failed');
+
+const legacySession = createSessionToken({ username: 'Polyglot', isAdmin: true }, true);
+const legacySessionRes = makeResponse();
+await sessionHandler({ method: 'GET', headers: { cookie: `polyglots_session=${legacySession}`, 'x-forwarded-proto': 'http' } }, legacySessionRes);
+if (legacySessionRes.statusCode !== 401 || legacySessionRes.body?.success !== false) throw new Error('Legacy Polyglot session should be rejected');
 
 const invalidSessionRes = makeResponse();
 await sessionHandler({ method: 'GET', headers: { cookie: 'polyglots_session=forged.invalid', 'x-forwarded-proto': 'http' } }, invalidSessionRes);
@@ -47,4 +57,4 @@ const logoutRes = makeResponse();
 await logoutHandler({ method: 'POST', headers: { 'x-forwarded-proto': 'http' } }, logoutRes);
 if (logoutRes.statusCode !== 200 || !String(logoutRes.headers['Set-Cookie']).includes('Max-Age=0')) throw new Error('Logout test failed');
 
-console.log('auth flow passed:', { login: loginRes.body.user, studentLoginPreserved: studentLoginRes.body.user, cookieHttpOnly: cookie.includes('HttpOnly'), session: sessionRes.body.user, logoutClearsCookie: true, forgedSessionRejected: true });
+console.log('auth flow passed:', { legacyAdminRejected: true, legacySessionRejected: true, login: loginRes.body.user, studentLoginPreserved: studentLoginRes.body.user, cookieHttpOnly: cookie.includes('HttpOnly'), session: sessionRes.body.user, logoutClearsCookie: true, forgedSessionRejected: true });

@@ -160,6 +160,8 @@ async function handleLogin(e) {
         const data = await res.json();
 
         if (data.success) {
+            if (window.resetAIUsageCache) window.resetAIUsageCache();
+            if (window.resetChatUsageCache) window.resetChatUsageCache();
             currentUser = data.user;
             // Keep only non-sensitive profile data for legacy modules; never store the password.
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
@@ -190,6 +192,8 @@ async function checkRememberedUser() {
         if (!res.ok) return;
         const data = await res.json();
         if (data.success && data.user) {
+            if (window.resetAIUsageCache) window.resetAIUsageCache();
+            if (window.resetChatUsageCache) window.resetChatUsageCache();
             currentUser = data.user;
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
             showApp();
@@ -219,6 +223,8 @@ async function logout() {
         chatUnsubscribe = null;
     }
     currentUser = null;
+    if (window.resetAIUsageCache) window.resetAIUsageCache();
+    if (window.resetChatUsageCache) window.resetChatUsageCache();
     localStorage.removeItem('polyglots_auth_data');
     localStorage.removeItem('polyglots_user');
     document.getElementById('app-container').classList.remove('active');

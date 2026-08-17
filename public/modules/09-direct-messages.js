@@ -25,7 +25,8 @@ function renderChatWindow(targetUser) {
         if (contact) displayName = contact.name;
     }
 
-    const limits = getMediaLimits();
+    const limits = getChatUsage();
+    loadChatUsage();
     return `
         <div class="chat-header">
             <div class="contact-avatar">${window.mascotCache[targetUser] || displayName.charAt(0).toUpperCase()}</div>
@@ -42,8 +43,9 @@ function renderChatWindow(targetUser) {
             <div style="text-align:center; padding:20px; color:#666;">Loading messages...</div>
         </div>
         <div class="media-counters">
-            <span>الصور: ${limits.images}/6</span>
-            <span>الصوت: ${limits.audio}/6</span>
+            <span>الرسائل: ${limits.text}/20</span>
+            <span>الصور: ${limits.images}/4</span>
+            <span>الصوت: ${limits.audio}/4</span>
         </div>
         <div class="chat-input-container">
             <button class="media-btn" onclick="triggerImageUpload()">
@@ -62,36 +64,88 @@ function renderChatWindow(targetUser) {
     `;
 }
 
-function getMediaLimits() {
-    if (!currentUser) return { images: 0, audio: 0 };
-    const date = new Date().toISOString().split('T')[0];
-    const key = `chat_media_limits_${currentUser.username}_${date}`;
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : { images: 0, audio: 0 };
+const CHAT_LIMITS = { text: 20, images: 4, audio: 4 };
+let chatUsageCache = null;
+let chatUsageLoading = false;
+
+function chatTodayKey() {
+    return new Date().toISOString().split('T')[0];
 }
 
-function checkMediaLimit(type) {
-    const limits = getMediaLimits();
-    if (type === 'image' && limits.images >= 6) {
-        alert("لقد وصلت للحد الأقصى للصور اليوم (6 صور).");
-        return false;
+function emptyChatUsage() {
+    return { date: chatTodayKey(), text: 0, images: 0, audio: 0 };
+}
+
+function getChatUsage() {
+    if (!chatUsageCache || chatUsageCache.date !== chatTodayKey()) return emptyChatUsage();
+    return { ...emptyChatUsage(), ...chatUsageCache };
+}
+
+window.resetChatUsageCache = function () {
+    chatUsageCache = null;
+};
+
+async function loadChatUsage(force = false) {
+    if (!currentUser?.username || !db || (chatUsageLoading && !force)) return getChatUsage();
+    if (!force && chatUsageCache?.date === chatTodayKey()) return getChatUsage();
+
+    chatUsageLoading = true;
+    try {
+        const snapshot = await db.collection('users').doc(currentUser.username).get();
+        const stored = snapshot.exists && snapshot.data().chatUsage ? snapshot.data().chatUsage : {};
+        chatUsageCache = stored.date === chatTodayKey() ? { ...emptyChatUsage(), ...stored } : emptyChatUsage();
+    } catch (error) {
+        console.error('Poly chat usage load failed:', error);
+        chatUsageCache = chatUsageCache || emptyChatUsage();
+    } finally {
+        chatUsageLoading = false;
     }
-    if (type === 'audio' && limits.audio >= 6) {
-        alert("لقد وصلت للحد الأقصى للرسائل الصوتية اليوم (6 رسائل).");
+
+    if (typeof currentView !== 'undefined' && currentView === 'messages' && currentChatUser) renderView();
+    return getChatUsage();
+}
+
+async function reserveChatUsage(requested) {
+    if (!currentUser?.username || !db) return { ok: false, error: 'لا يمكن التحقق من حد المحادثة حاليًا.' };
+    const userRef = db.collection('users').doc(currentUser.username);
+
+    try {
+        const result = await db.runTransaction(async transaction => {
+            const snapshot = await transaction.get(userRef);
+            const stored = snapshot.exists && snapshot.data().chatUsage ? snapshot.data().chatUsage : {};
+            const usage = stored.date === chatTodayKey() ? { ...emptyChatUsage(), ...stored } : emptyChatUsage();
+            const exceeded = Object.entries(requested).some(([type, amount]) => usage[type] + amount > CHAT_LIMITS[type]);
+            if (exceeded) return { ok: false, usage };
+
+            const nextUsage = {
+                ...usage,
+                text: usage.text + (requested.text || 0),
+                images: usage.images + (requested.images || 0),
+                audio: usage.audio + (requested.audio || 0),
+                date: chatTodayKey()
+            };
+            transaction.set(userRef, { chatUsage: nextUsage }, { merge: true });
+            return { ok: true, usage: nextUsage };
+        });
+
+        chatUsageCache = result.usage || getChatUsage();
+        if (!result.ok) return { ok: false, error: 'لقد وصلت إلى الحد اليومي لهذا النوع من الرسائل.' };
+        return result;
+    } catch (error) {
+        console.error('Poly chat usage reservation failed:', error);
+        return { ok: false, error: 'تعذر تحديث حد المحادثة. حاول مرة أخرى.' };
+    }
+}
+
+async function canUseChatMedia(type) {
+    const usage = await loadChatUsage(true);
+    const current = type === 'image' ? usage.images : usage.audio;
+    const limit = type === 'image' ? CHAT_LIMITS.images : CHAT_LIMITS.audio;
+    if (current >= limit) {
+        alert(type === 'image' ? 'لقد وصلت للحد الأقصى للصور اليوم (4 صور).' : 'لقد وصلت للحد الأقصى للرسائل الصوتية اليوم (4 رسائل).');
         return false;
     }
     return true;
-}
-
-function incrementMediaLimit(type) {
-    if (!currentUser) return;
-    const date = new Date().toISOString().split('T')[0];
-    const key = `chat_media_limits_${currentUser.username}_${date}`;
-    const limits = getMediaLimits();
-    if (type === 'image') limits.images++;
-    if (type === 'audio') limits.audio++;
-    localStorage.setItem(key, JSON.stringify(limits));
-    renderView();
 }
 
 function getChatId(user1, user2) {
@@ -212,8 +266,14 @@ async function sendChatMessage() {
     
     if (!text || !currentUser || !currentChatUser) return;
 
+    const reservation = await reserveChatUsage({ text: 1 });
+    if (!reservation.ok) {
+        alert(reservation.error);
+        renderView();
+        return;
+    }
+
     const chatId = getChatId(currentUser.username, currentChatUser);
-    
     input.disabled = true;
 
     try {
@@ -235,9 +295,13 @@ async function sendChatMessage() {
     }
 }
 // Image Upload Logic
-function handleImageSelection(input) {
+async function handleImageSelection(input) {
     const file = input.files[0];
     if (!file) return;
+    if (!await canUseChatMedia('image')) {
+        input.value = '';
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -279,6 +343,13 @@ function handleImageSelection(input) {
 
 async function sendMediaMessage(type, data) {
     if (!currentUser || !currentChatUser) return;
+    const reservation = await reserveChatUsage(type === 'image' ? { images: 1 } : { audio: 1 });
+    if (!reservation.ok) {
+        alert(reservation.error);
+        renderView();
+        return;
+    }
+
     const chatId = getChatId(currentUser.username, currentChatUser);
 
     try {
@@ -291,7 +362,6 @@ async function sendMediaMessage(type, data) {
             isRead: false, // تمت إضافة حالة القراءة
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        incrementMediaLimit(type);
     } catch (error) {
         console.error("Error sending media: ", error);
         alert("Failed to send media. Document might be too large.");
@@ -307,7 +377,7 @@ async function toggleChatVoiceRecording() {
     if (chatMediaRecorder && chatMediaRecorder.state === "recording") {
         stopChatVoiceRecording();
     } else {
-        if (!checkMediaLimit('audio')) return;
+        if (!await canUseChatMedia('audio')) return;
         startChatVoiceRecording();
     }
 }
@@ -349,14 +419,15 @@ async function startChatVoiceRecording() {
             timerSpan.innerText = '00:00';
         }
 
-        // Timer Interval & 200s Limit
+        // Timer Interval & 100s Limit
         chatRecordingInterval = setInterval(() => {
             chatRecordingTime++;
             const mins = Math.floor(chatRecordingTime / 60).toString().padStart(2, '0');
             const secs = (chatRecordingTime % 60).toString().padStart(2, '0');
             if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
             
-            if (chatRecordingTime >= 200) {
+            if (chatRecordingTime >= 100) {
+                alert('تم إيقاف التسجيل عند الحد الأقصى: 100 ثانية.');
                 stopChatVoiceRecording();
             }
         }, 1000);
