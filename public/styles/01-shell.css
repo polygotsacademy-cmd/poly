@@ -5,13 +5,17 @@
     display: none;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--navy-color), var(--burgundy-color));
+    background:
+        radial-gradient(circle at 12% 18%, rgba(244, 197, 66, 0.22), transparent 28%),
+        radial-gradient(circle at 88% 84%, rgba(255, 255, 255, 0.12), transparent 30%),
+        linear-gradient(135deg, #101c36 0%, #263c62 48%, #711f3a 100%);
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     z-index: 9999;
+    overflow: auto;
+    padding: 24px;
 }
 
 #login-screen.active {
@@ -19,68 +23,125 @@
 }
 
 .login-container {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 400px;
+    position: relative;
+    isolation: isolate;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 34px 32px 30px;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 28px;
+    box-shadow: 0 28px 70px rgba(6, 15, 37, 0.38), 0 4px 18px rgba(0, 0, 0, 0.12);
+    width: min(100%, 420px);
     text-align: center;
+    backdrop-filter: blur(16px);
+    animation: login-card-in 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 22px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes login-card-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .login-logo {
-    max-width: 150px; /* تصغير اللوجو */
+    width: 156px;
+    max-width: 70%;
     height: auto;
-    margin: 0 auto 20px;
+    margin: 4px auto 14px;
     display: block;
+    filter: drop-shadow(0 8px 10px rgba(128, 0, 32, 0.14));
 }
 
 .login-container h2 {
-    margin-bottom: 30px;
-    color: var(--navy-color);
+    margin: 0 0 26px;
+    color: #172846;
+    font-size: clamp(23px, 4vw, 30px);
+    letter-spacing: -0.4px;
 }
 
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .input-group i {
     position: absolute;
-    left: 15px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
+    color: #8a96a8;
+    transition: color 160ms ease;
+    z-index: 1;
 }
 
 .input-group input {
+    box-sizing: border-box;
     width: 100%;
-    padding: 12px 15px 12px 45px;
-    border: 2px solid #eee;
-    border-radius: 10px;
+    padding: 14px 16px 14px 46px;
+    border: 1px solid #dfe5ee;
+    border-radius: 14px;
     outline: none;
+    background: #f8fafc;
+    color: #172846;
     font-size: 16px;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.input-group input:focus {
+    border-color: #9b3651;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(155, 54, 81, 0.12);
+}
+
+.input-group:focus-within i {
+    color: #8a2945;
 }
 
 .remember-me {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #666;
+    gap: 9px;
+    margin: 4px 0 22px;
+    font-size: 13px;
+    color: #667085;
+    text-align: start;
+}
+
+.remember-me input {
+    accent-color: #8a2945;
+    width: 16px;
+    height: 16px;
 }
 
 #login-btn {
     width: 100%;
-    padding: 12px;
-    background: var(--burgundy-color);
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #8a2945, #641a34);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 700;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 800;
     cursor: pointer;
+    box-shadow: 0 10px 20px rgba(100, 26, 52, 0.22);
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+#login-btn:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 13px 24px rgba(100, 26, 52, 0.28);
+}
+
+#login-btn:active {
+    transform: scale(0.98);
 }
 
 .error-message {
