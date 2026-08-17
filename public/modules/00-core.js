@@ -96,6 +96,10 @@ function setupEventListeners() {
         });
     }
 
+    // Logout
+    const logoutButton = document.getElementById('logout-btn');
+    if (logoutButton) logoutButton.addEventListener('click', logout);
+
     // Bell Click
     const bell = document.getElementById('notification-bell');
     if (bell) {
@@ -134,80 +138,93 @@ function toggleOverlay(show) {
 // Auth Logic
 async function handleLogin(e) {
     e.preventDefault();
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     const remember = document.getElementById('remember').checked;
+    const loginError = document.getElementById('login-error');
+    const loginButton = document.getElementById('login-btn');
+
+    loginError.innerText = '';
+    if (loginButton) {
+        loginButton.disabled = true;
+        loginButton.setAttribute('aria-busy', 'true');
+    }
 
     try {
-        if (username === "admin" && password === "admin") {
-             currentUser = { username: "Polyglot", isAdmin: true };
-             if (remember) {
-                localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
-            }
-            showApp();
-            switchView('words');
-            window.scrollTo(0, 0);
-            return;
-        }
-
         const res = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            credentials: 'include',
+            body: JSON.stringify({ username, password, remember })
         });
         const data = await res.json();
 
         if (data.success) {
             currentUser = data.user;
+            // Keep only non-sensitive profile data for legacy modules; never store the password.
             localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
-            if (remember) {
-                localStorage.setItem('polyglots_user', JSON.stringify({ username, password }));
-            }
+            localStorage.removeItem('polyglots_user');
             showApp();
             switchView('words');
             window.scrollTo(0, 0);
         } else {
-            document.getElementById('login-error').innerText = data.error || 'Login failed';
+            loginError.innerText = data.error || 'Login failed';
         }
     } catch (err) {
-        if (username && password) {
-            currentUser = { username };
-            showApp();
-            switchView('words');
-        } else {
-            document.getElementById('login-error').innerText = 'Server error. Please try again.';
+        console.error('Login error:', err);
+        loginError.innerText = 'تعذر الاتصال بالخادم. حاول مرة أخرى.';
+    } finally {
+        if (loginButton) {
+            loginButton.disabled = false;
+            loginButton.removeAttribute('aria-busy');
         }
     }
 }
 
 async function checkRememberedUser() {
-    const saved = localStorage.getItem('polyglots_user');
-    if (saved) {
-        const { username, password } = JSON.parse(saved);
-        try {
-            if (username === "admin" && password === "admin") {
-                currentUser = { username: "Polyglot", isAdmin: true };
-                showApp();
-                switchView('words');
-                return;
-            }
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (data.success) {
-                currentUser = data.user;
-                localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
-                showApp();
-                switchView('words');
-                return;
-            }
-        } catch (err) {
-            console.error('Auto-login failed:', err);
+    // Old versions stored the password locally. Remove it without using or transmitting it.
+    localStorage.removeItem('polyglots_user');
+
+    try {
+        const res = await fetch('/api/session', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.user) {
+            currentUser = data.user;
+            localStorage.setItem('polyglots_auth_data', JSON.stringify(data.user));
+            showApp();
+            switchView('words');
         }
+    } catch (err) {
+        console.error('Session restore failed:', err);
     }
+}
+
+async function logout() {
+    try {
+        await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+    } catch (err) {
+        console.error('Logout request failed:', err);
+    }
+
+    if (notificationUnsubscribe) {
+        notificationUnsubscribe();
+        notificationUnsubscribe = null;
+    }
+    if (chatUnsubscribe) {
+        chatUnsubscribe();
+        chatUnsubscribe = null;
+    }
+    currentUser = null;
+    localStorage.removeItem('polyglots_auth_data');
+    localStorage.removeItem('polyglots_user');
+    document.getElementById('app-container').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+    document.getElementById('login-form')?.reset();
+    document.getElementById('login-error').innerText = '';
 }
 
 function showApp() {

