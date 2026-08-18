@@ -10,7 +10,7 @@ function renderWordsView(container) {
             w.ar.includes(search) ||
             w.cat.toLowerCase().includes(search)
         );
-        renderWordCards(container, filteredWords, `نتائج البحث عن "${search}"`);
+        renderWordCards(container, filteredWords, `Search results for "${search}"`);
         return;
     }
 
@@ -31,14 +31,14 @@ function renderCategoryList(container) {
 
     const html = `
         <div class="category-header" style="text-align: right; padding: 10px 20px;">
-            <h2 style="color: var(--primary-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-th-large"></i> التصنيفات</h2>
+            <h2 style="color: var(--primary-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-th-large"></i> Categories</h2>
         </div>
         <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px;">
             ${catData.map(cat => `
                 <div class="category-card" onclick="setCategory('${cat.name}')" style="background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;">
                     <div class="cat-emoji" style="font-size: 40px; margin-bottom: 10px;">${cat.emoji}</div>
                     <div class="cat-name" style="font-weight: bold; color: #333; font-family: 'Cairo', sans-serif;">${cat.name}</div>
-                    <div class="cat-count" style="font-size: 12px; color: #888; margin-top: 5px;">${words.filter(w => w.cat === cat.name).length} كلمة</div>
+                    <div class="cat-count" style="font-size: 12px; color: #888; margin-top: 5px;">${words.filter(w => w.cat === cat.name).length} words</div>
                 </div>
             `).join('')}
         </div>
@@ -47,7 +47,7 @@ function renderCategoryList(container) {
 }
 
 function renderWordCards(container, filteredWords, title, showBack = false) {
-    const backBtn = showBack ? `<button class="back-btn" onclick="setCategory('Alle')" style="background: #f0f0f0; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-family: 'Cairo', sans-serif;"><i class="fas fa-arrow-left"></i> العودة للتصنيفات</button>` : '';
+    const backBtn = showBack ? `<button class="back-btn" onclick="setCategory('Alle')" style="background: #f0f0f0; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-family: 'Cairo', sans-serif;"><i class="fas fa-arrow-left"></i> Back to categories</button>` : '';
     
     const cardsHtml = `
         <div class="view-header" style="padding: 10px 20px; text-align: right;">
@@ -72,7 +72,7 @@ function renderWordCards(container, filteredWords, title, showBack = false) {
                         </div>
                     </div>
                 </div>
-            `).join('') : '<div style="text-align:center; padding:40px; grid-column: 1/-1;">لا توجد نتائج مطابقة</div>'}
+            `).join('') : '<div style="text-align:center; padding:40px; grid-column: 1/-1;">No matching results</div>'}
         </div>`;
     
     container.innerHTML = cardsHtml;
@@ -130,7 +130,7 @@ function playWordAudio(wordId) {
     const listenedKey = `listened_word_${wordId}`;
     if (!sessionStorage.getItem(listenedKey)) {
         sessionStorage.setItem(listenedKey, 'true');
-        awardPoints(3, 'استماع لكلمة');
+        awardPoints(3, 'Listened to a word');
     }
 }
 

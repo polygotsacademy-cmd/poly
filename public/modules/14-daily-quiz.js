@@ -21,12 +21,12 @@ async function loadDailyQuizForStudent() {
 }
 
 async function renderDailyQuizView(main) {
-    main.innerHTML = '<section class="daily-quiz-view"><div class="admin-loading"><i class="fas fa-spinner fa-spin"></i> جاري تحميل اختبار اليوم...</div></section>';
+    main.innerHTML = '<section class="daily-quiz-view"><div class="admin-loading"><i class="fas fa-spinner fa-spin"></i> Loading Today Quiz...</div></section>';
     await loadDailyQuizForStudent();
-    if (!activeDailyQuiz) { main.innerHTML = '<section class="daily-quiz-view"><div class="admin-empty"><i class="fas fa-calendar-check"></i><h2>لا يوجد اختبار اليوم</h2><p>سيظهر الاختبار هنا عندما تنشر إدارة الأكاديمية اختبارًا جديدًا.</p></div></section>'; return; }
-    if (dailyQuizAttempt) { main.innerHTML = `<section class="daily-quiz-view"><div class="daily-quiz-card"><span class="daily-kicker">اختبار اليوم</span><h1>${escapeDaily(activeDailyQuiz.title || 'اختبار اليوم')}</h1><div class="daily-result">نتيجتك: <strong>${Number(dailyQuizAttempt.score || 0)} / 1000</strong><p>تم استخدام محاولتك الوحيدة اليوم.</p></div></div></section>`; return; }
+    if (!activeDailyQuiz) { main.innerHTML = '<section class="daily-quiz-view"><div class="admin-empty"><i class="fas fa-calendar-check"></i><h2>No quiz available today</h2><p>A quiz will appear here when the academy publishes one.</p></div></section>'; return; }
+    if (dailyQuizAttempt) { main.innerHTML = `<section class="daily-quiz-view"><div class="daily-quiz-card"><span class="daily-kicker">Today Quiz</span><h1>${escapeDaily(activeDailyQuiz.title || 'Today Quiz')}</h1><div class="daily-result">Your score: <strong>${Number(dailyQuizAttempt.score || 0)} / 1000</strong><p>Your one attempt for today has been used.</p></div></div></section>`; return; }
     const questions = Array.isArray(activeDailyQuiz.questions) ? activeDailyQuiz.questions : [];
-    main.innerHTML = `<section class="daily-quiz-view"><div class="daily-quiz-card"><span class="daily-kicker">اختبار اليوم</span><h1>${escapeDaily(activeDailyQuiz.title || 'اختبار اليوم')}</h1><p>لديك محاولة واحدة. الدرجة تحسب حسب نسبة الإجابات الصحيحة من 1000 نقطة.</p><form id="daily-quiz-form">${questions.map((question, index) => `<fieldset class="daily-question"><legend>${index + 1}. ${escapeDaily(question.question || '')}</legend>${(question.options || []).map((option, optionIndex) => `<label><input type="radio" name="q${index}" value="${optionIndex}" required> ${escapeDaily(option)}</label>`).join('')}</fieldset>`).join('')}<button class="admin-save" type="submit">إنهاء الاختبار</button></form></div></section>`;
+    main.innerHTML = `<section class="daily-quiz-view"><div class="daily-quiz-card"><span class="daily-kicker">Today Quiz</span><h1>${escapeDaily(activeDailyQuiz.title || 'Today Quiz')}</h1><p>You have one attempt. Your score is calculated as a percentage out of 1000 points.</p><form id="daily-quiz-form">${questions.map((question, index) => `<fieldset class="daily-question"><legend>${index + 1}. ${escapeDaily(question.question || '')}</legend>${(question.options || []).map((option, optionIndex) => `<label><input type="radio" name="q${index}" value="${optionIndex}" required> ${escapeDaily(option)}</label>`).join('')}</fieldset>`).join('')}<button class="admin-save" type="submit">Submit quiz</button></form></div></section>`;
     document.getElementById('daily-quiz-form').addEventListener('submit', submitDailyQuiz);
 }
 
@@ -51,7 +51,7 @@ async function submitDailyQuiz(event) {
         renderDailyQuizView(document.getElementById('main-content'));
     } catch (error) {
         console.error('Daily quiz submit failed:', error);
-        if (typeof showToast === 'function') showToast(error.message === 'ATTEMPT_ALREADY_USED' ? 'تم استخدام محاولتك الوحيدة اليوم.' : 'تعذر حفظ نتيجة الاختبار.', 'error');
+        if (typeof showToast === 'function') showToast(error.message === 'ATTEMPT_ALREADY_USED' ? 'Your one attempt for today has already been used.' : 'Could not save the quiz result.', 'error');
     }
 }
 

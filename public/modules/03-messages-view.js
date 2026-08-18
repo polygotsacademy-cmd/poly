@@ -24,7 +24,7 @@ function renderMessagesView(container) {
 
     const html = `
         <div class="view-header" style="padding: 10px 20px; text-align: right;">
-            <h2 style="color: var(--burgundy-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-envelope"></i> الرسائل المباشرة</h2>
+            <h2 style="color: var(--burgundy-color); font-family: 'Cairo', sans-serif;"><i class="fas fa-envelope"></i> Direct messages</h2>
         </div>
         <div class="chat-split-container">
             <div class="contacts-list">
@@ -34,7 +34,7 @@ function renderMessagesView(container) {
                         <div class="contact-info">
                             <h4>${c.name}</h4>
                         </div>
-                        <span class="contact-unread-badge" style="display:${unreadMessagesByUser[c.username] ? 'inline-flex' : 'none'}; width:10px; height:10px; margin-left:auto; background:#e53935; border-radius:50%; box-shadow:0 0 0 2px #fff;" title="رسالة غير مقروءة"></span>
+                        <span class="contact-unread-badge" style="display:${unreadMessagesByUser[c.username] ? 'inline-flex' : 'none'}; width:10px; height:10px; margin-left:auto; background:#e53935; border-radius:50%; box-shadow:0 0 0 2px #fff;" title="Unread message"></span>
                     </div>
                 `).join('')}
             </div>

@@ -26,7 +26,7 @@ function showFullStory(index) {
 
     const audioPlayer = story.audio ? `
         <div class="story-audio-player">
-            <p style="margin-bottom:8px; font-size:14px; color:#555;"><i class="fas fa-headphones"></i> استمع للقصة:</p>
+            <p style="margin-bottom:8px; font-size:14px; color:#555;"><i class="fas fa-headphones"></i> Listen to the story:</p>
             <audio controls preload="none"><source src="${story.audio}" type="audio/mpeg"></audio>
         </div>` : '';
     
@@ -48,7 +48,7 @@ function showFullStory(index) {
             const storyKey = `listened_story_${story.id}`;
             if (!sessionStorage.getItem(storyKey)) {
                 sessionStorage.setItem(storyKey, 'true');
-                awardPoints(10, 'الاستماع للقصة بالكامل');
+                awardPoints(10, 'Listened to the full story');
             }
         }, { once: true });
     }

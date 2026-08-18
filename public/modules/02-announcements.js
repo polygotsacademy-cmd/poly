@@ -10,7 +10,7 @@ function formatAnnouncementDate(data) {
     const rawDate = data && data.createdAt && typeof data.createdAt.toDate === 'function'
         ? data.createdAt.toDate()
         : (data && data.createdAtMs ? new Date(data.createdAtMs) : new Date());
-    return rawDate.toLocaleString('ar-EG', {
+    return rawDate.toLocaleString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
         hour: '2-digit', minute: '2-digit'
     });
@@ -28,7 +28,7 @@ async function getAnnouncementsForUser(username, includeAll = false) {
 
 async function sendAnnouncement() {
     if (!currentUser || currentUser.username !== 'يوسف') {
-        showToast('ليس لديك صلاحية إرسال إعلان.', 'error');
+        showToast('You are not allowed to send announcements.', 'error');
         return;
     }
 
@@ -38,18 +38,18 @@ async function sendAnnouncement() {
     const message = messageInput ? messageInput.value.trim() : '';
 
     if (!selectedRecipients.length) {
-        showToast('اختار مستخدمًا واحدًا على الأقل لاستقبال الرسالة.', 'error');
+        showToast('Select at least one recipient.', 'error');
         return;
     }
     if (!message) {
-        showToast('اكتب نص الإعلان أولًا.', 'error');
+        showToast('Write the announcement first.', 'error');
         return;
     }
 
     const sendButton = document.getElementById('send-announcement-btn');
     if (sendButton) {
         sendButton.disabled = true;
-        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     }
 
     try {
@@ -60,14 +60,14 @@ async function sendAnnouncement() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             createdAtMs: Date.now()
         });
-        showToast('تم إرسال الإعلان بنجاح.', 'success');
+        showToast('Announcement sent successfully.', 'success');
         renderAnnouncementView(document.getElementById('main-content'));
     } catch (error) {
         console.error('Error sending announcement:', error);
-        showToast('تعذر إرسال الإعلان. تأكد من اتصال Firebase وقواعد Firestore.', 'error');
+        showToast('Could not send the announcement. Check Firebase and Firestore settings.', 'error');
         if (sendButton) {
             sendButton.disabled = false;
-            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال الإعلان';
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send announcement';
         }
     }
 }
@@ -96,18 +96,18 @@ async function renderAnnouncementView(container) {
                 <div>
                     <span class="announcement-kicker">Polyglots Academy</span>
                     <h2><i class="fas fa-bullhorn"></i> Announcement</h2>
-                    <p>${isYoussef ? 'أنشئ إعلانًا وحدد الطلاب الذين سيصلهم.' : 'الإعلانات المرسلة إليك من إدارة الأكاديمية.'}</p>
+                    <p>${isYoussef ? 'Create an announcement and choose the students who will receive it.' : 'Announcements sent to you by the academy administration.'}</p>
                 </div>
             </div>
             ${isYoussef ? `
                 <div class="announcement-composer">
                     <div class="announcement-composer-header">
-                        <h3><i class="fas fa-pen"></i> إرسال إعلان جديد</h3>
-                        <span>${recipients.length} مستخدمًا متاحًا</span>
+                        <h3><i class="fas fa-pen"></i> Send a new announcement</h3>
+                        <span>${recipients.length} available users</span>
                     </div>
                     <div class="announcement-recipient-toolbar">
-                        <label><input type="checkbox" onchange="toggleAnnouncementRecipients(this.checked)"> تحديد الكل</label>
-                        <span>اختر المستقبلين</span>
+                        <label><input type="checkbox" onchange="toggleAnnouncementRecipients(this.checked)"> Select all</label>
+                        <span>Choose recipients</span>
                     </div>
                     <div class="announcement-recipient-list">
                         ${recipients.length ? recipients.map(username => `
@@ -115,14 +115,14 @@ async function renderAnnouncementView(container) {
                                 <input type="checkbox" name="announcement-recipient" value="${escapeAnnouncementHtml(username)}">
                                 <span>${escapeAnnouncementHtml(username)}</span>
                             </label>
-                        `).join('') : '<p class="announcement-muted">لم يتم تحميل قائمة المستخدمين من تسجيل الدخول بعد.</p>'}
+                        `).join('') : '<p class="announcement-muted">The user list has not loaded from the current session yet.</p>'}
                     </div>
-                    <textarea id="announcement-message" class="announcement-textarea" rows="5" placeholder="اكتب رسالة الإعلان هنا..."></textarea>
-                    <button id="send-announcement-btn" class="announcement-send-btn" onclick="sendAnnouncement()"><i class="fas fa-paper-plane"></i> إرسال الإعلان</button>
+                    <textarea id="announcement-message" class="announcement-textarea" rows="5" placeholder="Write the announcement here..."></textarea>
+                    <button id="send-announcement-btn" class="announcement-send-btn" onclick="sendAnnouncement()"><i class="fas fa-paper-plane"></i> Send announcement</button>
                 </div>
             ` : ''}
             <div class="announcement-list" id="announcement-list">
-                <div class="announcement-loading"><i class="fas fa-spinner fa-spin"></i> جاري تحميل الإعلانات...</div>
+                <div class="announcement-loading"><i class="fas fa-spinner fa-spin"></i> Loading announcements...</div>
             </div>
         </section>
     `;
@@ -142,10 +142,10 @@ async function renderAnnouncementView(container) {
                     <p>${escapeAnnouncementHtml(item.message).replace(/\n/g, '<br>')}</p>
                 </div>
             </article>
-        `).join('') : '<div class="announcement-empty"><i class="far fa-bell-slash"></i><p>لا توجد إعلانات حتى الآن.</p></div>';
+        `).join('') : '<div class="announcement-empty"><i class="far fa-bell-slash"></i><p>No announcements yet.</p></div>';
     } catch (error) {
         console.error('Error loading announcements:', error);
         const list = document.getElementById('announcement-list');
-        if (list) list.innerHTML = '<div class="announcement-empty error"><i class="fas fa-exclamation-triangle"></i><p>تعذر تحميل الإعلانات. تأكد من إعدادات Firebase.</p></div>';
+        if (list) list.innerHTML = '<div class="announcement-empty error"><i class="fas fa-exclamation-triangle"></i><p>Could not load announcements. Check Firebase settings.</p></div>';
     }
 }

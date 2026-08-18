@@ -51,17 +51,17 @@
         <div class="top-bar">
             <button id="sidebar-toggle" class="hamburger-btn">☰</button>
             <div class="top-bar-center" dir="rtl">
-                <span>لا_تنسى_غزة_و_السودان_المقاطعة_مستمرة</span>
+                <span>Stand with Palestine and Sudan — boycott continues</span>
                 <img src="palestine_flag.png" alt="Palestine">
             </div>
             <div class="top-bar-right" style="display: flex; align-items: center; gap: 12px;">
-                <span id="user-points-badge" onclick="switchView('leaderboard')" style="background: #fff8e1; color: #f57c00; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="لوحة الشرف">⭐ <span id="user-points-val">0</span> XP</span>
+                <span id="user-points-badge" onclick="switchView('leaderboard')" style="background: #fff8e1; color: #f57c00; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Leaderboard">⭐ <span id="user-points-val">0</span> XP</span>
                 <span id="user-mascot" onclick="openMascotModal( )" style="font-size: 22px; cursor: pointer; background: #f0f0f0; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">👤</span>
                     <div id="notification-bell" class="bell-container">
                         <i class="fas fa-bell"></i>
                         <span id="notification-badge" class="badge"></span>
                     </div>
-                    <button id="logout-btn" type="button" class="logout-btn" aria-label="تسجيل الخروج" title="تسجيل الخروج">خروج</button>
+                    <button id="logout-btn" type="button" class="logout-btn" aria-label="Log out" title="Log out">Log out</button>
             </div>
         </div>
 
@@ -84,7 +84,7 @@
                 </li>
                 <li class="nav-item" data-view="daily">
                     <i class="fas fa-calendar-check"></i>
-                    <span>اختبار اليوم</span>
+                    <span>Today Quiz</span>
                 </li>
                 <li class="nav-item" data-view="chat">
                     <i class="fas fa-comments"></i>
@@ -113,7 +113,7 @@
                 </li>
                 <li class="nav-item admin-nav-item" id="nav-admin" data-view="admin" style="display: none;">
                     <i class="fas fa-sliders-h"></i>
-                    <span>لوحة التحكم</span>
+                    <span>Admin Dashboard</span>
                 </li>
             </ul>
         </nav>
@@ -160,25 +160,25 @@
     <!-- Delete Message Prompt Modal -->
     <div id="delete-modal" class="modal">
         <div class="modal-content delete-prompt">
-            <h3>مسح الرسالة؟</h3>
-            <button onclick="confirmDelete('me')" class="delete-btn-option">مسح لي فقط</button>
-            <button id="delete-everyone-btn" onclick="confirmDelete('everyone')" class="delete-btn-option everyone">مسح للجميع</button>
-            <button onclick="closeDeleteModal()" class="delete-btn-option cancel">إلغاء</button>
+            <h3>Delete message?</h3>
+            <button onclick="confirmDelete('me')" class="delete-btn-option">Delete for me</button>
+            <button id="delete-everyone-btn" onclick="confirmDelete('everyone')" class="delete-btn-option everyone">Delete for everyone</button>
+            <button onclick="closeDeleteModal()" class="delete-btn-option cancel">Cancel</button>
         </div>
     </div>
 
     <!-- Forward Message Modal -->
     <div id="forward-modal" class="modal">
         <div class="modal-content forward-prompt">
-            <h3>إعادة توجيه الرسالة</h3>
+            <h3>Forward message</h3>
             <label class="forward-select-all">
                 <input type="checkbox" onchange="toggleAllForwardRecipients(this)">
-                <span>اختيار كل المستلمين</span>
+                <span>Select all recipients</span>
             </label>
             <div id="forward-recipients-list" class="forward-recipients-list"></div>
             <div class="forward-modal-actions">
-                <button id="confirm-forward-btn" onclick="confirmForwardMessage()" class="forward-btn confirm">إرسال</button>
-                <button onclick="closeForwardModal()" class="forward-btn cancel">إلغاء</button>
+                <button id="confirm-forward-btn" onclick="confirmForwardMessage()" class="forward-btn confirm">Send</button>
+                <button onclick="closeForwardModal()" class="forward-btn cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -186,9 +186,9 @@
     <!-- Mascot Selection Modal -->
     <div id="mascot-modal" class="modal">
         <div class="modal-content mascot-content">
-            <h3 style="text-align: center; margin-top: 0; margin-bottom: 15px; font-family: 'Cairo', sans-serif; color: var(--navy-color);">اختر شخصيتك</h3>
+            <h3 style="text-align: center; margin-top: 0; margin-bottom: 15px; font-family: 'Cairo', sans-serif; color: var(--navy-color);">Choose your mascot</h3>
             <div id="mascot-grid" class="mascot-grid"></div>
-            <button onclick="closeMascotModal()" style="display: block; width: 100%; padding: 10px; margin-top: 15px; background: #eee; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-family: 'Cairo', sans-serif; color: #333;">إغلاق</button>
+            <button onclick="closeMascotModal()" style="display: block; width: 100%; padding: 10px; margin-top: 15px; background: #eee; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-family: 'Cairo', sans-serif; color: #333;">Close</button>
         </div>
     </div>
 

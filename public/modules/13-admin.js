@@ -156,7 +156,7 @@ function contentAudienceFields() {
 function renderAdminContentPanel(section = 'categories') {
     const panel = document.getElementById('admin-panel-body');
     if (!panel) return;
-    const tabs = [['categories','التصنيفات والكلمات','fa-tags'],['stories','القصص','fa-book-open'],['daily','اختبار اليوم','fa-calendar-check']];
+    const tabs = [['categories','التصنيفات والكلمات','fa-tags'],['stories','القصص','fa-book-open'],['daily','Today Quiz','fa-calendar-check']];
     panel.innerHTML = `<div class="content-subtabs">${tabs.map(([key,label,icon]) => `<button class="content-subtab ${key === section ? 'active' : ''}" onclick="renderAdminContentPanel('${key}')"><i class="fas ${icon}"></i> ${label}</button>`).join('')}</div><div id="content-editor-area"></div>`;
     if (section === 'categories') renderCategoryWordEditor();
     if (section === 'stories') renderStoryEditor();

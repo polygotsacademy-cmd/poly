@@ -196,7 +196,7 @@ async function handleLogin(e) {
         }
     } catch (err) {
         console.error('Login error:', err);
-        loginError.innerText = 'تعذر الاتصال بالخادم. حاول مرة أخرى.';
+        loginError.innerText = 'Could not connect to the server. Please try again.';
     } finally {
         if (loginButton) {
             loginButton.disabled = false;
@@ -248,7 +248,7 @@ async function enforceCurrentUserAccess() {
         if (profile.active === false) {
             await logout();
             const error = document.getElementById('login-error');
-            if (error) error.innerText = 'تم إيقاف هذا الحساب. تواصل مع إدارة الأكاديمية.';
+            if (error) error.innerText = 'This account has been suspended. Please contact the academy administration.';
             return false;
         }
         currentUser = { ...currentUser, ...profile, username: currentUser.username };

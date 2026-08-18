@@ -39,7 +39,7 @@ async function initGamification() {
                 streak = 1;
             }
             points += 10; // Daily login bonus XP
-            showToast('🎉 مكافأة الدخول اليومي: +10 نقاط! (Streak: ' + streak + ' أيام)', 'success');
+            showToast('🎉 Daily login bonus: +10 XP (Streak: ' + streak + ' days)', 'success');
             
             await userRef.set({
                 points: points,
@@ -101,12 +101,12 @@ function showToast(message, type = 'info') {
 async function renderLeaderboardView(container) {
     container.innerHTML = `
         <div class="view-header" style="padding: 20px; text-align: center;">
-            <h2 style="color: var(--burgundy-color, #800020); font-family: 'Cairo', sans-serif;"><i class="fas fa-trophy" style="color: #f1c40f;"></i> لوحة الشرف وأبطال الأكاديمية</h2>
-            <p style="color: #666; margin-top: 5px;">تنافس مع زملائك واجمع النقاط لتتصدر القائمة!</p>
+            <h2 style="color: var(--burgundy-color, #800020); font-family: 'Cairo', sans-serif;"><i class="fas fa-trophy" style="color: #f1c40f;"></i> Leaderboard and Academy Champions</h2>
+            <p style="color: #666; margin-top: 5px;">Compete with your classmates and collect XP to reach the top!</p>
         </div>
         <div style="max-width: 600px; margin: 0 auto; padding: 0 20px 40px 20px;">
             <div id="leaderboard-list" style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee;">
-                <div style="text-align: center; padding: 30px; color: #888;">جاري تحميل لوحة الشرف... ⏳</div>
+                <div style="text-align: center; padding: 30px; color: #888;">Loading leaderboard... ⏳</div>
             </div>
         </div>
     `;
@@ -117,7 +117,7 @@ async function renderLeaderboardView(container) {
         if (!listEl) return;
         
         if (snap.empty) {
-            listEl.innerHTML = '<div style="text-align: center; padding: 30px; color: #888;">لا توجد بيانات حالياً</div>';
+            listEl.innerHTML = '<div style="text-align: center; padding: 30px; color: #888;">No data available yet</div>';
             return;
         }
         
@@ -145,7 +145,7 @@ async function renderLeaderboardView(container) {
                         ${mascot}
                     </div>
                     <div style="flex-grow: 1; font-family: 'Cairo', sans-serif;">
-                        <h4 style="margin: 0; color: #333; font-size: 16px;">${username} ${isCurrent ? '<span style="font-size: 11px; background: var(--burgundy-color, #800020); color: white; padding: 2px 8px; border-radius: 10px; margin-right: 8px;">أنت</span>' : ''}</h4>
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">${username} ${isCurrent ? '<span style="font-size: 11px; background: var(--burgundy-color, #800020); color: white; padding: 2px 8px; border-radius: 10px; margin-right: 8px;">You</span>' : ''}</h4>
                     </div>
                     <div style="font-weight: bold; color: #e67e22; font-size: 16px; font-family: 'Nunito', sans-serif;">
                         ⭐ ${points} XP
@@ -160,7 +160,7 @@ async function renderLeaderboardView(container) {
         console.error("Error loading leaderboard:", err);
         const listEl = document.getElementById('leaderboard-list');
         if (listEl) {
-            listEl.innerHTML = '<div style="text-align: center; padding: 30px; color: red;">حدث خطأ أثناء تحميل لوحة الشرف</div>';
+            listEl.innerHTML = '<div style="text-align: center; padding: 30px; color: red;">An error occurred while loading the leaderboard</div>';
         }
     }
 }

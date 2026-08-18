@@ -43,7 +43,7 @@ async function loadDailyUsage(force = false) {
 }
 
 async function reserveDailyUsage(requested) {
-    if (!currentUser?.username || !db) return { ok: false, error: 'لا يمكن التحقق من حد الاستخدام حاليًا.' };
+    if (!currentUser?.username || !db) return { ok: false, error: 'Usage limits cannot be checked right now.' };
 
     const userRef = db.collection('users').doc(currentUser.username);
     try {
@@ -73,10 +73,10 @@ async function reserveDailyUsage(requested) {
             return result;
         }
         aiUsageCache = result.usage || getDailyUsage();
-        return { ok: false, usage: aiUsageCache, error: 'تم الوصول إلى حد الاستخدام اليومي.' };
+        return { ok: false, usage: aiUsageCache, error: 'Daily usage limit reached.' };
     } catch (error) {
         console.error('AI usage reservation failed:', error);
-        return { ok: false, error: 'تعذر تحديث حد الاستخدام. حاول مرة أخرى.' };
+        return { ok: false, error: 'Could not update the usage limit. Please try again.' };
     }
 }
 
@@ -107,7 +107,7 @@ function renderChatView(container) {
         'voice': '300%'
     }[currentChatMode];
 
-    const username = currentUser && currentUser.username ? currentUser.username : 'بطل الأكاديمية';
+    const username = currentUser && currentUser.username ? currentUser.username : 'Academy learner';
     const userMascot = window.mascotCache && window.mascotCache[username] ? window.mascotCache[username] : '👤';
 
     container.innerHTML = `
@@ -117,7 +117,7 @@ function renderChatView(container) {
                     <div style="width: 36px; height: 36px; background: #d97706; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">AI</div>
                     <div>
                         <h2 style="margin: 0; font-size: 16px; font-family: 'Cairo', sans-serif; color: #2d3748;">Polyglots AI</h2>
-                        <span style="font-size: 12px; color: #718096; font-family: 'Cairo', sans-serif;">مساعدك الذكي لتعلم الألمانية</span>
+                        <span style="font-size: 12px; color: #718096; font-family: 'Cairo', sans-serif;">Your smart German-learning assistant</span>
                     </div>
                 </div>
             </div>
@@ -128,7 +128,7 @@ function renderChatView(container) {
                 ${chatMessages.length === 0 ? `
                     <div style="text-align: center; color: #a0aec0; margin: auto; font-family: 'Cairo', sans-serif; font-size: 14px;">
                         <i class="fas fa-robot" style="font-size: 32px; margin-bottom: 8px; color: #cbd5e0;"></i>
-                        <p>ابدأ المحادثة الآن...</p>
+                        <p>Start the conversation...</p>
                     </div>
                 ` : chatMessages.map(msg => `
                     <div class="claude-msg ${msg.role}">
@@ -141,8 +141,8 @@ function renderChatView(container) {
                             <div style="white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.7;">${msg.content}</div>
                             ${msg.role === 'ai' && currentChatMode === 'translator' ? `
                                 <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-                                    <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: #f7fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; font-family: 'Cairo', sans-serif;" title="استمع للنطق">
-                                        <i class="fas fa-volume-up"></i> استمع
+                                    <button onclick="playGerman(\`${msg.content.replace(/`/g, '\`')}\`)" style="background: #f7fafc; border: 1px solid #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; font-family: 'Cairo', sans-serif;" title="Listen to pronunciation">
+                                        <i class="fas fa-volume-up"></i> Listen
                                     </button>
                                 </div>
                             ` : ''}
@@ -170,27 +170,27 @@ function renderChatView(container) {
                     <div class="mode-dropdown-container" style="position: relative; display: inline-block;">
                         <button type="button" onclick="event.stopPropagation(); toggleModeDropdown();" class="mode-chip-btn" style="background: #edf2f7; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold; color: #2d3748; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <i class="fas ${currentChatMode === 'translator' ? 'fa-language' : 'fa-chalkboard-teacher'}" style="color: #d97706;"></i>
-                            <span>${currentChatMode === 'translator' ? 'مترجم' : 'مدرس'}</span>
+                            <span>${currentChatMode === 'translator' ? 'Translator' : 'Teacher'}</span>
                             <i class="fas fa-chevron-down" style="font-size: 10px; color: #718096;"></i>
                         </button>
                         <div id="mode-dropdown-menu" style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; width: 140px; z-index: 1000; overflow: hidden;">
                             <div onclick="setChatMode('translator'); toggleModeDropdown();" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-family: 'Cairo', sans-serif; background: ${currentChatMode === 'translator' ? '#fff5f5' : 'white'}; color: ${currentChatMode === 'translator' ? '#800020' : '#2d3748'}; font-weight: ${currentChatMode === 'translator' ? 'bold' : 'normal'};">
-                                <i class="fas fa-language"></i> مترجم
+                                <i class="fas fa-language"></i> Translator
                             </div>
                             <div onclick="setChatMode('teacher'); toggleModeDropdown();" style="padding: 10px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-family: 'Cairo', sans-serif; background: ${currentChatMode === 'teacher' ? '#fff5f5' : 'white'}; color: ${currentChatMode === 'teacher' ? '#800020' : '#2d3748'}; font-weight: ${currentChatMode === 'teacher' ? 'bold' : 'normal'};">
-                                <i class="fas fa-chalkboard-teacher"></i> مدرس
+                                <i class="fas fa-chalkboard-teacher"></i> Teacher
                             </div>
                         </div>
                     </div>
                     <button class="icon-btn" onclick="triggerImageUpload()"><i class="fas fa-camera"></i></button>
                     <button class="icon-btn" id="mic-btn" onclick="toggleVoiceRecording()"><i class="fas fa-microphone"></i></button>
-                    <input type="text" id="chat-input" placeholder="اكتب هنا..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <input type="text" id="chat-input" placeholder="Type here..." onkeypress="if(event.key === 'Enter') sendMessage()">
                     <button class="send-btn-poly" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div class="chat-counters">
-                    <span class="counter-item">الرسائل: ${usage.text}/20</span>
-                    <span class="counter-item">الصور: ${usage.images}/3</span>
-                    <span class="counter-item">الصوت: ${usage.voice}/3</span>
+                    <span class="counter-item">Messages: ${usage.text}/20</span>
+                    <span class="counter-item">Images: ${usage.images}/3</span>
+                    <span class="counter-item">Voice: ${usage.voice}/3</span>
                 </div>
             </div>
             <input type="file" id="image-input" hidden accept="image/*" onchange="handleImageSelect(event)">
@@ -214,7 +214,7 @@ function setChatMode(mode) {
 function triggerImageUpload() {
     const usage = getDailyUsage();
     if (usage.images >= 3) {
-        showToast("يا بطل، أنت خلصت الـ 3 صور بتوع النهاردة! استنى لبكرة بقى. 😊");
+        showToast("You have used all 3 image requests for today. Please try again tomorrow.");
         return;
     }
     document.getElementById('image-input').click();
@@ -237,7 +237,7 @@ function showMediaPreview(type, src) {
     if (!preview) return;
     preview.style.display = 'flex';
     preview.innerHTML = `
-        ${type === 'image' ? `<img src="${src}" class="preview-thumb">` : '<i class="fas fa-volume-up"></i> تسجيل صوتي جاهز'}
+        ${type === 'image' ? `<img src="${src}" class="preview-thumb">` : '<i class="fas fa-volume-up"></i> Audio recording ready'}
         <span class="remove-media" onclick="clearMedia()"><i class="fas fa-times-circle"></i></span>
     `;
 }
@@ -252,7 +252,7 @@ function clearMedia() {
 async function toggleVoiceRecording() {
     const usage = getDailyUsage();
     if (usage.voice >= 3) {
-        showToast("يا بطل، أنت خلصت الـ 3 تسجيلات بتوع النهاردة! استنى لبكرة بقى. 😊");
+        showToast("You have used all 3 voice requests for today. Please try again tomorrow.");
         return;
     }
 
@@ -283,24 +283,24 @@ async function toggleVoiceRecording() {
             reader.readAsDataURL(audioBlob);
             stream.getTracks().forEach(track => track.stop());
             const input = document.getElementById('chat-input');
-            if (input) input.placeholder = "اكتب هنا...";
+            if (input) input.placeholder = "Type here...";
         };
 
         mediaRecorder.start();
         micBtn.classList.add('recording-active');
-        showToast("🎙️ جاري التسجيل... (أقصى مدة 30 ثانية)");
+        showToast("🎙️ Recording... (maximum 30 seconds)");
         
         recordingInterval = setInterval(() => {
             recordingTime++;
             const input = document.getElementById('chat-input');
-            if (input) input.placeholder = `جاري التسجيل (${recordingTime} ثانية)...`;
+            if (input) input.placeholder = `Recording (${recordingTime} seconds)...`;
             if (recordingTime >= 30) {
                 toggleVoiceRecording();
             }
         }, 1000);
 
     } catch (err) {
-        showToast("لازم تدينا إذن المايك عشان تقدر تسجل صوتك!");
+        showToast("Microphone permission is required to record audio.");
     }
 }
 
@@ -316,7 +316,7 @@ async function sendMessage() {
         voice: selectedAudio ? 1 : 0
     });
     if (!reservation.ok) {
-        showToast(reservation.error || 'تم الوصول إلى حد الاستخدام اليومي.');
+        showToast(reservation.error || 'Daily usage limit reached.');
         renderView();
         return;
     }
@@ -354,10 +354,10 @@ async function sendMessage() {
         if (data.reply) {
             chatMessages.push({ role: 'ai', content: data.reply });
         } else {
-            chatMessages.push({ role: 'ai', content: 'عذراً، حدث خطأ ما. حاول مرة أخرى.' });
+            chatMessages.push({ role: 'ai', content: 'Sorry, something went wrong. Please try again.' });
         }
     } catch (err) {
-        chatMessages.push({ role: 'ai', content: 'عذراً، لا يمكنني الاتصال بالخادم حالياً.' });
+        chatMessages.push({ role: 'ai', content: 'Sorry, I cannot connect to the server right now.' });
     } finally {
         isChatSending = false;
         isTyping = false;

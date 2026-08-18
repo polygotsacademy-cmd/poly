@@ -43,9 +43,9 @@ function renderChatWindow(targetUser) {
             <div style="text-align:center; padding:20px; color:#666;">Loading messages...</div>
         </div>
         <div class="media-counters">
-            <span>الرسائل: ${limits.text}/20</span>
-            <span>الصور: ${limits.images}/4</span>
-            <span>الصوت: ${limits.audio}/4</span>
+            <span>Messages: ${limits.text}/20</span>
+            <span>Images: ${limits.images}/4</span>
+            <span>Voice: ${limits.audio}/4</span>
         </div>
         <div class="chat-input-container">
             <button class="media-btn" onclick="triggerImageUpload()">
@@ -106,7 +106,7 @@ async function loadChatUsage(force = false) {
 }
 
 async function reserveChatUsage(requested) {
-    if (!currentUser?.username || !db) return { ok: false, error: 'لا يمكن التحقق من حد المحادثة حاليًا.' };
+    if (!currentUser?.username || !db) return { ok: false, error: 'Chat limits cannot be checked right now.' };
     const userRef = db.collection('users').doc(currentUser.username);
 
     try {
@@ -129,11 +129,11 @@ async function reserveChatUsage(requested) {
         });
 
         chatUsageCache = result.usage || getChatUsage();
-        if (!result.ok) return { ok: false, error: 'لقد وصلت إلى الحد اليومي لهذا النوع من الرسائل.' };
+        if (!result.ok) return { ok: false, error: 'You have reached the daily limit for this type of message.' };
         return result;
     } catch (error) {
         console.error('Poly chat usage reservation failed:', error);
-        return { ok: false, error: 'تعذر تحديث حد المحادثة. حاول مرة أخرى.' };
+        return { ok: false, error: 'Could not update the chat limit. Please try again.' };
     }
 }
 
@@ -142,7 +142,7 @@ async function canUseChatMedia(type) {
     const current = type === 'image' ? usage.images : usage.audio;
     const limit = type === 'image' ? CHAT_LIMITS.images : CHAT_LIMITS.audio;
     if (current >= limit) {
-        alert(type === 'image' ? 'لقد وصلت للحد الأقصى للصور اليوم (4 صور).' : 'لقد وصلت للحد الأقصى للرسائل الصوتية اليوم (4 رسائل).');
+        alert(type === 'image' ? "You have reached today's image limit (4 images)." : "You have reached today's voice-message limit (4 messages).");
         return false;
     }
     return true;
@@ -200,7 +200,7 @@ function startChatListener() {
                 
                 let contentHtml = '';
                 if (msg.isDeletedForEveryone) {
-                    contentHtml = `<span class="deleted-placeholder"><i class="fas fa-ban"></i> تم مسح هذه الرسالة</span>`;
+                    contentHtml = `<span class="deleted-placeholder"><i class="fas fa-ban"></i> This message was deleted</span>`;
                 } else if (msg.type === 'image') {
                     contentHtml = `<img src="${msg.mediaData}" onclick="openLightbox('${msg.mediaData}')">`;
                 } else if (msg.type === 'audio') {
@@ -211,10 +211,10 @@ function startChatListener() {
 
                 const messageActions = !msg.isDeletedForEveryone ? `
                     <div class="message-actions">
-                        <button class="message-action-btn forward-msg-btn" onclick="forwardMessagePrompt('${msg.id}')" title="إعادة توجيه الرسالة" aria-label="إعادة توجيه الرسالة">
+                        <button class="message-action-btn forward-msg-btn" onclick="forwardMessagePrompt('${msg.id}')" title="Forward message" aria-label="Forward message">
                             <i class="fas fa-share"></i>
                         </button>
-                        <button class="message-action-btn delete-msg-btn" onclick="deleteMessagePrompt('${msg.id}', ${isSent})" title="حذف الرسالة" aria-label="حذف الرسالة">
+                        <button class="message-action-btn delete-msg-btn" onclick="deleteMessagePrompt('${msg.id}', ${isSent})" title="Delete message" aria-label="Delete message">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -427,14 +427,14 @@ async function startChatVoiceRecording() {
             if (timerSpan) timerSpan.innerText = `${mins}:${secs}`;
             
             if (chatRecordingTime >= 100) {
-                alert('تم إيقاف التسجيل عند الحد الأقصى: 100 ثانية.');
+                alert('Recording stopped at the maximum duration: 100 seconds.');
                 stopChatVoiceRecording();
             }
         }, 1000);
 
     } catch (err) {
         console.error("Mic access denied: ", err);
-        alert("يرجى السماح بالوصول للميكروفون لتسجيل الصوت.");
+        alert("Please allow microphone access to record audio.");
     }
 }
 
@@ -561,7 +561,7 @@ function forwardMessagePrompt(messageId) {
             <input type="checkbox" name="forward-recipient" value="${escapeHtml(recipient.username)}">
             <span>${escapeHtml(recipient.name)}</span>
         </label>
-    `).join('') : '<p class="forward-empty">لا يوجد مستلمون متاحون.</p>';
+    `).join('') : '<p class="forward-empty">No recipients available.</p>';
     modal.style.display = 'block';
 }
 
@@ -581,7 +581,7 @@ async function confirmForwardMessage() {
     const message = window.chatMessageCache && window.chatMessageCache[currentForwardMessageId];
     const selected = Array.from(document.querySelectorAll('input[name="forward-recipient"]:checked')).map(input => input.value);
     if (!message || !currentUser || !selected.length) {
-        alert('اختر مستلماً واحداً على الأقل لإعادة توجيه الرسالة.');
+        alert('Select at least one recipient to forward the message.');
         return;
     }
 
@@ -611,10 +611,10 @@ async function confirmForwardMessage() {
         });
         await batch.commit();
         closeForwardModal();
-        alert(`تمت إعادة توجيه الرسالة إلى ${selected.length} مستلم.`);
+        alert(`Message forwarded to ${selected.length} recipients.`);
     } catch (error) {
         console.error('Forward message error:', error);
-        alert('تعذر إعادة توجيه الرسالة. حاول مرة أخرى.');
+        alert('Could not forward the message. Please try again.');
     } finally {
         if (forwardButton) forwardButton.disabled = false;
     }
@@ -650,7 +650,7 @@ async function confirmDelete(type) {
         if (type === 'everyone') {
             await docRef.update({
                 isDeletedForEveryone: true,
-                text: '🚫 تم مسح هذه الرسالة',
+                text: '🚫 This message was deleted',
                 mediaData: null,
                 type: 'text'
             });

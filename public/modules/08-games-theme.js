@@ -35,9 +35,9 @@ function openGame(gameFile) {
     }
     overlay.innerHTML = `
         <div style="background: var(--burgundy-color, #800020); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-family: 'Cairo', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <span style="font-weight: bold; font-size: 18px;"><i class="fas fa-gamepad"></i> الألعاب التعليمية</span>
+            <span style="font-weight: bold; font-size: 18px;"><i class="fas fa-gamepad"></i> Educational games</span>
             <button onclick="closeGame()" style="background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Cairo', sans-serif; display: flex; align-items: center; gap: 6px; font-size: 14px; transition: transform 0.2s;">
-                <i class="fas fa-times"></i> إغلاق اللعبة والعودة للموقع
+                <i class="fas fa-times"></i> Close game and return to the academy
             </button>
         </div>
         <iframe src="${gameFile}" style="flex-grow: 1; width: 100%; border: none;" allowfullscreen></iframe>
