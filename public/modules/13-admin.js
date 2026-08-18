@@ -2,6 +2,9 @@
 
 let adminStudents = [];
 let adminFilter = '';
+let dailyQuizDraft = [];
+let dailyQuizEditId = null;
+let adminDailyQuizzes = [];
 
 function isYusufAdmin() {
     return Boolean(currentUser && currentUser.username === 'يوسف' && currentUser.isAdmin === true);
@@ -168,9 +171,62 @@ function renderStoryEditor() {
     document.getElementById('content-editor-area').innerHTML = `<div class="content-editor-card"><h2>إضافة قصة</h2><form onsubmit="saveAdminContent(event, 'story')"><div class="admin-form-grid"><label>عنوان القصة<input name="title" required></label><label>المستوى<input name="level" placeholder="A1"></label><label class="content-wide">النص الألماني<textarea name="text" rows="6" required></textarea></label><label class="content-wide">الترجمة العربية<textarea name="translation" rows="6"></textarea></label><label>الصوت (رابط GitHub حالي)<input name="audio"></label><label>رفع صوت جديد<input name="audioFile" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/webm"></label><label>صورة الغلاف<input name="image"></label><label>رفع صورة جديدة<input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp"></label></div>${contentAudienceFields()}<button class="admin-save" type="submit">حفظ القصة</button></form></div>`;
 }
 
-function renderDailyQuizEditor() {
-    document.getElementById('content-editor-area').innerHTML = `<div class="content-editor-card"><h2>إضافة اختبار اليوم</h2><p>محاولة واحدة لكل طالب، والدرجة تحسب حسب نسبة الإجابات الصحيحة من 1000 نقطة.</p><form onsubmit="saveAdminContent(event, 'daily')"><div class="admin-form-grid"><label>تاريخ الاختبار<input name="date" type="date" required></label><label>العنوان<input name="title" required placeholder="اختبار اليوم"></label><label class="content-wide">الأسئلة بصيغة JSON<textarea name="questions" rows="12" required placeholder='[{"question":"...","options":["..."],"answer":0}]'></textarea></label></div>${contentAudienceFields()}<button class="admin-save" type="submit">حفظ الاختبار</button></form></div>`;
+function emptyDailyQuestion() { return { question: '', options: ['', '', '', ''], answer: 0 }; }
+
+function renderDailyQuizEditor(editQuiz = null) {
+    dailyQuizEditId = editQuiz?.id || null;
+    dailyQuizDraft = Array.isArray(editQuiz?.questions) && editQuiz.questions.length
+        ? editQuiz.questions.map(question => ({ question: question.question || '', options: Array.isArray(question.options) && question.options.length >= 2 ? [...question.options] : ['', '', '', ''], answer: Number.isInteger(Number(question.answer)) ? Number(question.answer) : 0 }))
+        : [emptyDailyQuestion()];
+    const area = document.getElementById('content-editor-area');
+    area.innerHTML = `<div class="content-editor-card"><div class="daily-editor-heading"><div><h2>${editQuiz ? 'تعديل اختبار اليوم' : 'إضافة اختبار اليوم'}</h2><p>محاولة واحدة لكل طالب، والدرجة تحسب حسب نسبة الإجابات الصحيحة من 1000 نقطة.</p></div>${editQuiz ? '<button type="button" class="admin-cancel" onclick="renderDailyQuizEditor()">اختبار جديد</button>' : ''}</div><form id="daily-quiz-editor-form" data-edit-id="${editQuiz ? escapeAdminHtml(editQuiz.id) : ''}" onsubmit="saveAdminContent(event, 'daily')"><div class="admin-form-grid"><label>تاريخ الاختبار<input name="date" type="date" required value="${escapeAdminHtml(editQuiz?.date || '')}"></label><label>العنوان<input name="title" required placeholder="اختبار اليوم" value="${escapeAdminHtml(editQuiz?.title || '')}"></label></div><div class="daily-questions-heading"><h3>الأسئلة</h3><button type="button" class="admin-refresh" onclick="addDailyQuestion()">+ إضافة سؤال</button></div><div id="daily-question-list"></div>${contentAudienceFields()}<div class="admin-editor-actions"><button class="admin-save" type="submit">${editQuiz ? 'حفظ التعديلات' : 'حفظ الاختبار'}</button></div></form></div><div id="daily-quiz-list" class="admin-content-list"><div class="admin-loading">جاري تحميل الاختبارات...</div></div>`;
+    renderDailyQuestionBuilder();
+    loadAdminDailyQuizzes();
 }
+
+function renderDailyQuestionBuilder() {
+    const list = document.getElementById('daily-question-list');
+    if (!list) return;
+    list.innerHTML = dailyQuizDraft.map((question, questionIndex) => `<fieldset class="daily-question-editor"><legend>السؤال ${questionIndex + 1}</legend><div class="daily-question-toolbar"><button type="button" class="admin-cancel" onclick="moveDailyQuestion(${questionIndex}, -1)" ${questionIndex === 0 ? 'disabled' : ''}>↑</button><button type="button" class="admin-cancel" onclick="moveDailyQuestion(${questionIndex}, 1)" ${questionIndex === dailyQuizDraft.length - 1 ? 'disabled' : ''}>↓</button><button type="button" class="admin-cancel" onclick="removeDailyQuestion(${questionIndex})" ${dailyQuizDraft.length === 1 ? 'disabled' : ''}>حذف السؤال</button></div><label>نص السؤال<input data-question type="text" value="${escapeAdminHtml(question.question)}" placeholder="مثال: ما معنى Haus؟" required></label><div class="daily-options-grid">${question.options.map((option, optionIndex) => `<label>الخيار ${optionIndex + 1}<input data-option="${optionIndex}" type="text" value="${escapeAdminHtml(option)}" placeholder="اكتب الخيار" required></label>`).join('')}</div><label>الإجابة الصحيحة<select data-answer>${question.options.map((option, optionIndex) => `<option value="${optionIndex}" ${optionIndex === Number(question.answer) ? 'selected' : ''}>الخيار ${optionIndex + 1}</option>`).join('')}</select></label></fieldset>`).join('');
+}
+
+function syncDailyQuestionDraft() {
+    document.querySelectorAll('.daily-question-editor').forEach((card, index) => {
+        if (!dailyQuizDraft[index]) return;
+        dailyQuizDraft[index].question = card.querySelector('[data-question]')?.value || '';
+        dailyQuizDraft[index].options = [...card.querySelectorAll('[data-option]')].map(input => input.value || '');
+        dailyQuizDraft[index].answer = Number(card.querySelector('[data-answer]')?.value || 0);
+    });
+}
+
+function addDailyQuestion() { syncDailyQuestionDraft(); dailyQuizDraft.push(emptyDailyQuestion()); renderDailyQuestionBuilder(); }
+function removeDailyQuestion(index) { if (dailyQuizDraft.length <= 1) return; syncDailyQuestionDraft(); dailyQuizDraft.splice(index, 1); renderDailyQuestionBuilder(); }
+function moveDailyQuestion(index, direction) { syncDailyQuestionDraft(); const target = index + direction; if (target < 0 || target >= dailyQuizDraft.length) return; [dailyQuizDraft[index], dailyQuizDraft[target]] = [dailyQuizDraft[target], dailyQuizDraft[index]]; renderDailyQuestionBuilder(); }
+
+function collectDailyQuestions(form) {
+    syncDailyQuestionDraft();
+    const questions = dailyQuizDraft.map(question => ({ question: question.question.trim(), options: question.options.map(option => option.trim()), answer: Number(question.answer) }));
+    if (!questions.length || questions.some(question => !question.question || question.options.length < 2 || question.options.some(option => !option) || question.answer < 0 || question.answer >= question.options.length)) throw new Error('أكمل نص كل سؤال وكل الخيارات وحدد إجابة صحيحة.');
+    return questions;
+}
+
+async function loadAdminDailyQuizzes() {
+    const list = document.getElementById('daily-quiz-list');
+    if (!list || !isYusufAdmin()) return;
+    try {
+        const snapshot = await db.collection('dailyQuizzes').orderBy('date', 'desc').limit(50).get();
+        adminDailyQuizzes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        list.innerHTML = adminDailyQuizzes.length ? `<h3>الاختبارات المحفوظة</h3>${adminDailyQuizzes.map(adminDailyQuizRow).join('')}` : '<div class="admin-empty">لا توجد اختبارات محفوظة بعد.</div>';
+    } catch (error) { console.error('Daily quizzes load failed:', error); list.innerHTML = '<div class="admin-empty">تعذر تحميل الاختبارات المحفوظة.</div>'; }
+}
+
+function adminDailyQuizRow(quiz) {
+    const audience = quiz.audience === 'selected' ? `${(quiz.recipients || []).length} مستخدمين` : 'الجميع';
+    return `<div class="admin-content-row"><div><strong>${escapeAdminHtml(quiz.title || 'اختبار اليوم')}</strong><small>${escapeAdminHtml(quiz.date || 'بدون تاريخ')} · ${(quiz.questions || []).length} أسئلة · ${audience}</small></div><div class="admin-content-actions"><button class="admin-edit-btn" type="button" onclick="editDailyQuiz('${encodeURIComponent(quiz.id)}')">تعديل</button><button class="admin-delete-btn" type="button" onclick="deleteDailyQuiz('${encodeURIComponent(quiz.id)}')">حذف</button></div></div>`;
+}
+
+function editDailyQuiz(encodedId) { const quiz = adminDailyQuizzes.find(item => item.id === decodeURIComponent(encodedId)); if (quiz) renderDailyQuizEditor(quiz); }
+async function deleteDailyQuiz(encodedId) { const id = decodeURIComponent(encodedId); if (!confirm('هل تريد حذف هذا الاختبار؟ لن يتم حذف نتائج الطلاب السابقة.')) return; try { await db.collection('dailyQuizzes').doc(id).delete(); showToast('تم حذف الاختبار.', 'success'); renderDailyQuizEditor(); } catch (error) { console.error(error); showToast('تعذر حذف الاختبار.', 'error'); } }
 
 async function fileAsBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.onerror = reject; reader.readAsDataURL(file); }); }
 async function uploadAdminFile(file, folder) {
@@ -195,8 +251,8 @@ async function saveAdminContent(event, type) {
     if (type === 'category') { collection = 'contentCategories'; payload = { ...base, name: form.category.value.trim(), emoji: form.categoryEmoji.value.trim() }; }
     if (type === 'word') { collection = 'contentWords'; const uploadedAudio = await uploadAdminFile(form.audioFile?.files?.[0], 'audio/words'); payload = { ...base, cat: form.category.value.trim(), word: form.word.value.trim(), ar: form.arabic.value.trim(), pl: form.plural.value.trim(), audio: uploadedAudio || form.audio.value.trim(), emoji: form.emoji.value.trim() }; }
     if (type === 'story') { collection = 'contentStories'; const uploadedAudio = await uploadAdminFile(form.audioFile?.files?.[0], 'audio/stories'); const uploadedImage = await uploadAdminFile(form.imageFile?.files?.[0], 'images/stories'); payload = { ...base, title: form.title.value.trim(), level: form.level.value.trim(), text: form.text.value.trim(), translation: form.translation.value.trim(), audio: uploadedAudio || form.audio.value.trim(), image: uploadedImage || form.image.value.trim() }; }
-    if (type === 'daily') { collection = 'dailyQuizzes'; try { payload.questions = JSON.parse(form.questions.value); } catch { showToast('صيغة JSON للأسئلة غير صحيحة.', 'error'); return; } payload.date = form.date.value; payload.title = form.title.value.trim(); payload.maxPoints = 1000; payload.oneAttemptPerDay = true; }
-    try { await db.collection(collection).add(payload); form.reset(); showToast('تم حفظ المحتوى في Firestore وبدء نشر الملفات إن وُجدت.', 'success'); } catch (error) { console.error('Content save failed:', error); showToast(error.message || 'تعذر حفظ المحتوى. تحقق من قواعد Firestore.', 'error'); }
+    if (type === 'daily') { collection = 'dailyQuizzes'; try { payload.questions = collectDailyQuestions(form); } catch (error) { showToast(error.message, 'error'); return; } payload.date = form.date.value; payload.title = form.title.value.trim(); payload.maxPoints = 1000; payload.oneAttemptPerDay = true; }
+    try { const editId = type === 'daily' ? form.dataset.editId : ''; if (editId) await db.collection(collection).doc(editId).set(payload, { merge: true }); else await db.collection(collection).add(payload); form.reset(); showToast(editId ? 'تم تحديث الاختبار.' : 'تم حفظ المحتوى في Firestore وبدء نشر الملفات إن وُجدت.', 'success'); if (type === 'daily') renderDailyQuizEditor(); } catch (error) { console.error('Content save failed:', error); showToast(error.message || 'تعذر حفظ المحتوى. تحقق من قواعد Firestore.', 'error'); }
 }
 
 function switchAdminTab(tab) {
@@ -218,3 +274,9 @@ window.saveStudentEditor = saveStudentEditor;
 window.switchAdminTab = switchAdminTab;
 window.renderAdminContentPanel = renderAdminContentPanel;
 window.saveAdminContent = saveAdminContent;
+window.renderDailyQuizEditor = renderDailyQuizEditor;
+window.addDailyQuestion = addDailyQuestion;
+window.removeDailyQuestion = removeDailyQuestion;
+window.moveDailyQuestion = moveDailyQuestion;
+window.editDailyQuiz = editDailyQuiz;
+window.deleteDailyQuiz = deleteDailyQuiz;

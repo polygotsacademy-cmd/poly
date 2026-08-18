@@ -463,6 +463,22 @@ footer {
 .content-editor-card textarea { resize: vertical; }
 .content-wide { grid-column: 1 / -1; }
 .content-recipients select { min-height: 100px; }
+.daily-editor-heading, .daily-questions-heading, .daily-question-toolbar, .admin-content-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.daily-questions-heading { margin-top: 18px; border-top: 1px solid #eef1f5; padding-top: 12px; }
+.daily-questions-heading h3 { margin: 0; }
+.daily-question-editor { border: 1px solid #dce3ee; border-radius: 14px; padding: 16px; margin: 12px 0; background: #fbfcfe; }
+.daily-question-editor legend { color: #172846; font-weight: 900; padding: 0 8px; }
+.daily-question-editor > label, .daily-options-grid label { display: flex; flex-direction: column; gap: 6px; color: #475467; font-weight: 800; font-size: 13px; }
+.daily-question-editor input, .daily-question-editor select { box-sizing: border-box; width: 100%; border: 1px solid #dce3ee; border-radius: 10px; padding: 10px; font: inherit; background: #fff; }
+.daily-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+.daily-question-toolbar { justify-content: flex-start; margin-bottom: 10px; }
+.daily-question-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+.admin-content-list { margin-top: 18px; }
+.admin-content-row { border: 1px solid #e7ebf2; border-radius: 12px; padding: 12px 14px; margin-top: 8px; background: #fff; }
+.admin-content-row small { display: block; color: #667085; margin-top: 4px; }
+.admin-content-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.admin-delete-btn { border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 800; background: #fff0f0; color: #b42318; }
+@media (max-width: 640px) { .daily-options-grid { grid-template-columns: 1fr; } .daily-editor-heading { align-items: flex-start; flex-direction: column; } .admin-content-row { align-items: flex-start; flex-direction: column; } }
 
 @media (max-width: 640px) { .admin-heading { flex-direction: column; } .admin-toolbar { align-items: stretch; flex-direction: column; } .admin-search { width: 100%; box-sizing: border-box; } .admin-form-grid { grid-template-columns: 1fr; } }
 
