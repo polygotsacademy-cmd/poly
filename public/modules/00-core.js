@@ -205,16 +205,55 @@ async function handleLogin(e) {
     }
 }
 
+const DEFAULT_VISIBLE_SECTIONS = ['words', 'stories', 'quizzes', 'pronunciation', 'games', 'chat', 'messages', 'leaderboard'];
+const SECTION_PERMISSION_MAP = { words: 'words', stories: 'stories', quizzes: 'quizzes', daily: 'quizzes', pronunciation: 'pronunciation', games: 'games', chat: 'chat', messages: 'messages', leaderboard: 'leaderboard' };
+
+function getCurrentUserVisibleSections() {
+    if (!currentUser || currentUser.isAdmin === true) return DEFAULT_VISIBLE_SECTIONS;
+    return Array.isArray(currentUser.visibleSections) ? currentUser.visibleSections : DEFAULT_VISIBLE_SECTIONS;
+}
+
+function isSectionAllowed(view) {
+    if (view === 'admin' || view === 'announcement') return currentUser?.isAdmin === true || view === 'announcement';
+    if (!currentUser) return false;
+    if (view === 'chat' && currentUser.aiEnabled === false) return false;
+    const permissionKey = SECTION_PERMISSION_MAP[view];
+    return permissionKey ? getCurrentUserVisibleSections().includes(permissionKey) : true;
+}
+
+function applySectionVisibility() {
+    document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+        const view = item.dataset.view;
+        const allowed = isSectionAllowed(view);
+        item.style.display = allowed ? 'flex' : 'none';
+        if (!allowed) item.classList.remove('active');
+    });
+    if (currentView && !isSectionAllowed(currentView)) {
+        const fallback = ['words', 'stories', 'quizzes', 'daily', 'pronunciation', 'games', 'chat', 'messages', 'leaderboard'].find(candidate => isSectionAllowed(candidate));
+        if (fallback) {
+            currentView = fallback;
+            if (document.getElementById('app-container')?.classList.contains('active') && typeof renderView === 'function') renderView();
+        }
+    }
+}
+
 async function enforceCurrentUserAccess() {
-    if (!currentUser || !currentUser.username || currentUser.username === 'يوسف') return true;
+    if (!currentUser || !currentUser.username || currentUser.username === 'يوسف') {
+        applySectionVisibility();
+        return true;
+    }
     try {
         const doc = await db.collection('users').doc(currentUser.username).get();
-        if (doc.exists && doc.data().active === false) {
+        const profile = doc.exists ? doc.data() : {};
+        if (profile.active === false) {
             await logout();
             const error = document.getElementById('login-error');
             if (error) error.innerText = 'تم إيقاف هذا الحساب. تواصل مع إدارة الأكاديمية.';
             return false;
         }
+        currentUser = { ...currentUser, ...profile, username: currentUser.username };
+        localStorage.setItem('polyglots_auth_data', JSON.stringify(currentUser));
+        applySectionVisibility();
         const now = Date.now();
         if (now - lastSeenWriteAt > 5 * 60 * 1000) {
             lastSeenWriteAt = now;
@@ -300,6 +339,7 @@ function showApp() {
     const adminNav = document.getElementById('nav-admin');
     const isYusufAdmin = currentUser?.username === 'يوسف' && currentUser?.isAdmin === true;
     if (adminNav) adminNav.style.display = isYusufAdmin ? 'flex' : 'none';
+    applySectionVisibility();
     checkNotifications();
     listenForUnreadMessages();
     loadUserMascot();

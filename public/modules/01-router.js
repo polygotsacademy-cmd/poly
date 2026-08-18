@@ -2,6 +2,11 @@
 
 // View Switching
 function switchView(view) {
+    if (typeof isSectionAllowed === 'function' && !isSectionAllowed(view)) {
+        const fallback = ['words', 'stories', 'quizzes', 'daily', 'pronunciation', 'games', 'chat', 'messages', 'leaderboard'].find(candidate => isSectionAllowed(candidate));
+        if (!fallback) return;
+        view = fallback;
+    }
     currentView = view;
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.view === view);
