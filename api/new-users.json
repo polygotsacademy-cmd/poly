@@ -1,1 +1,21 @@
-{}
+{
+  "test": {
+    "passwordHash": "acfb9952ebd05faa1bd73905fbcfc87c48293854750fb5534765b36a0b46d3ec",
+    "displayName": "test",
+    "chatName": "test",
+    "active": true,
+    "aiEnabled": true,
+    "visibleSections": [
+      "words",
+      "stories",
+      "quizzes",
+      "pronunciation",
+      "games",
+      "chat",
+      "messages",
+      "leaderboard"
+    ],
+    "points": 0,
+    "payment_status": "Paid"
+  }
+}
