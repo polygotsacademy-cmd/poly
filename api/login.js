@@ -116,6 +116,9 @@ export default function handler(req, res) {
         { username: 'anas_mahmoud', password: '220901', payment_status: 'Paid' },
         // مكة محمود 
               { username: 'makka_mahmoud', password: '220902', payment_status: 'Paid' },
+	// ليليا
+	{ username: 'lilya', password: '220903', payment_status: 'Paid' },
+
     ];
 
     const admins = ["يوسف", "فراو", "frau_farida", "frau_rawan"];
