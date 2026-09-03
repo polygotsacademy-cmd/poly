@@ -3580,5 +3580,131 @@
     "pl": "die Mäppchen",
     "ar": "مقلمة",
     "emoji": "👝"
+  },
+  {
+    "id": 399,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Fußball spielen",
+    "pl": "-",
+    "ar": "يلعب كرة القدم",
+    "emoji": "⚽"
+  },
+  {
+    "id": 400,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Basketball spielen",
+    "pl": "-",
+    "ar": "يلعب كرة السلة",
+    "emoji": "🏀"
+  },
+  {
+    "id": 401,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Tennis spielen",
+    "pl": "-",
+    "ar": "يلعب التنس",
+    "emoji": "🎾"
+  },
+  {
+    "id": 402,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "schwimmen",
+    "pl": "-",
+    "ar": "يسبح",
+    "emoji": "🏊"
+  },
+  {
+    "id": 403,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "tanzen",
+    "pl": "-",
+    "ar": "يرقص",
+    "emoji": "💃"
+  },
+  {
+    "id": 404,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "singen",
+    "pl": "-",
+    "ar": "يغني",
+    "emoji": "🎤"
+  },
+  {
+    "id": 405,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Musik hören",
+    "pl": "-",
+    "ar": "يستمع إلى الموسيقى",
+    "emoji": "🎧"
+  },
+  {
+    "id": 406,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "fernsehen",
+    "pl": "-",
+    "ar": "يشاهد التلفزيون",
+    "emoji": "📺"
+  },
+  {
+    "id": 407,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "lesen",
+    "pl": "-",
+    "ar": "يقرأ",
+    "emoji": "📚"
+  },
+  {
+    "id": 408,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "malen / zeichnen",
+    "pl": "-",
+    "ar": "يرسم",
+    "emoji": "🎨"
+  },
+  {
+    "id": 409,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Fahrrad fahren",
+    "pl": "-",
+    "ar": "يركب الدراجة",
+    "emoji": "🚲"
+  },
+  {
+    "id": 410,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Computerspiele spielen",
+    "pl": "-",
+    "ar": "يلعب ألعاب الكمبيوتر",
+    "emoji": "🎮"
+  },
+  {
+    "id": 411,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "Freunde treffen",
+    "pl": "-",
+    "ar": "يقابل أصدقاءه",
+    "emoji": "👫"
+  },
+  {
+    "id": 412,
+    "cat": "Freizeit",
+    "art": "",
+    "word": "fotografieren",
+    "pl": "-",
+    "ar": "يلتقط صورًا",
+    "emoji": "📷"
   }
 ]
