@@ -3706,5 +3706,86 @@
     "pl": "-",
     "ar": "يلتقط صورًا",
     "emoji": "📷"
+  },
+  {
+    "id": 413,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "vorlesen",
+    "pl": "-",
+    "ar": "يقرأ بصوت عالٍ",
+    "emoji": "📖"
+  },
+  {
+    "id": 414,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "zuhören",
+    "pl": "-",
+    "ar": "ينصت / يستمع",
+    "emoji": "👂"
+  },
+  {
+    "id": 415,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "abschreiben",
+    "pl": "-",
+    "ar": "ينسخ",
+    "emoji": "✍️"
+  },
+  {
+    "id": 416,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "zurückgeben",
+    "pl": "-",
+    "ar": "يعيد / يُرجع",
+    "emoji": "↩️"
+  },
+  {
+    "id": 417,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "anrufen",
+    "pl": "-",
+    "ar": "يتصل بـ",
+    "emoji": "📞"
+  },
+  {
+    "id": 418,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "aufräumen",
+    "pl": "-",
+    "ar": "ينظف / يرتب",
+    "emoji": "🧹"
+  },
+  {
+    "id": 419,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "fernsehen",
+    "pl": "-",
+    "ar": "يشاهد التلفزيون",
+    "emoji": "📺"
+  },
+  {
+    "id": 420,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "einkaufen",
+    "pl": "-",
+    "ar": "يشتري حاجات / يتسوق",
+    "emoji": "🛒"
+  },
+  {
+    "id": 421,
+    "cat": "Trennbare Verben",
+    "art": "",
+    "word": "abholen",
+    "pl": "-",
+    "ar": "يذهب ليأخذ / يصطحب شخصًا من مكان",
+    "emoji": "🤝"
   }
 ]
