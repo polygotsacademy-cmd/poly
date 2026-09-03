@@ -39,7 +39,7 @@ export default function handler(req, res) {
         // مريم محمد عادل
         { username: 'maryam_m_a', password: '026369', payment_status: 'Paid' },
         // مروان محمود سعد
-        { username: 'marwan_m_s', password: '601279', payment_status: 'Paid' },
+        { username: 'marwan_m_s', password: '601279', payment_status: 'unpaid' },
         // آسر احمد اسماعيل
         { username: 'aser_a_i', password: '828598', payment_status: 'unpaid' },
         // معاذ اسلام محمد
