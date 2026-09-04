@@ -57,9 +57,9 @@ export default function handler(req, res) {
         // معاذ خالد محمد
         { username: 'moaz_k_m', password: '602164', payment_status: 'unpaid' },
         // يوسف كريم علي
-        { username: 'youssef_k_a', password: '702665', payment_status: 'unpaid' },
+        { username: 'youssef_k_a', password: '702665', payment_status: 'Paid' },
         // مريم كريم علي
-        { username: 'maryam_k_a', password: '006026', payment_status: 'unpaid' },
+        { username: 'maryam_k_a', password: '006026', payment_status: 'Paid' },
         // نوران احمد محمد محمد
         { username: 'nouran_a_m', password: '553945', payment_status: 'unpaid' },
         // حمزه احمد محمد محمد
