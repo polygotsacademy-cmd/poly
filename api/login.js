@@ -118,6 +118,7 @@ export default function handler(req, res) {
               { username: 'makka_mahmoud', password: '220902', payment_status: 'Paid' },
 	// ليليا
 	{ username: 'lilya', password: '220903', payment_status: 'Paid' },
+	{ username: 'test', password: 'test', payment_status: 'Paid' },
 
     ];
 
