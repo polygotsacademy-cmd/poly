@@ -41,7 +41,7 @@ export default function handler(req, res) {
         // مروان محمود سعد
         { username: 'marwan_m_s', password: '601279', payment_status: 'unpaid' },
         // آسر احمد اسماعيل
-        { username: 'aser_a_i', password: '828598', payment_status: 'unpaid' },
+        { username: 'aser_a_i', password: '828598', payment_status: 'Paid' },
         // معاذ اسلام محمد
         { username: 'moaz_i_m', password: '060959', payment_status: 'unpaid' },
         // مؤمن اسلام محمد
@@ -85,7 +85,7 @@ export default function handler(req, res) {
         // هنا احمد السعيد
         { username: 'hana_a_e', password: '780352', payment_status: 'Paid' },
         // فريده احمد ناصر
-        { username: 'farida_a_n', password: '628645', payment_status: 'unpaid' },
+        { username: 'farida_a_n', password: '628645', payment_status: 'Paid' },
         // مصطفى محمد مصطفى
         { username: 'mostafa_m_m', password: '217412', payment_status: 'Paid' },
         // عمرو محمد عبد الحسيب
@@ -97,13 +97,13 @@ export default function handler(req, res) {
         // مروان احمد حمدي
         { username: 'marwan_a_h', password: '461907', payment_status: 'Paid' },
         // احمد سامح محمد
-        { username: 'ahmed_s_m', password: '545119', payment_status: 'unpaid' },
+        { username: 'ahmed_s_m', password: '545119', payment_status: 'Paid' },
         // محمد خالد هارون
         { username: 'mohamed_k_h', password: '426072', payment_status: 'Paid' },
         // ادم خالد هارون
         { username: 'adam_k_h', password: '944534', payment_status: 'Paid' },
         // يس طارق إبراهيم
-        { username: 'yas_t_i', password: '180746', payment_status: 'unpaid' },
+        { username: 'yas_t_i', password: '180746', payment_status: 'Paid' },
         // مالك وائل عبّد الحسيب
         { username: 'malik_w_a', password: '063972', payment_status: 'Paid' },
         // ادم محمد محمود
