@@ -39,7 +39,7 @@ export default function handler(req, res) {
         // مريم محمد عادل
         { username: 'maryam_m_a', password: '026369', payment_status: 'Paid' },
         // مروان محمود سعد
-        { username: 'marwan_m_s', password: '601279', payment_status: 'unpaid' },
+        { username: 'marwan_m_s', password: '601279', payment_status: 'Paid' },
         // آسر احمد اسماعيل
         { username: 'aser_a_i', password: '828598', payment_status: 'Paid' },
         // معاذ اسلام محمد
@@ -118,6 +118,9 @@ export default function handler(req, res) {
               { username: 'makka_mahmoud', password: '220902', payment_status: 'unpaid' },
 	// ليليا
 	{ username: 'lilya', password: '220903', payment_status: 'Paid' },
+        // سيليا
+	{ username: 'silya', password: '220904', payment_status: 'Paid' },
+
 	{ username: 'test', password: 'test', payment_status: 'Paid' },
 
     ];
