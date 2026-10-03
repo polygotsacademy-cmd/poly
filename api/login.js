@@ -55,7 +55,7 @@ export default function handler(req, res) {
         // عمر حسام عبد النبي
         { username: 'omar_h_a', password: '299741', payment_status: 'Paid' },
         // معاذ خالد محمد
-        { username: 'moaz_k_m', password: '602164', payment_status: 'unpaid' },
+        { username: 'moaz_k_m', password: '602164', payment_status: 'Paid' },
         // يوسف كريم علي
         { username: 'youssef_k_a', password: '702665', payment_status: 'Paid' },
         // مريم كريم علي
